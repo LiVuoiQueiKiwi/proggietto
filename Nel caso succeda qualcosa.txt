@@ -1,0 +1,103 @@
+var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+            
+
+function init(){
+                
+
+    map = new OpenLayers.Map("map",{
+        controls: 
+            [
+                new OpenLayers.Control.PanZoomBar(),                        
+                new OpenLayers.Control.Permalink(),
+                new OpenLayers.Control.MousePosition({}),
+                new OpenLayers.Control.ScaleLine(),
+            ]
+    }
+                                );
+    var zoom=  15;
+    var position = new OpenLayers.LonLat(11.3514,44.5075).transform( fromProjection, toProjection);
+    var mapnik = new OpenLayers.Layer.OSM("MAP"); 
+
+
+    map.addLayer(mapnik);
+    map.setCenter(position, zoom);
+
+    var click = new OpenLayers.Control.Click();
+    map.addControl(click);
+
+    click.activate();
+};
+
+function btn_addMarker(){
+    var lon=document.formmarker.lon.value;
+    var lat=document.formmarker.lat.value;
+    console.log("lon="+lon+" lat="+lat);
+    var marker= new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(marker);
+        marker.addMarker(new OpenLayers.Marker(
+                new OpenLayers.LonLat(lon,lat).transform( "EPSG:4326", "EPSG:900913")));
+    
+    
+}
+
+function addMarker(lon,lat){
+    
+    var marker= new OpenLayers.Layer.Markers( "Markers" );
+        map.addLayer(marker);
+        marker.addMarker(new OpenLayers.Marker(
+                new OpenLayers.LonLat(lon,lat).transform( "EPSG:4326", "EPSG:900913")));
+    
+    
+}
+
+OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {               
+     defaultHandlerOptions: {
+          'single': false,
+          'double': true,
+          'pixelTolerance': 0,
+          'stopSingle': false,
+          'stopDouble': false
+     },
+
+    initialize: function(options) {
+        this.handlerOptions = OpenLayers.Util.extend(
+            {}, this.defaultHandlerOptions
+        );
+     
+        OpenLayers.Control.prototype.initialize.apply(
+            this, arguments
+        );
+        
+        this.handler =  new OpenLayers.Handler.Click(
+                            this, {
+                                'dblclick': this.trigger
+                            }, this.handlerOptions
+                        );
+    },
+
+    trigger: function(e) {
+        var lonlat = map.getLonLatFromPixel(e.xy);
+        lonlat1= new OpenLayers.LonLat(lonlat.lon,lonlat.lat).transform(toProjection,fromProjection);
+        addMarker(lonlat1.lon,lonlat1.lat);
+    }
+});
+
+
+/*Geolocation*/
+
+
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+    window.alert("Geolocation is not supported by this browser.");
+  }
+}
+
+function showPosition(position) {
+    map.setCenter(new OpenLayers.LonLat(position.coords.longitude,position.coords.latitude).transform( "EPSG:4326", "EPSG:900913"))
+  addMarker(position.coords.longitude,position.coords.latitude);
+   
+}

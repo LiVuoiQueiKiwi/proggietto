@@ -1,0 +1,21 @@
+{
+	"location_list":
+	[
+		{
+			"geoloc": "geoloc1",
+			"name": "111111111111111111111111111111111111111111111111"
+		},
+		{
+			"geoloc": "geoloc2",
+			"name": "2"
+		},
+		{
+			"geoloc": "geoloc3",
+			"name": "3"
+		},
+		{
+			"geoloc": "geoloc4",
+			"name": "4"
+		}
+	]
+}

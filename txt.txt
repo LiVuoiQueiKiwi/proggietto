@@ -1,0 +1,23 @@
+bottone where am i X---> apre finestra tracce audio
+
+Finestra tracce audio: X
+title + lista di tracce + bottoni + filtro playlist
+
+Bottone con la lista dei luoghi di interesse nei dintorni. --> segnala il posto selezionato
+
+menu: Login + Registrati X
+scelta della lingua
+
+EDITOR
+
+Bottone per la creazione degli audio Form
+	-Titolo (input text)
+	-Testo (textarea)
+	-Scopo (Radio button
+	-Categoria(Select)
+	-Pubblico(Select)
+
+Bottone che visualizza tutte le clip salvate ma non pubblicate
+
+ 
+
