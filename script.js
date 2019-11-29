@@ -348,7 +348,7 @@ function showPosition(position) {
 }*/
 
 function getOfflinePosition(){
-    var center
+    var center;
      markers.forEach(function(marker) {
         if (marker._id == 1){
             center = marker.getLatLng();
