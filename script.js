@@ -148,7 +148,7 @@ jQuery(function ($) {
 			function (event){
 				//raccoglie tutti i dati del form
 				//controlla che ci sia l'audio
-
+        //
 				//creazione json da inviare al server
 				var formData = new FormData(myForm)	// La forma di .append e' ( chiave, valore )
 
@@ -283,18 +283,14 @@ function init(){
         for (var i = data.results.length - 1; i >= 0; i--) {
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
-            //console.log(m._id)
 
         }
     });
 
-    /* posizione markeer  che cambia --> fai qualcosa
-        funzione che preso un OLC stampa un marker*/
-
-
-
-
 }
+
+
+/* Markers functions */
 
 function printMarker(olc){
   var mark = L.marker(OLC_Coords(olc),{icon:iconPoint(),autoPan:true});
@@ -317,44 +313,6 @@ function markerPos(marker){
 
         });
 
-}
-
-
-function ajaxCall(){
-
-        //richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
-        //mando la posizione attuale e ricevo un clip_list.json
-        //la posizione viene mandata tramite indirizzo url
-        ajaxReceiveData("clip_list.json", printFarClip) //inserire link del server (Funzione: getFarClip)
-        //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
-        //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
-        //mando la posizione attuale e ricevo un clip_list.json
-        //la posizione viene mandata tramite indirizzo url
-        ajaxReceiveData("clip_list.json", printNearClip) //inserire link del server (Funzione: getNearClip)
-}
-
-/*
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else {
-    window.alert("Geolocation is not supported by this browser.");
-  }
-}
-
-function showPosition(position) {
-    map.addLayer(createPositionMarker({lat: position.coords.latitude, lng: position.coords.longitude}));
-
-}*/
-
-function getOfflinePosition(){
-    var center
-     markers.forEach(function(marker) {
-        if (marker._id == 1){
-            center = marker.getLatLng();
-            }
-    });
-    setCenterView(center);
 }
 
 function createPositionMarker(coords){
@@ -382,18 +340,6 @@ function clearMarker(id) {
   markers = new_markers;
 }
 
-
-function position_Marker(marker){
-    return Coords_OLC(marker.getLatLng().lat, marker.getLatLng().lng);
-}
-
-function positionMarker(marker){
-    marker.on('dragend', function(event){
-        var marker = event.target;
-        var position = marker.getLatLng();
-  });
-
-}
 function setDragMarker(marker){
     marker.on('dragend', function(event){
     var marker = event.target;
@@ -408,34 +354,77 @@ function iconPoint(){
     return L.icon({iconUrl: 'img/marker-point.png'});
 }
 
-
 function addMarker(){
 
     var mark= L.marker(L.latLng(map.getCenter()),{icon:iconPoint()}); // draggable:true
     mark._id= Coords_OLC(mark.getLatLng().lat,mark.getLatLng().lng);
     mark.on('click',function(event){
-        //console.log(event.target._id);
-        var m= L.marker([midPoint( f(),event.target._id).lat,midPoint( f(),event.target._id).lng],{icon:iconPoint()});
+        var m= L.marker([midPoint( getMarkerYourPosition(),event.target._id).lat,midPoint( getMarkerYourPosition(),event.target._id).lng],{icon:iconPoint()});
         m.addTo(map);
         highlight(event.target._id);
-        //setCenterView(midPoint( f(),event.target._id));
-        //console.log(midPoint( f(),event.target._id));
     });
     markers.push(mark);
     mark.addTo(map);
-
-    //.bindPopup(popup)
-
 }
 
-function f(){
+function highlight(olc){
+
+    markers.forEach(function(marker) {
+
+        if(marker._id == olc) {
+
+            var popup = L.popup().setContent("Highlight");
+            marker.bindPopup(popup).openPopup();
+            setCenterView(midPoint(getMarkerYourPosition(),olc));
+            map.fitBounds([
+                OLC_Coords(getMarkerYourPosition()),
+                marker.getLatLng()
+            ]);
+            marker.unbindPopup();
+        }
+    });
+}
+
+/* Handle Position Functions */
+
+/*
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    window.alert("Geolocation is not supported by this browser.");
+  }
+}
+
+function showPosition(position) {
+    map.addLayer(createPositionMarker({lat: position.coords.latitude, lng: position.coords.longitude}));
+
+}*/
+
+function getOfflinePosition(){
+    var center
+     markers.forEach(function(marker) {
+        if (marker._id == 1){
+            center = marker.getLatLng();
+            }
+    });
+    setCenterView(center);
+}
+
+function positionMarker(marker){
+    return Coords_OLC(marker.getLatLng().lat, marker.getLatLng().lng);
+}
+
+function getMarkerYourPosition(){
     var pos;
     markers.forEach(function(marker) {
         if (marker._id==1){
-            pos= position_Marker(marker);}
+            pos= positionMarker(marker);}
     });
     return pos;
 }
+
+/* Utilities Functions */
 
 function Coords_OLC(lat,lon){
     return OpenLocationCode.encode(lat, lon);
@@ -490,30 +479,25 @@ function midPoint(origin,destination){
 
 }
 
-
 function setCenterView(coords){
     map.panTo( new L.LatLng(coords.lat,coords.lng));
 }
 
-function highlight(olc){
 
-    markers.forEach(function(marker) {
+/* Buttons and Ajax Calls Functions*/
 
-        if(marker._id == olc) {
+function ajaxCall(){
 
-            var popup = L.popup().setContent("Highlight");
-            marker.bindPopup(popup).openPopup();
-            setCenterView(midPoint(f(),olc));
-            map.fitBounds([
-                OLC_Coords(f()),
-                marker.getLatLng()
-            ]);
-            marker.unbindPopup();
-        }
-    });
+        //richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
+        //mando la posizione attuale e ricevo un clip_list.json
+        //la posizione viene mandata tramite indirizzo url
+        ajaxReceiveData("clip_list.json", printFarClip) //inserire link del server (Funzione: getFarClip)
+        //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
+        //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
+        //mando la posizione attuale e ricevo un clip_list.json
+        //la posizione viene mandata tramite indirizzo url
+        ajaxReceiveData("clip_list.json", printNearClip) //inserire link del server (Funzione: getNearClip)
 }
-
-
 
 
 
