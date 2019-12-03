@@ -1,5 +1,5 @@
 {
-	"clip_list":
+	"clip_near":
 	[
 		{
 			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
@@ -19,6 +19,65 @@
 			"audio_file": "ParoleSterili_Demo_220118.wav",
 			"link": "hththththt",
 			"title": "Parole Sterili 2",
+			"geoloc": "",
+			"language": "",
+			"audience": "",
+			"detail": "",
+			"content": [],
+			"email": "",
+			"published": "",
+			"purpose": "",
+			"distance": ""
+		},
+		{
+			"audio_file": "",
+			"link": "",
+			"title": "",
+			"geoloc": "",
+			"language": "",
+			"audience": "",
+			"detail": "",
+			"content": [],
+			"email": "",
+			"published": "",
+			"purpose": "",
+			"distance": ""
+		},
+		{
+			"audio_file": "",
+			"link": "",
+			"title": "",
+			"geoloc": "",
+			"language": "",
+			"audience": "",
+			"detail": "",
+			"content": [],
+			"email": "",
+			"published": "",
+			"purpose": "",
+			"distance": ""
+		}
+	],
+	"clip_far":
+	[
+		{
+			"audio_file": "ParoleSterili_Demo_220118.wav",
+			"link": "htttttttttp",
+			"title": "Parole Sterili 2",
+			"geoloc": "AAAAA+AA",
+			"language": "fra",
+			"audience": "pre",
+			"detail": "2",
+			"content": ["rel", "nat"],
+			"email": "",
+			"published": "",
+			"purpose": "why",
+			"distance": "5"
+		},
+		{
+			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
+			"link": "hththththt",
+			"title": "Parole Sterili 1",
 			"geoloc": "",
 			"language": "",
 			"audience": "",
