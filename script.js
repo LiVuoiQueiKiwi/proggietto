@@ -1,6 +1,15 @@
 jQuery(function ($) {
 
+  var clip_list_json_global
 
+  function success(pos) {
+    //richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
+    //mando la posizione attuale e ricevo un clip_list.json
+    //la posizione viene mandata tramite indirizzo url
+    ajaxReceiveData("clip_list.json", printClip) //inserire link del server (Funzione: getFarClip)
+  }
+
+  id = navigator.geolocation.watchPosition(success);
 
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
@@ -247,6 +256,20 @@ function init(){
 
 
 
+    /*
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        window.alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function showPosition(position) {
+        map.addLayer(createPositionMarker({lat: position.coords.latitude, lng: position.coords.longitude}));
+
+    }*/
+
 
 
     //map.on('locationfound', onLocationFound);
@@ -486,20 +509,6 @@ function setCenterView(coords){
 
 /* Buttons and Ajax Calls Functions*/
 
-function ajaxCall(){
-
-        //richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
-        //mando la posizione attuale e ricevo un clip_list.json
-        //la posizione viene mandata tramite indirizzo url
-        ajaxReceiveData("clip_list.json", printFarClip) //inserire link del server (Funzione: getFarClip)
-        //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
-        //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
-        //mando la posizione attuale e ricevo un clip_list.json
-        //la posizione viene mandata tramite indirizzo url
-        ajaxReceiveData("clip_list.json", printNearClip) //inserire link del server (Funzione: getNearClip)
-}
-
-
 
 
 var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "Français", "esp": "Español", "what": "What", "how": "How", "why": "Why", "gen": "Pubblico Generico", "pre": "Pre-Scuola", "elm": "Scuola Primaria", "mid": "Scuola Media", "scl": "Specialisti del Settore", "none": "Nessuno...", "nat": "Natura", "art": "Arte", "his": "Storia", "flk": "Folklore", "mod": "Cultura Moderna", "rel": "Religione", "cui": "Cucina e Drink", "spo": "Sport", "mus": "Musica", "mov": "Film", "fas": "Moda", "shp": "Shopping", "tec": "Tecnologia", "pop": "Cultura Pop e Gossip", "prs": "Esperienze Personali", "oth": "Altro"}
@@ -541,7 +550,10 @@ function ajaxReceiveData(urlData, func){
 	)
 }
 
-
+function printClip(clipList){
+  clip_list_json_global=JSON.stringify(clipList)
+  alert(clip_list_json_global)
+}
 
 function whereAmI(){
 	//richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
