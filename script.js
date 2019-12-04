@@ -1,16 +1,5 @@
 jQuery(function ($) {
 
-  var clip_list_json_global
-
-  function success(pos) {
-    //richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
-    //mando la posizione attuale e ricevo un clip_list.json
-    //la posizione viene mandata tramite indirizzo url
-    ajaxReceiveData("clip_list.json", printClip) //inserire link del server (Funzione: getFarClip)
-  }
-
-  id = navigator.geolocation.watchPosition(success);
-
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
       $("#wrapper").toggleClass("toggled");
@@ -240,12 +229,18 @@ jQuery(function ($) {
 
 
 
+
+
 });
 
 
 var map,mpos, markers=[];
 
 function init(){
+
+
+
+
 
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -280,9 +275,17 @@ function init(){
     }).on("locationfound", e => {
             map.addLayer(createPositionMarker(e.latlng));
 
+
+
+
+
+
     }).on("locationerror", error => {
             console.log("Errore");
     });
+
+
+
 
 
     //var mark = createPositionMarker();
@@ -306,20 +309,22 @@ function init(){
         for (var i = data.results.length - 1; i >= 0; i--) {
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
-
         }
     });
+
+
+    printLocation()
 
 }
 
 
 /* Markers functions */
 
-function printMarker(olc){
-  var mark = L.marker(OLC_Coords(olc),{icon:iconPoint(),autoPan:true});
+function printMarker(olc, color){
+  var mark = L.marker(OLC_Coords(olc),{icon:iconPoint(color),autoPan:true});
   mark._id = olc;
   markers.push(mark);
-  return mark;
+  map.addLayer(mark);
 
 }
 
@@ -373,8 +378,8 @@ function setDragMarker(marker){
   map.addLayer(marker);
 }
 
-function iconPoint(){
-    return L.icon({iconUrl: 'img/marker-point.png'});
+function iconPoint(color){
+    return L.icon({iconUrl: color});
 }
 
 function addMarker(){
@@ -511,7 +516,46 @@ function setCenterView(coords){
 
 
 
+
+
+
+
 var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "Français", "esp": "Español", "what": "What", "how": "How", "why": "Why", "gen": "Pubblico Generico", "pre": "Pre-Scuola", "elm": "Scuola Primaria", "mid": "Scuola Media", "scl": "Specialisti del Settore", "none": "Nessuno...", "nat": "Natura", "art": "Arte", "his": "Storia", "flk": "Folklore", "mod": "Cultura Moderna", "rel": "Religione", "cui": "Cucina e Drink", "spo": "Sport", "mus": "Musica", "mov": "Film", "fas": "Moda", "shp": "Shopping", "tec": "Tecnologia", "pop": "Cultura Pop e Gossip", "prs": "Esperienze Personali", "oth": "Altro"}
+
+var clip_list_json_global
+
+function printLocation() {
+  //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
+  //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
+  //mando la posizione attuale e ricevo un clip_list.json
+  //la posizione viene mandata tramite indirizzo url
+  //inserire link del server (Funzione: getClip)
+
+  $.ajax(
+    {
+      url: "clip_list.json",
+      dataType: "json",
+      success: function(receiveData){
+
+        //STAMPA DEL JSON
+        //alert(JSON.stringify(receiveData))
+
+        clip_list_json_global=receiveData
+        //alert(clip_list_json_global.clip_near.length)
+        for(var i=0; i<(clip_list_json_global.clip_near.length); i++){
+          printMarker(clip_list_json_global.clip_near[i].geoloc, 'img/marker-point-near.png')
+        }
+
+        for(var i=0; i<(clip_list_json_global.clip_far.length); i++){
+          printMarker(clip_list_json_global.clip_far[i].geoloc, 'img/marker-point.png')
+        }
+
+      }
+    }
+  )
+}
+
+
 
 function ajaxSendData(dataToSend, url){
 	/*$.ajax(
@@ -542,17 +586,12 @@ function ajaxReceiveData(urlData, func){
 			success: function(receiveData){
 
 				//STAMPA DEL JSON
-				alert(JSON.stringify(receiveData))
+				//alert(JSON.stringify(receiveData))
 
 				func(receiveData)
 			}
 		}
 	)
-}
-
-function printClip(clipList){
-  clip_list_json_global=JSON.stringify(clipList)
-  alert(clip_list_json_global)
 }
 
 function whereAmI(){
