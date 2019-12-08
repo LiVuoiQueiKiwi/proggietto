@@ -218,13 +218,12 @@ jQuery(function ($) {
 
 		$("#buttonWhereAmI").click(
 			function(){
-				whereAmI()
+				printWhereAmI(clip_list_json_global)
 			}
 		)
 
 		$('#modalWhereAmI').on('hidden.bs.modal', function () {
 			$('#_modal-body-whereAmI').html('')
-			$('#_modal-body-whereAmI').attr('number-clip', 0)
 		})
 
 
@@ -542,6 +541,13 @@ function printLocation() {
 
         clip_list_json_global=receiveData
         //alert(clip_list_json_global.clip_near.length)
+
+        markers.forEach(function(marker) {
+          if (marker._id != 1){
+              clearMarker(marker._id);
+              console.log(markers);
+          }
+        })
         for(var i=0; i<(clip_list_json_global.clip_near.length); i++){
           printMarker(clip_list_json_global.clip_near[i].geoloc, 'img/marker-point-near.png')
         }
@@ -594,37 +600,29 @@ function ajaxReceiveData(urlData, func){
 	)
 }
 
-function whereAmI(){
-	//richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
-	//la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
-	//mando la posizione attuale e ricevo un clip_list.json
-	//la posizione viene mandata tramite indirizzo url
-	ajaxReceiveData("clip_list.json", printWhereAmI) //inserire link del server (Funzione: getNearClip)
-}
-
 function printWhereAmI(clipList){
 	//stampa della lista di clip (la prima è il luogo di interesse) e i bottoni di whereAmI
 
 	var html=''
-	if((clipList.clip_list).length==$('#_modal-body-whereAmI').attr('number-clip') || clipList.clip_list[0].distance>5){
+	if((clipList.clip_near).length==1){
 		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><audio autoplay src='' controls>Your browser does not support the audio element.</audio>"
 		//L'audio inserito deve dire "Raggiungi un punto di interesse indicato sulla mappa"
 		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
-		html+=	"<h5 class='_modalOverflow m-0'><b>"+clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].language]+
-				"<br><b>Scopo:</b> "+dict[clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].audience]+
-				"<br><b>Dettaglio:</b> "+clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].detail+"<br><b>Contenuto:</b> "
+		html+=	"<h5 class='_modalOverflow m-0'><b>"+clipList.clip_near[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clipList.clip_near[0].language]+
+				"<br><b>Scopo:</b> "+dict[clipList.clip_near[0].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_near[0].audience]+
+				"<br><b>Dettaglio:</b> "+clipList.clip_near[0].detail+"<br><b>Contenuto:</b> "
 
-		for(var j=0; j<(clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].content).length; j++){
-			html+=dict[clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].content[j]]
-			if(j+1!=(clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].content).length)
+		for(var j=0; j<(clipList.clip_near[0].content).length; j++){
+			html+=dict[clipList.clip_near[0].content[j]]
+			if(j+1!=(clipList.clip_near[0].content).length)
 				html+=", "
 		}
 
 		html+="<br></div>"
 
-		html+="	<audio src='"+clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
+		html+="	<audio src='"+clipList.clip_near[0].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
 				"<div class='_flex_center'>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='png/014-left arrow.png'></button>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='png/009-next.png'></button>"+
@@ -634,10 +632,9 @@ function printWhereAmI(clipList){
 
 		$('#_modal-body-whereAmI').html(html)
 
-		if(clipList.clip_list.length==parseInt($('#_modal-body-whereAmI').attr('number-clip'))+1)
+		if(clipList.clip_near.length==1)
 			$('#more').addClass('img_disable')
 		else{
-			$('#_modal-body-whereAmI').attr('number-clip', parseInt($('#_modal-body-whereAmI').attr('number-clip'))+1)
 			$('#more').click(
 				function(){
 					printWhereAmI(clipList)
@@ -654,8 +651,8 @@ function printWhereAmI(clipList){
 			}
 		)
 
-		alert(clipList.clip_list[parseInt($('#_modal-body-whereAmI').attr('number-clip'))-1].geoloc)
-		//highlightLocation(clipList.clip_list[$('#_modal-body-whereAmI').attr('number-clip')].geoloc)
+		alert(clipList.clip_near[0].geoloc)
+		//highlightLocation(clipList.clip_near[0].geoloc)
 	}
 
 }
