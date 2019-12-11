@@ -23,9 +23,9 @@ jQuery(function ($) {
 
 		$('#stop_record_clip_button').hide()
 
-		$("#requestLocationList").click(requestLocationList)
+		$("#locationList").click(locationList)
 
-		$("#requestClipNotPublished").click(requestClipNotPublished)
+		$("#notPublishedList").click(notPublishedList)
 
 		$("#published_checkbox").click(
 			function(){
@@ -218,9 +218,24 @@ jQuery(function ($) {
 
 		$("#buttonWhereAmI").click(
 			function(){
-				printWhereAmI(clip_list_json_global)
+        printLocation(printWhereAmI)
 			}
 		)
+
+    $('#menu-toggle').click(
+      function(){
+        $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','none')
+        $('#page-content-wrapper').fadeTo(250, 0.6)
+      }
+    )
+
+    $('#close_menu').click(
+      function(){
+        $('#wrapper').addClass('toggled')
+        $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','auto')
+        $('#page-content-wrapper').fadeTo(250, 1)
+      }
+    )
 
 		$('#modalWhereAmI').on('hidden.bs.modal', function () {
 			$('#_modal-body-whereAmI').html('')
@@ -311,6 +326,7 @@ function init(){
         }
     });
 
+    clip_visited_before=[]
 
     printLocation()
 
@@ -319,11 +335,16 @@ function init(){
 
 /* Markers functions */
 
-function printMarker(olc, color){
+function printMarker(olc, title, color){
   var mark = L.marker(OLC_Coords(olc),{icon:iconPoint(color),autoPan:true});
   mark._id = olc;
   markers.push(mark);
   map.addLayer(mark);
+  $(mark).click(
+    function(){
+      highlight(olc, title)
+    }
+  )
 
 }
 
@@ -394,13 +415,13 @@ function addMarker(){
     mark.addTo(map);
 }
 
-function highlight(olc){
+function highlight(olc, title){
 
     markers.forEach(function(marker) {
 
         if(marker._id == olc) {
 
-            var popup = L.popup().setContent("Highlight");
+            var popup = L.popup().setContent(title);
             marker.bindPopup(popup).openPopup();
             setCenterView(midPoint(getMarkerYourPosition(),olc));
             map.fitBounds([
@@ -521,9 +542,9 @@ function setCenterView(coords){
 
 var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "Français", "esp": "Español", "what": "What", "how": "How", "why": "Why", "gen": "Pubblico Generico", "pre": "Pre-Scuola", "elm": "Scuola Primaria", "mid": "Scuola Media", "scl": "Specialisti del Settore", "none": "Nessuno...", "nat": "Natura", "art": "Arte", "his": "Storia", "flk": "Folklore", "mod": "Cultura Moderna", "rel": "Religione", "cui": "Cucina e Drink", "spo": "Sport", "mus": "Musica", "mov": "Film", "fas": "Moda", "shp": "Shopping", "tec": "Tecnologia", "pop": "Cultura Pop e Gossip", "prs": "Esperienze Personali", "oth": "Altro"}
 
-var clip_list_json_global
+var clip_near_list_json_global, clip_far_list_json_global, clip_visited_before
 
-function printLocation() {
+function printLocation(callback) {
   //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
   //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
   //mando la posizione attuale e ricevo un clip_list.json
@@ -538,24 +559,24 @@ function printLocation() {
 
         //STAMPA DEL JSON
         //alert(JSON.stringify(receiveData))
-
-        clip_list_json_global=receiveData
+        clip_near_list_json_global=receiveData.clip_near
+        clip_far_list_json_global=receiveData.clip_far
         //alert(clip_list_json_global.clip_near.length)
 
         markers.forEach(function(marker) {
           if (marker._id != 1){
               clearMarker(marker._id);
-              console.log(markers);
+              //console.log('markers: '+markers);
           }
         })
-        for(var i=0; i<(clip_list_json_global.clip_near.length); i++){
-          printMarker(clip_list_json_global.clip_near[i].geoloc, 'img/marker-point-near.png')
+        for(var i=0; i<(clip_near_list_json_global.length); i++){
+          printMarker(clip_near_list_json_global[i].geoloc, clip_near_list_json_global[i].title, 'img/marker-point-near.png')
         }
 
-        for(var i=0; i<(clip_list_json_global.clip_far.length); i++){
-          printMarker(clip_list_json_global.clip_far[i].geoloc, 'img/marker-point.png')
+        for(var i=0; i<(clip_far_list_json_global.length); i++){
+          printMarker(clip_far_list_json_global[i].geoloc, clip_far_list_json_global[i].title, 'img/marker-point.png')
         }
-
+        if (callback) callback()
       }
     }
   )
@@ -584,45 +605,28 @@ function ajaxSendData(dataToSend, url){
 	alert(print)
 }
 
-function ajaxReceiveData(urlData, func){
-	$.ajax(
-		{
-			url: urlData,
-			dataType: "json",
-			success: function(receiveData){
-
-				//STAMPA DEL JSON
-				//alert(JSON.stringify(receiveData))
-
-				func(receiveData)
-			}
-		}
-	)
-}
-
-function printWhereAmI(clipList){
+function printWhereAmI(){
 	//stampa della lista di clip (la prima è il luogo di interesse) e i bottoni di whereAmI
 
 	var html=''
-	if((clipList.clip_near).length==1){
-		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><audio autoplay src='' controls>Your browser does not support the audio element.</audio>"
-		//L'audio inserito deve dire "Raggiungi un punto di interesse indicato sulla mappa"
+	if((clip_near_list_json_global).length==0){
+		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'><audio autoplay src='Raggiungi2.m4a' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
 		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
-		html+=	"<h5 class='_modalOverflow m-0'><b>"+clipList.clip_near[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clipList.clip_near[0].language]+
-				"<br><b>Scopo:</b> "+dict[clipList.clip_near[0].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_near[0].audience]+
-				"<br><b>Dettaglio:</b> "+clipList.clip_near[0].detail+"<br><b>Contenuto:</b> "
+		html+=	"<h5 class='_modalOverflow m-0'><b>"+clip_near_list_json_global[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clip_near_list_json_global[0].language]+
+				"<br><b>Scopo:</b> "+dict[clip_near_list_json_global[0].purpose]+"<br><b>Pubblico:</b> "+dict[clip_near_list_json_global[0].audience]+
+				"<br><b>Dettaglio:</b> "+clip_near_list_json_global[0].detail+"<br><b>Contenuto:</b> "
 
-		for(var j=0; j<(clipList.clip_near[0].content).length; j++){
-			html+=dict[clipList.clip_near[0].content[j]]
-			if(j+1!=(clipList.clip_near[0].content).length)
+		for(var j=0; j<(clip_near_list_json_global[0].content).length; j++){
+			html+=dict[clip_near_list_json_global[0].content[j]]
+			if(j+1!=(clip_near_list_json_global[0].content).length)
 				html+=", "
 		}
 
 		html+="<br></div>"
 
-		html+="	<audio src='"+clipList.clip_near[0].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
+		html+="	<audio src='"+clip_near_list_json_global[0].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
 				"<div class='_flex_center'>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='png/014-left arrow.png'></button>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='png/009-next.png'></button>"+
@@ -632,150 +636,174 @@ function printWhereAmI(clipList){
 
 		$('#_modal-body-whereAmI').html(html)
 
-		if(clipList.clip_near.length==1)
+		if(clip_near_list_json_global.length==0)
 			$('#more').addClass('img_disable')
 		else{
+      $('#more').removeClass('img_disable')
 			$('#more').click(
 				function(){
-					printWhereAmI(clipList)
+          clip_near_list_json_global.shift()
+					printWhereAmI()
 				}
 			)
 		}
 
-		$('#next').click(
-			function(){
-				//richiesta al server della lista delle clip tra i 50 e i 100 metri, IN ORDINE DI DISTANZA
-				//mando la posizione attuale e ricevo un clip_list.json
-				//la posizione viene mandata tramite indirizzo url
-				ajaxReceiveData("clip_list.json", nextClip) //inserire link del server (Funzione: getFarClip)
-			}
-		)
+    if(clip_far_list_json_global[0]==undefined)
+			$('#next').addClass('img_disable')
+      else{
+        $('#next').removeClass('img_disable')
+        $('#next').click(
+    			function(){
+            clip_visited_before.push(clip_near_list_json_global[0])
+            audio_add="<div style='display: none;'><audio src='Raggiungi.m4a' autoplay></audio></div>"
+            $("#modalWhereAmI").modal('hide')
+            $('body').append(audio_add)
+            highlight(clip_far_list_json_global[0].geoloc, clip_far_list_json_global[0].title)
+    			}
+    		)
+      }
 
-		alert(clipList.clip_near[0].geoloc)
-		//highlightLocation(clipList.clip_near[0].geoloc)
+      if(clip_visited_before.length==0)
+  			$('#previous').addClass('img_disable')
+        else{
+          $('#previous').removeClass('img_disable')
+          $('#previous').click(
+      			function(){
+              var clipBefore=clip_visited_before.shift()
+              audio_add="<div style='display: none;'><audio src='Raggiungi.m4a' autoplay></audio></div>"
+              $("#modalWhereAmI").modal('hide')
+              $('body').append(audio_add)
+              highlight(clipBefore.geoloc, clipBefore.title)
+      			}
+      		)
+        }
+
+
+		//alert(clip_near_list_json_global[0].geoloc)
+		highlight(clip_near_list_json_global[0].geoloc, clip_near_list_json_global[0].title)
 	}
 
 }
 
-function nextClip(clipList){
+function locationList(){
 
-	//$('#previous').removeClass('img_disable')
-	//printWhereAmI(clipList)
-
-}
-
-function requestLocationList(){
-	//richiesta al server della lista dei luoghi nei dintorni (!!!QUINDI SOLO DEI LUOGHI TRA I 50 E I 100 METRI DI DISTANZA!!!)
-	//mando la posizione attuale e ricevo un location_list.json
-	//la posizione viene mandata tramite indirizzo url
-	ajaxReceiveData("location_list.json", nearLocationList) //inserire link del server (Funzione: getNearLocation)
-
-}
-
-function nearLocationList(locationList){
 	var html=''
-	if((locationList.location_list).length==0){
+	if(clip_far_list_json_global.length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>"
 	}
 	else{
-		for(var i=0; i<(locationList.location_list).length; i++){
-			//aggiungo (nel DOM) la location alla lista. on click chiamo la funzione che mi evidenzia il luogo sulla mappa, passandogli la geoloc
-			html+="<div class='_modalList _pointer' data-location='" + locationList.location_list[i].geoloc + "'><h5 class='_modalh5'>"+locationList.location_list[i].name+"</h5></div>";
+    //aggiungo (nel DOM) la location alla lista. on click chiamo la funzione che mi evidenzia il luogo sulla mappa, passandogli la geoloc
+    html+="<h5 class='text-center'><b>Nelle vicinanze</b></h5>"
+    for(var i=0; i<clip_near_list_json_global.length; i++){
+			html+="<div class='_modalList _pointer' data-location='" + clip_near_list_json_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_near_list_json_global[i].title+"</h5></div>";
 		}
-	}
+    html+="<br><h5 class='text-center'><b>Nei dintorni</b></h5>"
+    for(var i=0; i<clip_far_list_json_global.length; i++){
+			html+="<div class='_modalList _pointer' data-location='" + clip_far_list_json_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_far_list_json_global[i].title+"</h5></div>";
+		}
+  }
 	$("#_modal-body-location-list").html(html)
 	$("._modalList").click(
 		function(){
 			var location=$(this).attr('data-location'); //nella var location ho il metadato geoloc, col quale posso andare a cercare il lugoo da evidenziare sulla mappa
-			alert(location)
-			//highlightLocation(location)
+      var name=$(this).text();
+      //alert(location)
+      $("#modalLocationList").modal('hide')
+			highlight(location, name)
 		}
 	)
 }
 
-function requestClipNotPublished() {
-	//richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
-	//mando la email dell'utente e ricevo un clip_list.json
+function notPublishedList(){
+  //richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
+	//mando la email dell'utente e ricevo un clip_not_published.json
 	//la email dell'utente viene mandata tramite indirizzo url
-	ajaxReceiveData("clip_list.json", notPublishedList) //inserire link del server (Funzione: getNotPublishedClip)
-}
+	//inserire link del server (Funzione: getNotPublishedClip)
 
-function notPublishedList(clipList){
-	var html=''
-	if((clipList.clip_list).length==0){
-		html="<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>"
-	}
-	else{
-		//lista di clip con nome, metadati, traccia
-		for(var i=0; i<(clipList.clip_list).length; i++){
-			//aggiungo (nel DOM) le clip
-			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5><audio src='"+clipList.clip_list[i].audio_file+
-					"' class='_clipNotPublished' controls>Your browser does not support the audio element.</audio><div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
-					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
-					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
+  $.ajax(
+    {
+      url: "clip_not_published.json",
+      dataType: "json",
+      success: function(clipList){
+        var html=''
+      	if((clipList.clip_list).length==0){
+      		html="<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>"
+      	}
+      	else{
+      		//lista di clip con nome, metadati, traccia
+      		for(var i=0; i<(clipList.clip_list).length; i++){
+      			//aggiungo (nel DOM) le clip
+      			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5><audio src='"+clipList.clip_list[i].audio_file+
+      					"' class='_clipNotPublished' controls>Your browser does not support the audio element.</audio><div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
+      					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
+      					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
 
-			for(var j=0; j<(clipList.clip_list[i].content).length; j++){
-				html+=dict[clipList.clip_list[i].content[j]]
-				if(j+1!=(clipList.clip_list[i].content).length)
-					html+=", "
-			}
-			html+=	"<br></div><div class='_flex_wrap_space'>"+
-					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].audio_file+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
-					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
-		}
-	}
+      			for(var j=0; j<(clipList.clip_list[i].content).length; j++){
+      				html+=dict[clipList.clip_list[i].content[j]]
+      				if(j+1!=(clipList.clip_list[i].content).length)
+      					html+=", "
+      			}
+      			html+=	"<br></div><div class='_flex_wrap_space'>"+
+      					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].audio_file+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
+      					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+      		}
+      	}
 
-	$("#_modal-body-clip-not-published").html(html)
+      	$("#_modal-body-clip-not-published").html(html)
 
-	$(".publish_clip").click(
-		function(){ //rende pubblica la clip
-			var updateData = new FormData()
-			updateData.append('data-link', $(this).attr('data-link'))
-			ajaxSendData(updateData, '') //inserire link del server (Funzione: setClipPublished)
-			$("#modalClipNotPublished").modal('hide')
-		}
-	)
+      	$(".publish_clip").click(
+      		function(){ //rende pubblica la clip
+      			var updateData = new FormData()
+      			updateData.append('data-link', $(this).attr('data-link'))
+      			ajaxSendData(updateData, '') //inserire link del server (Funzione: setClipPublished)
+      			$("#modalClipNotPublished").modal('hide')
+      		}
+      	)
 
-	$(".modify_clip").click(
-		function(){
-			cleanForm()
-			$("#modalClipNotPublished").modal('hide')
+      	$(".modify_clip").click(
+      		function(){
+      			cleanForm()
+      			$("#modalClipNotPublished").modal('hide')
 
-			$("#title").attr('value', ($(this).attr('data-title')))
-			$("#geoloc").attr('value', ($(this).attr('data-geoloc')))
-			if($(this).attr('data-language')!='')
-				$("#language option[value="+$(this).attr('data-language')+"]").attr('selected', 'selected')
-			else
-				$("#language option[value='ita'").attr('selected', 'selected')
-			if($(this).attr('data-purpose')!='')
-				$("#purpose input[value="+$(this).attr('data-purpose')+"]").prop('checked', true)
-			else
-				$("#purpose input[value='what']").prop('checked', true)
-			$("#audience option[value='"+$(this).attr('data-audience')+"']").attr('selected', 'selected')
-			$("#detail").attr('value', ($(this).attr('data-detail')))
-			var html=''
-			var contentArray=$(this).attr('data-content').split(',')
-			for(var i=0; i<contentArray.length; i++){
-				html+= "<div value='"+contentArray[i]+"' class='alert alert-info _alert'><a href='#' class='close _close' data-dismiss='alert' aria-label='close'>&times;</a>"+dict[contentArray[i]]+"</div>"
-			}
-			$("#contentOption").html(html)
-			$("#record_clip_button").text("Cancella e registra un'altra clip")
-			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
-			$("#record_clip_button").attr('new-clip', 0)
-			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
-			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
+      			$("#title").attr('value', ($(this).attr('data-title')))
+      			$("#geoloc").attr('value', ($(this).attr('data-geoloc')))
+      			if($(this).attr('data-language')!='')
+      				$("#language option[value="+$(this).attr('data-language')+"]").attr('selected', 'selected')
+      			else
+      				$("#language option[value='ita'").attr('selected', 'selected')
+      			if($(this).attr('data-purpose')!='')
+      				$("#purpose input[value="+$(this).attr('data-purpose')+"]").prop('checked', true)
+      			else
+      				$("#purpose input[value='what']").prop('checked', true)
+      			$("#audience option[value='"+$(this).attr('data-audience')+"']").attr('selected', 'selected')
+      			$("#detail").attr('value', ($(this).attr('data-detail')))
+      			var html=''
+      			var contentArray=$(this).attr('data-content').split(',')
+      			for(var i=0; i<contentArray.length; i++){
+      				html+= "<div value='"+contentArray[i]+"' class='alert alert-info _alert'><a href='#' class='close _close' data-dismiss='alert' aria-label='close'>&times;</a>"+dict[contentArray[i]]+"</div>"
+      			}
+      			$("#contentOption").html(html)
+      			$("#record_clip_button").text("Cancella e registra un'altra clip")
+      			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
+      			$("#record_clip_button").attr('new-clip', 0)
+      			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
+      			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
 
-			$("#back_form").click(
-				function(){
-					$("#modalNewClip").modal('hide')
-					$("#modalClipNotPublished").modal('show')
-				}
-			)
+      			$("#back_form").click(
+      				function(){
+      					$("#modalNewClip").modal('hide')
+      					$("#modalClipNotPublished").modal('show')
+      				}
+      			)
 
-			$("#modalNewClip").modal('show')
+      			$("#modalNewClip").modal('show')
 
-		}
-	)
+      		}
+      	)
+
+      }
+    }
+  )
 }
 
 function cleanForm(){
