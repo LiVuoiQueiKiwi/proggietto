@@ -1,3 +1,5 @@
+//http://www.fromtexttospeech.com/
+
 jQuery(function ($) {
 
     $("#menu-toggle").click(function(e) {
@@ -19,7 +21,9 @@ jQuery(function ($) {
 	})
 
 
+    $('#create_clip').hide()
 
+    $('#notPublishedList').hide()
 
 		$('#stop_record_clip_button').hide()
 
@@ -259,7 +263,7 @@ function init(){
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 0,
-        maxZoom: 16
+        maxZoom: 18
     }).addTo(map);
 
 
@@ -548,7 +552,7 @@ function printLocation(callback) {
   //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
   //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
   //mando la posizione attuale e ricevo un clip_list.json
-  //la posizione viene mandata tramite indirizzo url
+  //tramite url inviola posizione corrente e la lingua delle clip da scaricare (presa dal menu)
   //inserire link del server (Funzione: getClip)
 
   $.ajax(
@@ -610,7 +614,11 @@ function printWhereAmI(){
 
 	var html=''
 	if((clip_near_list_json_global).length==0){
-		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'><audio autoplay src='Raggiungi2.m4a' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
+    if((clip_far_list_json_global).length!=0)
+      html+="<audio autoplay src='Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+    else
+      html+="<audio autoplay src='Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
 		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
@@ -655,7 +663,7 @@ function printWhereAmI(){
         $('#next').click(
     			function(){
             clip_visited_before.push(clip_near_list_json_global[0])
-            audio_add="<div style='display: none;'><audio src='Raggiungi.m4a' autoplay></audio></div>"
+            audio_add="<div style='display: none;'><audio src='Raggiungi_il_punto.mp3' autoplay></audio></div>"
             $("#modalWhereAmI").modal('hide')
             $('body').append(audio_add)
             highlight(clip_far_list_json_global[0].geoloc, clip_far_list_json_global[0].title)
@@ -670,7 +678,7 @@ function printWhereAmI(){
           $('#previous').click(
       			function(){
               var clipBefore=clip_visited_before.shift()
-              audio_add="<div style='display: none;'><audio src='Raggiungi.m4a' autoplay></audio></div>"
+              audio_add="<div style='display: none;'><audio src='Raggiungi_il_punto.mp3' autoplay></audio></div>"
               $("#modalWhereAmI").modal('hide')
               $('body').append(audio_add)
               highlight(clipBefore.geoloc, clipBefore.title)

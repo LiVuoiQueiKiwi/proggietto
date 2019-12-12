@@ -3,6 +3,8 @@
 
 <head>
 
+  <title>WHERE AM I</title>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
@@ -40,7 +42,7 @@
     <!-- Sidebar -->
     <div class="bg-dark border-right text-center" id="sidebar-wrapper">
       <div class='float-right w-100'><button id="close_menu" type="button" class="close m-2 text-white" aria-label="Close">&times;</button></div>
-      <div class="sidebar-heading font-weight-bold text-white ">Where am I</div>
+      <div class="sidebar-heading font-weight-bold text-white "><h2><b>WHERE AM I</b></h2></div>
       <div id="container-forms">
         <form class="form-signin">
             <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
@@ -65,9 +67,10 @@
                 <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
                 <a href="#" id="cancel_signup"><i class="fas fa-angle-left"></i> Back</a>
             </form>
-            <br>
+
 
         </div>
+
 
         <!-- Bottone che apre il form di creazione clip (per l'Editor) -->
        <button class='btn btn-primary' type='button' id="create_clip" data-toggle="modal" data-target="#modalNewClip">Crea clip</button>
@@ -214,6 +217,20 @@
           </div>
         </div>
       </div>
+
+      <br><br>
+      <form id="fomrLanguage" enctype = 'multipart/form-data'>
+        <div class="form-group _form-group">
+          <label for="clipLanguage" class="text-white">Lingua predefinita:</label>
+          <select name="language" class="form-control" id="language">
+            <option value="ita">Italiano</option>
+            <option value="eng">English</option>
+            <option value="deu">Deutsch</option>
+            <option value="fra">Français</option>
+            <option value="esp">Español</option>
+          </select>
+        </div>
+      </form>
 
 
     </div>
