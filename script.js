@@ -218,17 +218,23 @@ jQuery(function ($) {
 			function (event){
 				//raccoglie tutti i dati del form
 				//creazione json da inviare al server
-				var formData = new FormData(signin)	// La forma di .append e' ( chiave, valore )
-        //formData.append('email', $('#inputEmail').value)
-        //formData.append('password', $('#inputPassword').value)
-        console.log(...formData)
-      window.alert();
-
-
-
+				var formData = new FormData(signin)
 
 				// Invio tutto il contenuto con AJAX.
-				//ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
+				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadLogin)
+
+			}
+		)
+
+    //submit del form di sign in editor
+		$("#signup").submit(
+			function (event){
+				//raccoglie tutti i dati del form
+				//creazione json da inviare al server
+				var formData = new FormData(signup)
+
+				// Invio tutto il contenuto con AJAX.
+				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadNewUser)
 
 			}
 		)
