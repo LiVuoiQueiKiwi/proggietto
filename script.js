@@ -212,6 +212,28 @@ jQuery(function ($) {
 			}
 		)
 
+
+    //submit del form di sign in editor
+		$("#signin").submit(
+			function (event){
+				//raccoglie tutti i dati del form
+				//creazione json da inviare al server
+				var formData = new FormData(signin)	// La forma di .append e' ( chiave, valore )
+        //formData.append('email', $('#inputEmail').value)
+        //formData.append('password', $('#inputPassword').value)
+        console.log(...formData)
+      window.alert();
+
+
+
+
+				// Invio tutto il contenuto con AJAX.
+				//ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
+
+			}
+		)
+
+
 		$("#creator").attr("value","Qui bisogna inserire la mail dell'utente")
 
 		$("#create_clip").click(
@@ -328,6 +350,7 @@ function init(){
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
         }
+        printLocation();
     });
 
     clip_visited_before=[]
@@ -361,7 +384,7 @@ function markerPos(marker){
                 console.log(markers);
             }
         });
-            addMarker();
+            printLocation();
 
         });
 
@@ -404,19 +427,6 @@ function setDragMarker(marker){
 
 function iconPoint(color){
     return L.icon({iconUrl: color});
-}
-
-function addMarker(){
-
-    var mark= L.marker(L.latLng(map.getCenter()),{icon:iconPoint()}); // draggable:true
-    mark._id= Coords_OLC(mark.getLatLng().lat,mark.getLatLng().lng);
-    mark.on('click',function(event){
-        var m= L.marker([midPoint( getMarkerYourPosition(),event.target._id).lat,midPoint( getMarkerYourPosition(),event.target._id).lng],{icon:iconPoint()});
-        m.addTo(map);
-        highlight(event.target._id);
-    });
-    markers.push(mark);
-    mark.addTo(map);
 }
 
 function highlight(olc, title){
