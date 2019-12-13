@@ -356,7 +356,7 @@ function init(){
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
         }
-        printLocation();
+        printLocation()
     });
 
     clip_visited_before=[]
@@ -477,6 +477,7 @@ function getOfflinePosition(){
             }
     });
     setCenterView(center);
+    printLocation();
 }
 
 function positionMarker(marker){
