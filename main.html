@@ -43,14 +43,29 @@
     <div class="bg-dark border-right text-center" id="sidebar-wrapper">
       <div class='float-right w-100'><button id="close_menu" type="button" class="close m-2 text-white" aria-label="Close">&times;</button></div>
       <div class="sidebar-heading font-weight-bold text-white "><h2><b>WHERE AM I</b></h2></div>
+
+      <br><br>
+      <form id="formLanguage" enctype = 'multipart/form-data'>
+        <div class="form-group _form-group">
+          <label for="clipLanguage" class="text-white">Lingua predefinita:</label>
+          <select name="language" class="form-control" style="width: 80%; margin: 0 10% 0 10%;" id="language">
+            <option value="ita">Italiano</option>
+            <option value="eng">English</option>
+            <option value="deu">Deutsch</option>
+            <option value="fra">Français</option>
+            <option value="esp">Español</option>
+          </select>
+        </div>
+      </form>
+
       <div id="container-forms">
         <form id="signin" class="form-signin">
-            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Login</h1>
 
             <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
             <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
 
-            <input class="btn btn-success btn-block" value="Sign in as Editor" type="submit">
+            <input class="btn btn-success btn-block" value="Login as Editor" type="submit">
 
             <hr>
             <!-- <p>Don't have an account!</p>  -->
@@ -62,13 +77,12 @@
             <input type="email" name="email" id="user-email" class="form-control" placeholder="Email address" required autofocus="">
             <input type="password" name="password" id="user-pass" class="form-control" placeholder="Password" required autofocus="">
             <input type="password" id="user-repeatpass" class="form-control" placeholder="Repeat Password" required autofocus="">
-            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
+            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up as Editor</button>
             <a href="#" id="cancel_signup"><i class="fas fa-angle-left"></i> Back</a>
         </form>
 
 
         </div>
-
 
         <!-- Bottone che apre il form di creazione clip (per l'Editor) -->
        <button class='btn btn-primary' type='button' id="create_clip" data-toggle="modal" data-target="#modalNewClip">Crea clip</button>
@@ -199,6 +213,7 @@
          </div>
        </div>
        <br><br>
+
      <!-- //Bottone che apre la lista di clip salvate ma non ancora pubblicate -->
       <button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalClipNotPublished" id="notPublishedList">Clip salvate non pubblicate</button>
       <div class="modal fade" id="modalClipNotPublished" role="dialog">
@@ -215,20 +230,6 @@
           </div>
         </div>
       </div>
-
-      <br><br>
-      <form id="fomrLanguage" enctype = 'multipart/form-data'>
-        <div class="form-group _form-group">
-          <label for="clipLanguage" class="text-white">Lingua predefinita:</label>
-          <select name="language" class="form-control" id="language">
-            <option value="ita">Italiano</option>
-            <option value="eng">English</option>
-            <option value="deu">Deutsch</option>
-            <option value="fra">Français</option>
-            <option value="esp">Español</option>
-          </select>
-        </div>
-      </form>
 
 
     </div>

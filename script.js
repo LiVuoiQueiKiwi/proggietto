@@ -148,6 +148,8 @@ jQuery(function ($) {
 		//submit del form di cariamento clip
 		$("#myForm").submit(
 			function (event){
+        event.preventDefault()
+
 				//raccoglie tutti i dati del form
 				//controlla che ci sia l'audio
         //
@@ -209,38 +211,87 @@ jQuery(function ($) {
 
 				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
 
-			}
+      $("#modalNewClip").modal('hide')
+      cleanForm()
+
+      }
 		)
 
 
-    //submit del form di sign in editor
+    //submit del form di Login editor
 		$("#signin").submit(
 			function (event){
+        event.preventDefault()
+
 				//raccoglie tutti i dati del form
 				//creazione json da inviare al server
+        var email=$('#inputEmail').val()
 				var formData = new FormData(signin)
 
-				// Invio tutto il contenuto con AJAX.
-				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadLogin)
+        $.ajax(
+          {
+            url: "email.json", //inserire link del server (Funzione: sign_in)
+            dataType: "json",
+            type: 'POST',
+            data: formData,
+            processData: false,	// Evita che Jquery faccia operazioni sui dati.
+            contentType: false,	// Evita che Jquery faccia operazioni sui dati.
+            success: function(receiveData){
+              if(receiveData.sign_in=='1'){
+                //alert('Login eseguito con successo!')
+                $('#container-forms').html('')
+                $('#container-forms').css('margin', '0')
+                $('#formLanguage').append('<br><br><br><h5 id="now_editor" email='+email+' class="text-white"><b>'+email+'<br>You are now an EDITOR!</b></h5><br>')
+                $('#create_clip').show()
+                $('#notPublishedList').show()
+                $("#creator").attr('value', $('#now_editor').attr('email'))
+              }
+              else{
+                alert(receiveData.sign_in)
+              }
+            }
+          }
+        )
 
 			}
 		)
 
-    //submit del form di sign in editor
+    //submit del form di Sign up editor
 		$("#signup").submit(
 			function (event){
+        event.preventDefault()
+
 				//raccoglie tutti i dati del form
 				//creazione json da inviare al server
 				var formData = new FormData(signup)
 
-				// Invio tutto il contenuto con AJAX.
-				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadNewUser)
+        $.ajax(
+          {
+            url: "email.json", //inserire link del server (Funzione: sign_up)
+            dataType: "json",
+            type: 'POST',
+            data: formData,
+            processData: false,	// Evita che Jquery faccia operazioni sui dati.
+            contentType: false,	// Evita che Jquery faccia operazioni sui dati.
+            success: function(receiveData){
+              if(receiveData.sign_up=='1'){
+                alert('Login eseguito con successo!')
+                $('#container-forms').html('')
+                $('#container-forms').css('margin', '0')
+                $('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
+                $('#create_clip').show()
+                $('#notPublishedList').show()
+                $("#creator").attr('value', $('#now_editor').attr('email'))
+              }
+              else{
+                alert(receiveData.sign_up)
+              }
+            }
+          }
+        )
 
 			}
 		)
-
-
-		$("#creator").attr("value","Qui bisogna inserire la mail dell'utente")
 
 		$("#create_clip").click(
 			function(){
