@@ -21,7 +21,7 @@ jQuery(function ($) {
 	})
 
 
-    $('#create_clip').hide()
+  //  $('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
@@ -80,7 +80,7 @@ jQuery(function ($) {
 
 				navigator.mediaDevices.getUserMedia({ audio: true }).then(
 					stream => {
-						const mediaRecorder = new MediaRecorder(stream)
+						var mediaRecorder = new MediaRecorder(stream)
 						mediaRecorder.start()
 
 
@@ -90,6 +90,7 @@ jQuery(function ($) {
 
 						$('#stop_record_clip_button').click(
 							function(){
+                $("#stop_record_clip_button").prop("onclick", null).off("click")
 								mediaRecorder.stop()
 							}
 						)
@@ -178,22 +179,23 @@ jQuery(function ($) {
 					if($("#record_clip_button").attr('data-link')){ //caso in cui ho modificato la clip. elimino la precedente e carico la nuova clip
 						formData.append('link', $("#record_clip_button").attr('data-link'))
 					}
-					//caso in cui sto creando una nuova clip. la carico
-					//formData.append( 'uploaded-file', $('#audio_record').attr('src') )
+
+        //caso in cui sto creando una nuova clip. la carico
+				//formData.append( 'uploaded-file', $('#audio_record').attr('src') )
 
 
-					var xhr = new XMLHttpRequest()
-					xhr.open('GET', $('#audio_record').attr('src'), true)
-					xhr.responseType = 'blob'
-					xhr.onload = function(e) {
-						console.log(this.status);
-						if (this.status == 200) {
-							var myBlob = this.response
-							// myBlob is now the blob that the object URL pointed to
-							formData.append( 'uploaded-file', myBlob )
-						}
+				var xhr = new XMLHttpRequest()
+				xhr.open('GET', $('#audio_record').attr('src'), true)
+				xhr.responseType = 'blob'
+				xhr.onload = function(e) {
+					//console.log(this.status);
+					if (this.status == 200) {
+						var myBlob = this.response
+						// myBlob is now the blob that the object URL pointed to
+						formData.append( 'uploaded-file', myBlob )
 					}
-					xhr.send()
+				}
+				xhr.send()
 
 
 
@@ -238,7 +240,7 @@ jQuery(function ($) {
             contentType: false,	// Evita che Jquery faccia operazioni sui dati.
             success: function(receiveData){
               if(receiveData.sign_in=='1'){
-                //alert('Login eseguito con successo!')
+                alert('Login eseguito con successo!')
                 $('#container-forms').html('')
                 $('#container-forms').css('margin', '0')
                 $('#formLanguage').append('<br><br><br><h5 id="now_editor" email='+email+' class="text-white"><b>'+email+'<br>You are now an EDITOR!</b></h5><br>')
@@ -275,7 +277,7 @@ jQuery(function ($) {
             contentType: false,	// Evita che Jquery faccia operazioni sui dati.
             success: function(receiveData){
               if(receiveData.sign_up=='1'){
-                alert('Login eseguito con successo!')
+                alert('Registrazione avvenuta con successo!')
                 $('#container-forms').html('')
                 $('#container-forms').css('margin', '0')
                 $('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
