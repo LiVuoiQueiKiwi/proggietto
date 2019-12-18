@@ -21,7 +21,7 @@ jQuery(function ($) {
 	})
 
 
-  //  $('#create_clip').hide()
+    $('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
@@ -87,6 +87,7 @@ jQuery(function ($) {
 						$('#record_clip_button').hide()
 						$('#stop_record_clip_button').show()
 						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='png/mic.gif'>\t\tRecording...")
+            $('#save_clip').prop('disabled', true)
 
 						$('#stop_record_clip_button').click(
 							function(){
@@ -105,11 +106,22 @@ jQuery(function ($) {
 							const audioBlob = new Blob(audioChunks)
 							const audioUrl = URL.createObjectURL(audioBlob)
 
-							$('#stop_record_clip_button').hide()
-							$('#record_clip_button').show()
-							$('#record_clip_button').text('Cancella e registra')
-							$("#record_clip_button").attr('new-clip', 1)
-							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
+              var file=''
+              var reader = new FileReader()
+              reader.onload = function () {
+                file = reader.result
+              }
+              reader.readAsBinaryString(audioBlob)
+
+              reader.onloadend = function () {
+                $('#stop_record_clip_button').hide()
+  							$('#record_clip_button').show()
+  							$('#record_clip_button').text('Cancella e registra')
+  							$("#record_clip_button").attr('new-clip', 1)
+  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls file="+file+">Your browser does not support the audio element.</audio>")
+                $('#save_clip').prop('disabled', false)
+              }
+
 						})
 
 
@@ -181,24 +193,7 @@ jQuery(function ($) {
 					}
 
         //caso in cui sto creando una nuova clip. la carico
-				//formData.append( 'uploaded-file', $('#audio_record').attr('src') )
-
-
-				var xhr = new XMLHttpRequest()
-				xhr.open('GET', $('#audio_record').attr('src'), true)
-				xhr.responseType = 'blob'
-				xhr.onload = function(e) {
-					//console.log(this.status);
-					if (this.status == 200) {
-						var myBlob = this.response
-						// myBlob is now the blob that the object URL pointed to
-						formData.append( 'uploaded-file', myBlob )
-					}
-				}
-				xhr.send()
-
-
-
+				formData.append('uploaded-file', $('#audio_record').attr('file'))
 
 				}
 				else{ //caso in cui ho modificato i metadati ma non la clip. aggiorno i metadati alla clip precedente
@@ -344,7 +339,7 @@ function init(){
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 0,
-        maxZoom: 18
+        maxZoom: 16
     }).addTo(map);
 
 
