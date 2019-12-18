@@ -496,7 +496,10 @@ function highlight(olc, title){
 
             var popup = L.popup().setContent(title);
             marker.bindPopup(popup).openPopup();
-            setCenterView(midPoint(getMarkerYourPosition(),olc));
+            var olc_coord=OLC_Coords(olc)
+            olc_coord.lat=olc_coord.lat-100
+            setCenterView(olc_coord)
+            //setCenterView(midPoint(getMarkerYourPosition(),olc));
             map.fitBounds([
                 OLC_Coords(getMarkerYourPosition()),
                 marker.getLatLng()
