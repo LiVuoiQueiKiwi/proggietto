@@ -338,10 +338,9 @@ function init(){
 
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        minZoom: 0,
+        minZoom: 8,
         maxZoom: 16
     }).addTo(map);
-
 
 
 
@@ -363,8 +362,9 @@ function init(){
 
     //map.on('locationfound', onLocationFound);
 	//map.on('locationerror', onLocationError);
-	map.locate({
+	 map.locate({
         setView: true,
+        minZoom: 16,
         maxZoom: 16
     }).on("locationfound", e => {
             map.addLayer(createPositionMarker(e.latlng));
@@ -492,13 +492,9 @@ function highlight(olc, title){
             var popup = L.popup().setContent(title);
             marker.bindPopup(popup).openPopup();
             var olc_coord=OLC_Coords(olc)
-            olc_coord.lat=olc_coord.lat-100
+            olc_coord.lat=parseFloat((olc_coord.lat-0.003).toFixed(9))
+            map.setZoom(16)
             setCenterView(olc_coord)
-            //setCenterView(midPoint(getMarkerYourPosition(),olc));
-            map.fitBounds([
-                OLC_Coords(getMarkerYourPosition()),
-                marker.getLatLng()
-            ]);
             marker.unbindPopup();
         }
     });
