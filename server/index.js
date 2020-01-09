@@ -1,22 +1,36 @@
 // Load the http module to create an http server.
-var http = require( 'http' );
-var fs = require( 'fs' );
-var url = require( 'url' );
+/**/var http = require( 'http' );
+/**/var fs = require( 'fs' );
+/**/var url = require( 'url' );
 
 var express = require('express');
-const session = require('express-session');
+var session = require('express-session');
+var db = require('./mongodb.js');
+var util = require('./util.js');
 
-const db = require('./mongodb.js');
+/**/var testPage = require('./jqueryPostPage.js');
 
 
-const DOC_FOLDER = 'htdocs';
-const SERVER_PORT = 8000;
+var DOC_FOLDER = 'htdocs';
+
+/**
+ * Porta di ascolto del server.
+ * @const {int}
+ */
+var SERVER_PORT = 8000;
 
 
 var app = express();
 
 // Inizializzo il cookie per la sessione.
 app.use(session({secret: 'NODE_JS_SESSION'}));
+// Inizializzo il parsing da testo in JSON delle risposte.
+app.use(express.json());
+// Inizializzo il parsing del testo in URL encoded data (per i dati inviati da
+// form HTML).
+app.use(express.urlencoded({ extended: true }));
+
+
 var sess;
 
 // app.get('/',function(req,res){
@@ -33,26 +47,26 @@ var sess;
 
 
 app.get('/', function(request, response) {
-	response.send('Hello World');
+	response.send(testPage);
+    util.logSuccess('Pagina principale inviata.');
 });
 
-app.get('/users', function(request, response) {
-	response.send('Users!');
-});
+// app.get('/users', function(request, response) {
+// 	response.send('Users!');
+// });
 
 app.post('/users/add', function(request, response) {
-	console.log(request.body);
 
-    db.insertUser({
-        request.body.username,
-        password: request.body.password
-    });
+    return response.send(db.insertUser(
+        request.body.email,
+        request.body.password
+    ));
 });
 
-app.get('/users/get', function(request, response) {
-	console.log(request.body);
-
-    db.getUser();
+app.get('/users/get/:email', function(request, response) {
+    util.logSuccess(`Richiesta GET ricevuta. Ricerca di un utente con email: ${response.params.email}`);
+    return response.send(db.getUser(request.email));
+    // db.getUser();
 });
 
 app.listen(SERVER_PORT, function() {
