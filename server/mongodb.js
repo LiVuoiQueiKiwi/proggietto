@@ -4,6 +4,7 @@ var mongo = require('mongodb');
  * Per l'algoritmo SHA1.
  */
 const crypto = require('crypto');
+const util = require('./util.js');
 
 var ApiResponse = require('./apiResponse.js');
 var MongoClient = mongo.MongoClient;
@@ -61,21 +62,63 @@ const COLLECTIONS = [ COLLECTION_USERS, COLLECTION_CLIPS ];
 // #################################################################
 
 var mongojs = require('mongojs');
-var db = mongojs('whereami', ['users', 'clips']);
+var db = mongojs('mongodb://localhost:27017/whereami', ['users', 'clips']);
+
+
+
+// ⊥✕✓✔✖⚠
+// Inizializzo gli eventi principali (principalmente per debug).
+db.on('error', function (error) {
+    util.logFail('Database error. ', error);
+})
+
+db.on('connect', function () {
+    util.logSuccess('Database connected.');
+})
 
 /*
  * Inserisce un nuovo utente nel database.
  */
-module.exports.insertUser = function({username, password}) {
-    /*
-     * Prima dell'inserimento, cripta la password con l'algoritmo SHA1.
-     */
-    db.users.insert({username:username, hash:sha1(password)}, function(err, result) {
-    	if(err) {
-    		console.log(err);
-    	}
-    	res.redirect('/');
-    });
+module.exports.insertUser = function(email, password) {
+    // Inizializzo la risposta.
+    var result = new ApiResponse();
+    var missingArgs = true;
+
+    if (!email) {
+        // Email mancante.
+        result.message = 'Email non presente.';
+    } else if (!password) {
+        // Password mancante
+        result.message = 'Password non presente.';
+    } else {
+        missingArgs = false;
+    }
+
+    if (!missingArgs) {
+        // I parrametri sono presenti e quindi proseguo.
+        var data = {
+            email: email,
+            hash: sha1(password)
+        };
+
+        // Controllo se esiste gia' un account con la stessa email.
+        db.users.findOne({email: email}, function(error,docs) {
+            if (!docs) {
+                // Il record non e' stato trovato, quindi memorizzo il nuovo
+                // account.
+                db.mycollection.save(data);
+
+                result.setSuccess();
+            } else {
+                result.message = 'Esiste gia\' un account con questo indirizzo email';
+            }
+
+            if (error) {
+                // Riporto l'errorore nella risposta.
+                result.message = error;
+            }
+        });
+    }
 }
 
 
@@ -83,14 +126,15 @@ module.exports.insertUser = function({username, password}) {
 /*
  * Ritorna tutti gli utenti nel database.
  */
-module.exports.getUser = function() {
-
-    db.users.find(function (err, docs) {
-        if(err) {
-    		console.log(err);
+module.exports.getUser = function(email) {
+    // Inizializzo la risposta.
+    db.users.find({email: email}, function(error, docs) {
+        if(error) {
+    		util.logFail('Errore nella ricerca dell\'utente.');
+            console.log(error);
     	}
 	    // docs is an array of all the documents in mycollection
-        console.log('>>> Successo prelievo utenti nel database.');
+        util.logSuccess('Successo prelievo utenti nel database.');
         console.log(docs);
     });
 }
@@ -127,8 +171,8 @@ module.exports.getUser = function() {
 
 
 // /**/
-// MongoClient.connect(url, function(clientError, db) {
-//     if (clientError) throw clientError;
+// MongoClient.connect(url, function(clienterrororor, db) {
+//     if (clienterrororor) throw clienterrororor;
 //
 //     console.log("Database created!");
 //
@@ -157,8 +201,8 @@ module.exports.getUser = function() {
 //    */
 //   for (var collectionName in COLLECTIONS) {
 //     doOperationOnDatabase(function() {
-//       dbObject.createCollection(collectionName, function(collectionError, res) {
-//         if (collectionError) throw collectionError;
+//       dbObject.createCollection(collectionName, function(collectionerrororor, res) {
+//         if (collectionerrororor) throw collectionerrororor;
 //
 //         console.log(`Collection ${collectionName} created.`);
 //       });
@@ -167,7 +211,7 @@ module.exports.getUser = function() {
 // }
 //
 // /**
-//  * Esegue un'operazione sul database, non gestendo pero' gli errori.
+//  * Esegue un'operazione sul database, non gestendo pero' gli errororori.
 //  */
 // function doOperationOnDatabase(callback) {
 //     try {
@@ -181,12 +225,12 @@ module.exports.getUser = function() {
 //
 //
 // // function insertUser(user) {
-// //     MongoClient.connect(url, function(err, db) {
-// //   if (err) throw err;
+// //     MongoClient.connect(url, function(erroror, db) {
+// //   if (erroror) throw erroror;
 // //   var dbo = db.db("mydb");
 // //   var myobj = { name: "Company Inc", address: "Highway 37" };
-// //   dbo.collection("customers").insertOne(myobj, function(err, res) {
-// //     if (err) throw err;
+// //   dbo.collection("customers").insertOne(myobj, function(erroror, res) {
+// //     if (erroror) throw erroror;
 // //     console.log("1 document inserted");
 // //     db.close();
 // //   });
@@ -197,8 +241,8 @@ module.exports.getUser = function() {
 //  * Crea una connessione al database di MongoDB.
 //  */
 // function connect() {
-//     MongoClient.connect(URL, function(clientError, db) {
-//         if (clientError) throw clientError;
+//     MongoClient.connect(URL, function(clienterrororor, db) {
+//         if (clienterrororor) throw clienterrororor;
 //
 //         console.log("Database created!");
 //
@@ -230,9 +274,9 @@ module.exports.getUser = function() {
 //     dbObject.collection(COLLECTION_USERS).insertOne({username, hash}, handleResult);
 // }
 //
-// function handleResult(error, result) {
+// function handleResult(errororor, result) {
 //   // Codice gestore del risultato dell'operazione sul database.
-//   if (error) throw error;
+//   if (errororor) throw errororor;
 //
 //   insertSuccess(result);
 // }
