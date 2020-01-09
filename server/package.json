@@ -1,0 +1,26 @@
+{
+  "name": "whereami",
+  "version": "1.0.0",
+  "description": "Progetto di Tec-Web",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "mongojs": "^3.1.0",
+    "mongodb": "^3.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LiVuoiQueiKiwi/proggietto.git"
+  },
+  "author": "Simone Grillini",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LiVuoiQueiKiwi/proggietto/issues"
+  },
+  "homepage": "https://github.com/LiVuoiQueiKiwi/proggietto#readme"
+}
