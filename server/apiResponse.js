@@ -19,6 +19,14 @@ class ApiResponse {
     isSuccessful() {
         return this.success;
     }
+
+    toJSON() {
+        return {
+            success: this.success,
+            content: JSON.stringify(this.content),
+            message: this.message
+        }
+    }
 }
 
 module.exports = ApiResponse;
