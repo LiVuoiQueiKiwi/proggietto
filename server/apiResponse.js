@@ -23,7 +23,7 @@ class ApiResponse {
     toJSON() {
         return {
             success: this.success,
-            content: JSON.stringify(this.content),
+            content: this.content,
             message: this.message
         }
     }
