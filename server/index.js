@@ -57,21 +57,72 @@ app.get('/', function(request, response) {
 
 app.post('/users/add', function(request, response) {
 
-    return response.send(db.insertUser(
-        request.body.email,
-        request.body.password
-    ));
+    /****/
+    util.debug(request.body.email);
+    util.debug(request.body.password);
+    /****/
+
+    // Prelevo gli argomenti della richiesta.
+    var email = request.body.email;
+    var password = request.body.password;
+
+    util.logSuccess(`Richiesta POST ricevuta. Inserimento di un utente con email ${email} e password: ********`);
+
+    // Eseguo l'operazione richiesta.
+    db.insertUser(email, password).then(function(result) {
+        // Rispondo al client con il risultato.
+        sendToClient(response, result);
+    });
 });
 
 app.get('/users/get/:email', function(request, response) {
-    util.logSuccess(`Richiesta GET ricevuta. Ricerca di un utente con email: ${response.params.email}`);
-    return response.send(db.getUser(request.email));
-    // db.getUser();
+    // Prelevo gli argomenti della richiesta.
+    var email = request.params.email;
+
+    util.logSuccess(`Richiesta GET ricevuta. Ricerca di un utente con email ${email}`);
+
+
+    // Eseguo l'operazione richiesta.
+    db.getUser(email).then(function(result) {
+        // Rispondo al client con il risultato.
+        sendToClient(response, result);
+    });
 });
 
 app.listen(SERVER_PORT, function() {
 	console.log(`Server started on port ${SERVER_PORT}`);
 });
+
+
+
+/**
+ * Invia al client un oggetto in formato JSON testuale.
+ *
+ * @param {object} response.
+ * @param {object} data.
+ */
+var sendToClient = function(response, data) {
+    // Esueguo il parsing sul risultato.
+    var stringOutput = toJson(data);
+
+    /****/
+    util.debug(stringOutput);
+    /****/
+
+    // Rispondo al client con il risultato.
+    response.send(stringOutput);
+}
+
+
+
+/**
+ * Converte un oggetto in JSON.
+ *
+ * @param {object} data.
+ */
+var toJson = function(data) {
+    return JSON.stringify(data);
+}
 
 //
 // // Configure our HTTP server to respond with Hello World to all requests.
