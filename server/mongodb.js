@@ -121,6 +121,94 @@ module.exports.insertUser = function(email, password) {
     }
 }
 
+module.exports.insertUser = function(email, password) {
+    // Inizializzo la risposta.
+    var result = new ApiResponse();
+    var missingArgs = true;
+
+    if (!email) {
+        // Email mancante.
+        result.message = 'Email non presente.';
+    } else if (!password) {
+        // Password mancante
+        result.message = 'Password non presente.';
+    } else {
+        missingArgs = false;
+    }
+
+    if (!missingArgs) {
+        // I parrametri sono presenti e quindi proseguo.
+        var data = {
+            email: email,
+            hash: sha1(password)
+        };
+
+        // Controllo se esiste gia' un account con la stessa email.
+        db.users.findOne({email: email}, function(error,docs) {
+            if (!docs) {
+                // Il record non e' stato trovato, quindi memorizzo il nuovo
+                // account.
+                db.mycollection.save(data);
+
+                result.setSuccess();
+            } else {
+                result.message = 'Esiste gia\' un account con questo indirizzo email';
+            }
+
+            if (error) {
+                // Riporto l'errorore nella risposta.
+                result.message = error;
+            }
+        });
+    }
+
+    return new Promise(function(resolve, reject) {
+        // Inizializzo la risposta.
+        var result = new ApiResponse();
+        var missingArgs = true;
+
+        if (!email) {
+            // Email mancante.
+            result.message = 'Email non presente.';
+        } else if (!password) {
+            // Password mancante
+            result.message = 'Password non presente.';
+        } else {
+            missingArgs = false;
+        }
+
+        if(!missingArgs) {
+            // I parrametri sono presenti e quindi proseguo.
+            var data = {
+                email: email,
+                hash: sha1(password)
+            };
+
+            // Controllo se esiste gia' un account con la stessa email.
+            db.users.findOne({email: email}, function(error,docs) {
+                if (!docs) {
+                    // Il record non e' stato trovato, quindi memorizzo il nuovo
+                    // account.
+                    db.mycollection.save(data);
+
+                    result.setSuccess();
+                } else {
+                    result.message = 'Esiste gia\' un account con questo indirizzo email';
+                }
+
+                if (error) {
+                    // Riporto l'errorore nella risposta.
+                    result.message = error;
+                }
+
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
+    });
+}
+
 
 
 /*
@@ -128,14 +216,69 @@ module.exports.insertUser = function(email, password) {
  */
 module.exports.getUser = function(email) {
     // Inizializzo la risposta.
-    db.users.find({email: email}, function(error, docs) {
-        if(error) {
-    		util.logFail('Errore nella ricerca dell\'utente.');
-            console.log(error);
-    	}
-	    // docs is an array of all the documents in mycollection
-        util.logSuccess('Successo prelievo utenti nel database.');
-        console.log(docs);
+    var result = new ApiResponse();
+    var missingArgs = true;
+
+    if (!email) {
+        // Email mancante.
+        result.message = 'Email non presente.';
+    }  else {
+        missingArgs = false;
+    }
+
+    if(!missingArgs) {
+        db.users.find({email: email}, function(error, docs) {
+            if(error) {
+        		util.logFail('Errore nella ricerca dell\'utente.');
+                console.log(error);
+                result.message = `Errore nella ricerca dell\'utente. ${error}`;
+        	} else {
+                util.logSuccess('Successo prelievo utenti nel database.');
+                util.debug(docs);
+
+                result.setSuccess();
+                result.content = docs;
+            }
+
+            return result;
+        });
+    }
+
+}
+
+module.exports.getUser = function(email) {
+    return new Promise(function(resolve, reject) {
+        // Inizializzo la risposta.
+        var result = new ApiResponse();
+        var missingArgs = true;
+
+        if (!email) {
+            // Email mancante.
+            result.message = 'Email non presente.';
+
+        }  else {
+            missingArgs = false;
+        }
+
+        if(!missingArgs) {
+            db.users.find({email: email}, function(error, docs) {
+                if(error) {
+            		util.logFail('Errore nella ricerca dell\'utente.');
+                    console.log(error);
+                    result.message = `Errore nella ricerca dell\'utente. ${error}`;
+            	} else {
+                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.debug(docs);
+
+                    result.setSuccess();
+                    result.content = docs;
+                }
+
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
     });
 }
 
