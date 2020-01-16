@@ -79,6 +79,48 @@ db.on('connect', function () {
 /*
  * Inserisce un nuovo utente nel database.
  */
+// module.exports.insertUser = function(email, password) {
+//     // Inizializzo la risposta.
+//     var result = new ApiResponse();
+//     var missingArgs = true;
+//
+//     if (!email) {
+//         // Email mancante.
+//         result.message = 'Email non presente.';
+//     } else if (!password) {
+//         // Password mancante
+//         result.message = 'Password non presente.';
+//     } else {
+//         missingArgs = false;
+//     }
+//
+//     if (!missingArgs) {
+//         // I parrametri sono presenti e quindi proseguo.
+//         var data = {
+//             email: email,
+//             hash: sha1(password)
+//         };
+//
+//         // Controllo se esiste gia' un account con la stessa email.
+//         db.users.findOne({email: email}, function(error,docs) {
+//             if (!docs) {
+//                 // Il record non e' stato trovato, quindi memorizzo il nuovo
+//                 // account.
+//                 db.mycollection.save(data);
+//
+//                 result.setSuccess();
+//             } else {
+//                 result.message = 'Esiste gia\' un account con questo indirizzo email';
+//             }
+//
+//             if (error) {
+//                 // Riporto l'errorore nella risposta.
+//                 result.message = error;
+//             }
+//         });
+//     }
+// }
+
 module.exports.insertUser = function(email, password) {
     // Inizializzo la risposta.
     var result = new ApiResponse();
@@ -92,74 +134,6 @@ module.exports.insertUser = function(email, password) {
         result.message = 'Password non presente.';
     } else {
         missingArgs = false;
-    }
-
-    if (!missingArgs) {
-        // I parrametri sono presenti e quindi proseguo.
-        var data = {
-            email: email,
-            hash: sha1(password)
-        };
-
-        // Controllo se esiste gia' un account con la stessa email.
-        db.users.findOne({email: email}, function(error,docs) {
-            if (!docs) {
-                // Il record non e' stato trovato, quindi memorizzo il nuovo
-                // account.
-                db.mycollection.save(data);
-
-                result.setSuccess();
-            } else {
-                result.message = 'Esiste gia\' un account con questo indirizzo email';
-            }
-
-            if (error) {
-                // Riporto l'errorore nella risposta.
-                result.message = error;
-            }
-        });
-    }
-}
-
-module.exports.insertUser = function(email, password) {
-    // Inizializzo la risposta.
-    var result = new ApiResponse();
-    var missingArgs = true;
-
-    if (!email) {
-        // Email mancante.
-        result.message = 'Email non presente.';
-    } else if (!password) {
-        // Password mancante
-        result.message = 'Password non presente.';
-    } else {
-        missingArgs = false;
-    }
-
-    if (!missingArgs) {
-        // I parrametri sono presenti e quindi proseguo.
-        var data = {
-            email: email,
-            hash: sha1(password)
-        };
-
-        // Controllo se esiste gia' un account con la stessa email.
-        db.users.findOne({email: email}, function(error,docs) {
-            if (!docs) {
-                // Il record non e' stato trovato, quindi memorizzo il nuovo
-                // account.
-                db.mycollection.save(data);
-
-                result.setSuccess();
-            } else {
-                result.message = 'Esiste gia\' un account con questo indirizzo email';
-            }
-
-            if (error) {
-                // Riporto l'errorore nella risposta.
-                result.message = error;
-            }
-        });
     }
 
     return new Promise(function(resolve, reject) {
@@ -181,7 +155,7 @@ module.exports.insertUser = function(email, password) {
             // I parrametri sono presenti e quindi proseguo.
             var data = {
                 email: email,
-                hash: sha1(password)
+                password: sha1(password)
             };
 
             // Controllo se esiste gia' un account con la stessa email.
@@ -189,11 +163,12 @@ module.exports.insertUser = function(email, password) {
                 if (!docs) {
                     // Il record non e' stato trovato, quindi memorizzo il nuovo
                     // account.
-                    db.mycollection.save(data);
+                    db.users.insert(data);
 
                     result.setSuccess();
+                    result.message = 'Utente inserito correttamente.';
                 } else {
-                    result.message = 'Esiste gia\' un account con questo indirizzo email';
+                    result.message = 'Esiste gia\' un account con questo indirizzo email.';
                 }
 
                 if (error) {
@@ -214,38 +189,41 @@ module.exports.insertUser = function(email, password) {
 /*
  * Ritorna tutti gli utenti nel database.
  */
-module.exports.getUser = function(email) {
-    // Inizializzo la risposta.
-    var result = new ApiResponse();
-    var missingArgs = true;
+// module.exports.getUser = function(email) {
+//     // Inizializzo la risposta.
+//     var result = new ApiResponse();
+//     var missingArgs = true;
+//
+//     if (!email) {
+//         // Email mancante.
+//         result.message = 'Email non presente.';
+//     }  else {
+//         missingArgs = false;
+//     }
+//
+//     if(!missingArgs) {
+//         db.users.find({email: email}, function(error, docs) {
+//             if(error) {
+//         		util.logFail('Errore nella ricerca dell\'utente.');
+//                 console.log(error);
+//                 result.message = `Errore nella ricerca dell\'utente. ${error}`;
+//         	} else {
+//                 util.logSuccess('Successo prelievo utenti nel database.');
+//                 util.debug(docs);
+//
+//                 result.setSuccess();
+//                 result.content = docs;
+//             }
+//
+//             return result;
+//         });
+//     }
+//
+// }
 
-    if (!email) {
-        // Email mancante.
-        result.message = 'Email non presente.';
-    }  else {
-        missingArgs = false;
-    }
-
-    if(!missingArgs) {
-        db.users.find({email: email}, function(error, docs) {
-            if(error) {
-        		util.logFail('Errore nella ricerca dell\'utente.');
-                console.log(error);
-                result.message = `Errore nella ricerca dell\'utente. ${error}`;
-        	} else {
-                util.logSuccess('Successo prelievo utenti nel database.');
-                util.debug(docs);
-
-                result.setSuccess();
-                result.content = docs;
-            }
-
-            return result;
-        });
-    }
-
-}
-
+/**
+ * Ritorna un utente avente una email specifica.
+ */
 module.exports.getUser = function(email) {
     return new Promise(function(resolve, reject) {
         // Inizializzo la risposta.
@@ -267,7 +245,7 @@ module.exports.getUser = function(email) {
                     console.log(error);
                     result.message = `Errore nella ricerca dell\'utente. ${error}`;
             	} else {
-                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.logSuccess('Successo prelievo utente nel database.');
                     util.debug(docs);
 
                     result.setSuccess();
@@ -283,8 +261,70 @@ module.exports.getUser = function(email) {
 }
 
 
+/**
+ *  Ritorna tutti gli utenti presenti nel database.
+ */
+module.exports.getUsers = function() {
+    return new Promise(function(resolve, reject) {
+        // Inizializzo la risposta.
+        var result = new ApiResponse();
+
+        db.users.find(function(error, docs) {
+            if(error) {
+        		util.logFail('Errore nella ricerca degli utente.');
+                console.log(error);
+                result.message = `Errore nella ricerca dell\'utente. ${error}`;
+        	} else {
+                util.logSuccess('Successo prelievo utenti nel database.');
+                util.debug(docs);
+
+                result.setSuccess();
+                result.content = docs;
+            }
+
+            resolve(result);
+        });
+    });
+}
 
 
+
+/**
+ * Elimina un utente con una specifica email.
+ */
+module.exports.deleteUser = function(email) {
+    return new Promise(function(resolve, reject) {
+        // Inizializzo la risposta.
+        var result = new ApiResponse();
+        var missingArgs = true;
+
+        if (!email) {
+            // Email mancante.
+            result.message = 'Email non presente.';
+
+        }  else {
+            missingArgs = false;
+        }
+
+        if(!missingArgs) {
+            db.users.remove({email: email}, function(error, docs) {
+                if(error) {
+            		util.logFail('Errore nella ricerca dell\'utente.');
+                    console.log(error);
+                    result.message = `Errore nella ricerca dell\'utente. ${error}`;
+            	} else {
+                    util.logSuccess('Successo rimozione utente nel database.');
+                    util.debug(docs);
+
+                    result.setSuccess();
+                }
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
+    });
+}
 
 
 
@@ -435,6 +475,6 @@ module.exports.getUser = function(email) {
  *
  * @param string string.
  */
- var sha1 = function(string) {
+ module.exports.sha1 = function(string) {
      return crypto.createHash('sha1').update(JSON.stringify(string)).digest('hex');
  }
