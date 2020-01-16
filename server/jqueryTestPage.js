@@ -6,9 +6,10 @@ module.exports =
     </head>
     <body>
         <button id = 'test1-btn'>Send POST</button>
-        <button id = 'test2-btn'>GET dummy user.</button>
-        <button id = 'test3-btn'>GET all users.</button>
+        <button id = 'test2-btn'>GET dummy user</button>
+        <button id = 'test3-btn'>GET all users</button>
         <button id = 'test4-btn'>LOGIN</button>
+        <button id = 'test5-btn'>DELETE dummy user</button>
         <script>
             $(document).ready(function() {
                 $('#test1-btn').click(function() {
