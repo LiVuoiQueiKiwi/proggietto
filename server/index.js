@@ -82,10 +82,10 @@ app.post('/users/login', function(request, response) {
         // Controllo se e' stato trovato un account
         if (result.success) {
             // Controllo se le due password coincidono.
-            /****/ util.debug(result.content.password);
+            /****/ util.debug(result.content[0].password);
             /****/ util.debug(db.sha1(password));
 
-            if (result.content.password == db.sha1(password)) {
+            if (result.content[0].password == db.sha1(password)) {
                 clientResponse.setSuccess();
             } else {
                 clientResponse.message = 'Password errata';
