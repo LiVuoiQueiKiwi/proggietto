@@ -475,6 +475,9 @@ module.exports.deleteUser = function(email) {
  *
  * @param string string.
  */
- module.exports.sha1 = function(string) {
+var sha1 = function(string) {
      return crypto.createHash('sha1').update(JSON.stringify(string)).digest('hex');
- }
+}
+
+
+module.exports.sha1 = sha1;
