@@ -9,6 +9,8 @@ module.exports.logFail = function(...strings) {
     console.log(`${FAIL} `, ...strings);
 }
 
-module.exports.debug = function(variable) {
-    console.log('DEBUG: (', typeof variable, ')', variable);
+module.exports.debug = function(...variables) {
+    variables.forEach(function(item) {
+        console.log('DEBUG: (', typeof item, ')', item);
+    });
 }
