@@ -1,14 +1,15 @@
 // Load the http module to create an http server.
-/**/var http = require( 'http' );
-/**/var fs = require( 'fs' );
-/**/var url = require( 'url' );
+/****/var http = require( 'http' );
+/****/var fs = require( 'fs' );
+/****/var url = require( 'url' );
 
 var express = require('express');
 var session = require('express-session');
 var db = require('./mongodb.js');
+var ApiResponse = require('./apiResponse.js');
 var util = require('./util.js');
 
-/**/var testPage = require('./jqueryPostPage.js');
+/****/var testPage = require('./jqueryTestPage.js');
 
 
 var DOC_FOLDER = 'htdocs';
@@ -28,7 +29,7 @@ app.use(session({secret: 'NODE_JS_SESSION'}));
 app.use(express.json());
 // Inizializzo il parsing del testo in URL encoded data (per i dati inviati da
 // form HTML).
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 
 var sess;
@@ -55,12 +56,52 @@ app.get('/', function(request, response) {
 // 	response.send('Users!');
 // });
 
+
+app.post('/users/login', function(request, response) {
+
+    /****/util.debug(request.body.email, request.body.password);
+
+
+    // Inizializzo la sessione.
+    sess = request.session;
+
+    // Prelevo gli argomenti della richiesta.
+    var email = request.body.email;
+    var password = request.body.password;
+
+    // Inizializzo la risposta.
+    var clientResponse = new ApiResponse();
+
+    util.logSuccess(`Richiesta POST ricevuta. Verifica di login per l'utente: ${email}`);
+
+    // Eseguo l'operazione richiesta.
+    db.getUser(email).then(function(result) {
+
+        /****/util.debug(result);
+
+        // Controllo se e' stato trovato un account
+        if (result.success) {
+            // Controllo se le due password coincidono.
+            /****/ util.debug(result.content.password);
+            /****/ util.debug(db.sha1(password));
+
+            if (result.content.password == db.sha1(password)) {
+                clientResponse.setSuccess();
+            } else {
+                clientResponse.message = 'Password errata';
+            }
+        } else {
+            clientResponse.message = 'Non esiste alcun account con questa email.';
+        }
+
+        // Rispondo al client con il risultato.
+        sendToClient(response, clientResponse);
+    });
+});
+
 app.post('/users/add', function(request, response) {
 
-    /****/
-    util.debug(request.body.email);
-    util.debug(request.body.password);
-    /****/
+    /****/util.debug(request.body.email,request.body.password);
 
     // Prelevo gli argomenti della richiesta.
     var email = request.body.email;
@@ -75,12 +116,26 @@ app.post('/users/add', function(request, response) {
     });
 });
 
+
+
+app.get('/users/get', function(request, response) {
+
+    util.logSuccess(`Richiesta GET ricevuta. Ricerca di tutti gli utenti`);
+
+    // Eseguo l'operazione richiesta.
+    db.getUsers().then(function(result) {
+        // Rispondo al client con il risultato.
+        sendToClient(response, result);
+    });
+});
+
+
+
 app.get('/users/get/:email', function(request, response) {
     // Prelevo gli argomenti della richiesta.
     var email = request.params.email;
 
-    util.logSuccess(`Richiesta GET ricevuta. Ricerca di un utente con email ${email}`);
-
+    util.logSuccess(`Richiesta GET ricevuta. Ricerca dell'utente: ${email}`);
 
     // Eseguo l'operazione richiesta.
     db.getUser(email).then(function(result) {
@@ -88,6 +143,30 @@ app.get('/users/get/:email', function(request, response) {
         sendToClient(response, result);
     });
 });
+
+
+
+/**
+ * TODO: Da aggiungere il controllo sulla sessione se l'utente che accede
+ * all'API e' lo stesso (stessa email eliminata) ed e' loggato.
+ */
+app.delete('/users/delete', function(request, response) {
+
+    /****/util.debug(request.body.email);
+
+    // Prelevo gli argomenti della richiesta.
+    var email = request.body.email;
+
+    util.logSuccess(`Richiesta DELETE ricevuta. Eliminazione dell'utente: ${email}`);
+
+    // Eseguo l'operazione richiesta.
+    db.deleteUser(email).then(function(result) {
+        // Rispondo al client con il risultato.
+        sendToClient(response, result);
+    });
+});
+
+
 
 app.listen(SERVER_PORT, function() {
 	console.log(`Server started on port ${SERVER_PORT}`);
@@ -105,9 +184,7 @@ var sendToClient = function(response, data) {
     // Esueguo il parsing sul risultato.
     var stringOutput = toJson(data);
 
-    /****/
-    util.debug(stringOutput);
-    /****/
+    /****/util.debug(stringOutput);
 
     // Rispondo al client con il risultato.
     response.send(stringOutput);
