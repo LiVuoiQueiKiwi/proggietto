@@ -1,4 +1,3 @@
-// Load the http module to create an http server.
 /****/var http = require( 'http' );
 /****/var fs = require( 'fs' );
 /****/var url = require( 'url' );
@@ -6,32 +5,56 @@
 var express = require('express');
 var session = require('express-session');
 var db = require('./mongodb.js');
+
+/*
+ * Import dell'oggetto di risposta delle API.
+ */
 var ApiResponse = require('./apiResponse.js');
+
+/*
+ * Import delle funzioni di utilita'.
+ */
 var util = require('./util.js');
 
 /****/var testPage = require('./jqueryTestPage.js');
 
-
-var DOC_FOLDER = 'htdocs';
+/**
+ * Percorso relativo della cartella in cui si trovano i documenti HTML.
+ * @const {string}
+ */
+const DOC_FOLDER = 'htdocs';
 
 /**
  * Porta di ascolto del server.
  * @const {int}
  */
-var SERVER_PORT = 8000;
+const SERVER_PORT = 8000;
 
 
 var app = express();
 
-// Inizializzo il cookie per la sessione.
+/*
+ * Inizializzo il cookie per la sessione.
+ */
 app.use(session({secret: 'NODE_JS_SESSION'}));
-// Inizializzo il parsing da testo in JSON delle risposte.
+
+/*
+ * Inizializzo il parsing da testo in JSON delle risposte.
+ */
 app.use(express.json());
-// Inizializzo il parsing del testo in URL encoded data (per i dati inviati da
-// form HTML).
+
+/*
+ * Inizializzo il parsing del testo in URL encoded data (per i dati inviati da
+ * form HTML).
+ */
 app.use(express.urlencoded({extended: true}));
 
 
+
+/**
+ * Variabile per la gestione della sessione con il client.
+ * @var {object}
+ */
 var sess;
 
 // app.get('/',function(req,res){
@@ -72,21 +95,36 @@ app.post('/users/login', function(request, response) {
     // Inizializzo la risposta.
     var clientResponse = new ApiResponse();
 
+
     util.logSuccess(`Richiesta POST ricevuta. Verifica di login per l'utente: ${email}`);
 
-    // Eseguo l'operazione richiesta.
+    /*
+     * Eseguo l'operazione richiesta.
+     */
     db.getUser(email).then(function(result) {
 
         /****/util.debug(result);
 
-        // Controllo se e' stato trovato un account
+        /*
+         * Controllo se e' stato trovato un account
+         */
         if (result.success) {
-            // Controllo se le due password coincidono.
+
             /****/ util.debug(result.content[0].password);
             /****/ util.debug(db.sha1(password));
 
+            /*
+             * Controllo se le due password coincidono.
+             */
             if (result.content[0].password == db.sha1(password)) {
                 clientResponse.setSuccess();
+
+                /*
+                 * Memorizzo nella sessione il fatto che l'utente si sia
+                 * autenticato e la sua password.
+                 */
+                sess.userIsLogged = 1;
+                sess.userEmal = email;
             } else {
                 clientResponse.message = 'Password errata';
             }
