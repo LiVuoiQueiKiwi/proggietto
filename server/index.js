@@ -57,6 +57,14 @@ app.use(express.urlencoded({extended: true}));
  */
 var sess;
 
+
+
+/**
+ * Messaggio per l'accesso non autorizzato.
+ * @const {string}
+ */
+const NO_AUTH_MESSAGE = 'Accesso API non autorizzato';
+
 // app.get('/',function(req,res){
 //     sess=req.session;
 //     /*
@@ -75,32 +83,46 @@ app.get('/', function(request, response) {
     util.logSuccess('Pagina principale inviata.');
 });
 
-// app.get('/users', function(request, response) {
-// 	response.send('Users!');
-// });
+
+
+// #############################################################################
+//   SEZIONE PER GLI UTENTI.
+// #############################################################################
 
 
 app.post('/users/login', function(request, response) {
 
     /****/util.debug(request.body.email, request.body.password);
+    util.terminal('>>> Begin of login section.');
 
-
-    // Inizializzo la sessione.
+    /*
+     * Inizializzo la sessione.
+     */
     sess = request.session;
+    util.terminal('Retriving session object');
 
-    // Prelevo gli argomenti della richiesta.
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
     var email = request.body.email;
     var password = request.body.password;
 
-    // Inizializzo la risposta.
-    var clientResponse = new ApiResponse();
+    util.terminal('Retriving email argument from request object');
+    util.terminal('Retriving password argument from request object');
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse
+    util.terminal('Initializing API response object');
 
 
-    util.logSuccess(`Richiesta POST ricevuta. Verifica di login per l'utente: ${email}`);
+    // util.logSuccess(`Richiesta POST ricevuta. Verifica di login per l'utente: ${email}`);
 
     /*
      * Eseguo l'operazione richiesta.
      */
+    util.terminal('Performing database query.');
     db.getUser(email).then(function(result) {
 
         /****/util.debug(result);
@@ -110,67 +132,88 @@ app.post('/users/login', function(request, response) {
          */
         if (result.success) {
 
-            /****/ util.debug(result.content[0].password);
+            var userData = result.content[0];
+            /****/ util.debug(userData.password);
             /****/ util.debug(db.sha1(password));
 
             /*
              * Controllo se le due password coincidono.
              */
-            if (result.content[0].password == db.sha1(password)) {
-                clientResponse.setSuccess();
+            if (userData.password == db.sha1(password)) {
+                serverResponse.setSuccess();
 
                 /*
                  * Memorizzo nella sessione il fatto che l'utente si sia
                  * autenticato e la sua password.
                  */
                 sess.userIsLogged = 1;
-                sess.userEmal = email;
+                sess.userId = userData._id;
+                sess.userEmail = email;
             } else {
-                clientResponse.message = 'Password errata';
+                serverResponse.message = 'Password errata';
             }
         } else {
-            clientResponse.message = 'Non esiste alcun account con questa email.';
+            serverResponse.message = 'Non esiste alcun account con questa email.';
         }
 
         // Rispondo al client con il risultato.
-        sendToClient(response, clientResponse);
+        sendToClient(response, serverResponse);
     });
 });
 
-app.post('/users/add', function(request, response) {
+
+
+/*
+ * Gestione API per l'aggiunta di un nuovo utente.
+ */
+app.put('/users', function(request, response) {
 
     /****/util.debug(request.body.email,request.body.password);
 
-    // Prelevo gli argomenti della richiesta.
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
     var email = request.body.email;
     var password = request.body.password;
 
-    util.logSuccess(`Richiesta POST ricevuta. Inserimento di un utente con email ${email} e password: ********`);
+    util.logSuccess(`Richiesta PUT ricevuta. Inserimento di un utente con email ${email} e password: ********`);
 
-    // Eseguo l'operazione richiesta.
+    /*
+     * Eseguo l'operazione richiesta.
+     */
     db.insertUser(email, password).then(function(result) {
-        // Rispondo al client con il risultato.
+        /*
+         * Rispondo al client con il risultato.
+         */
         sendToClient(response, result);
     });
 });
 
 
-
-app.get('/users/get', function(request, response) {
+/****/
+// SOLO PER TESTING.
+/****/
+app.get('/users', function(request, response) {
 
     util.logSuccess(`Richiesta GET ricevuta. Ricerca di tutti gli utenti`);
 
-    // Eseguo l'operazione richiesta.
+    /*
+     * Eseguo l'operazione richiesta.
+     */
     db.getUsers().then(function(result) {
-        // Rispondo al client con il risultato.
+        /*
+         * Rispondo al client con il risultato.
+         */
         sendToClient(response, result);
     });
 });
+/****/
 
 
-
-app.get('/users/get/:email', function(request, response) {
-    // Prelevo gli argomenti della richiesta.
+app.get('/users/:email', function(request, response) {
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
     var email = request.params.email;
 
     util.logSuccess(`Richiesta GET ricevuta. Ricerca dell'utente: ${email}`);
@@ -188,24 +231,310 @@ app.get('/users/get/:email', function(request, response) {
  * TODO: Da aggiungere il controllo sulla sessione se l'utente che accede
  * all'API e' lo stesso (stessa email eliminata) ed e' loggato.
  */
-app.delete('/users/delete', function(request, response) {
+app.delete('/users/:email', function(request, response) {
 
-    /****/util.debug(request.body.email);
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
 
-    // Prelevo gli argomenti della richiesta.
-    var email = request.body.email;
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
 
-    util.logSuccess(`Richiesta DELETE ricevuta. Eliminazione dell'utente: ${email}`);
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
+    var email = request.params.email;
 
-    // Eseguo l'operazione richiesta.
-    db.deleteUser(email).then(function(result) {
-        // Rispondo al client con il risultato.
-        sendToClient(response, result);
-    });
+    /****/util.debug(email);
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess) && email == sess.userEmail) {
+        util.logSuccess(`Richiesta DELETE ricevuta. Eliminazione dell'utente: ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.deleteUser(email).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
 });
 
 
 
+// #############################################################################
+//   SEZIONE DELLE CLIP.
+// #############################################################################
+
+
+
+app.put('/clips', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
+    var clip = request.body.clip;
+
+    /*
+     * Controllo se l'utente e' loggato.
+     */
+    if (isUserLogged(sess)) {
+
+        util.logSuccess(`Richiesta PUT ricevuta. Inserimento di una nuova clip per ${sess.userEmail}`);
+
+        /*
+         * Aggiungo all'oggetto della clip, l'ID dell'utente.
+         */
+        clip.userId = sess.userId;
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.putClip(clip).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+
+    sendToClient(response, serverResponse);
+});
+
+
+/*
+ * Restituisce al client UNA singola clip avente l'ID in input
+ */
+app.get('/clips/:id', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
+    var id = request.params.id;
+
+    /****/util.debug(id);
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess)) {
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo una clip con id ${id} per l'utente ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.getClip(sess.userId).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
+});
+
+
+/*
+ * Restituisce TUTTE le clip di un utente.
+ */
+app.get('/clips', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess)) {
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.getClip(sess.userId).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
+});
+
+
+
+/*
+ * Restituisce TUTTE le clip PUBBLICATE di un utente.
+ */
+app.get('/clips/public', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess)) {
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.getClip(sess.userId, 1).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
+});
+
+
+
+/*
+ * Restituisce TUTTE le clip PRIVATE di un utente.
+ */
+app.get('/clips/private', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess)) {
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.getClip(sess.userId, 0).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
+});
+
+
+
+app.delete('/clips/:id', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
+    var id = request.params.id;
+
+    /****/util.debug(id);
+
+    /*
+     * Solo un utente autenticato puo' eliminare il proprio account.
+     */
+    if (isUserLogged(sess) && email == sess.userEmail) {
+        util.logSuccess(`Richiesta DELETE ricevuta. Elimino la clip con id ${id} per l'utente ${email}`);
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.deleteClip(id).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        });
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+    }
+
+    sendToClient(response, serverResponse);
+});
+
+
+
+
+// #############################################################################
+//   ALTRO.
+// #############################################################################
+
+
+/*
+ * Il web server rimane in ascolto sulla porta specificata.
+ */
 app.listen(SERVER_PORT, function() {
 	console.log(`Server started on port ${SERVER_PORT}`);
 });
@@ -214,17 +543,20 @@ app.listen(SERVER_PORT, function() {
 
 /**
  * Invia al client un oggetto in formato JSON testuale.
- *
  * @param {object} response.
  * @param {object} data.
  */
 var sendToClient = function(response, data) {
-    // Esueguo il parsing sul risultato.
+    /*
+     * Esueguo il parsing sul risultato.
+     */
     var stringOutput = toJson(data);
 
     /****/util.debug(stringOutput);
 
-    // Rispondo al client con il risultato.
+    /*
+     * Rispondo al client con il risultato.
+     */
     response.send(stringOutput);
 }
 
@@ -232,11 +564,21 @@ var sendToClient = function(response, data) {
 
 /**
  * Converte un oggetto in JSON.
- *
  * @param {object} data.
  */
 var toJson = function(data) {
     return JSON.stringify(data);
+}
+
+
+
+/**
+ * Controlla se l'utente e' autenticato.
+ * @param {object} session.
+ * @return {bool}
+ */
+var isUserLogged = function(session) {
+    return session.userIsLogged && session.userEmail;
 }
 
 //
