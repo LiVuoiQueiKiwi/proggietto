@@ -1,19 +1,32 @@
+/*
+ * Per l'utilizzo del database.
+ */
 var mongo = require('mongodb');
 
 /*
  * Per l'algoritmo SHA1.
  */
 const crypto = require('crypto');
+
+/*
+ * Per l'utilizzo di funzioni generali.
+ */
 const util = require('./util.js');
 
+/*
+ * Classe per risposte API.
+ */
 var ApiResponse = require('./apiResponse.js');
+
+/****/
 var MongoClient = mongo.MongoClient;
+/****/
 
 /**
  * L'host sul quale il database MongoDB e' in esecuzione.
  * @const {string}
  */
-const  MONGODB_HOST = 'localhost';
+const MONGODB_HOST = 'localhost';
 
 /**
  * Il nome del database utilizzato su MongoDB.
@@ -62,7 +75,7 @@ const COLLECTIONS = [ COLLECTION_USERS, COLLECTION_CLIPS ];
 // #################################################################
 
 var mongojs = require('mongojs');
-var db = mongojs('mongodb://localhost:27017/whereami', ['users', 'clips']);
+var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
 
 
 
@@ -80,9 +93,11 @@ db.on('connect', function () {
  * Inserisce un nuovo utente nel database.
  */
 // module.exports.insertUser = function(email, password) {
-//     // Inizializzo la risposta.
+//     /*
+ // * Inizializzo la risposta.
+ // */
 //     var result = new ApiResponse();
-//     var missingArgs = true;
+//     var missingArgs = 1;
 //
 //     if (!email) {
 //         // Email mancante.
@@ -91,7 +106,7 @@ db.on('connect', function () {
 //         // Password mancante
 //         result.message = 'Password non presente.';
 //     } else {
-//         missingArgs = false;
+//         missingArgs = 0;
 //     }
 //
 //     if (!missingArgs) {
@@ -121,25 +136,13 @@ db.on('connect', function () {
 //     }
 // }
 
-module.exports.insertUser = function(email, password) {
-    // Inizializzo la risposta.
-    var result = new ApiResponse();
-    var missingArgs = true;
-
-    if (!email) {
-        // Email mancante.
-        result.message = 'Email non presente.';
-    } else if (!password) {
-        // Password mancante
-        result.message = 'Password non presente.';
-    } else {
-        missingArgs = false;
-    }
-
+module.exports.putUser = function(email, password) {
     return new Promise(function(resolve, reject) {
-        // Inizializzo la risposta.
+        /*
+         * Inizializzo la risposta.
+         */
         var result = new ApiResponse();
-        var missingArgs = true;
+        var missingArgs = 1;
 
         if (!email) {
             // Email mancante.
@@ -148,7 +151,7 @@ module.exports.insertUser = function(email, password) {
             // Password mancante
             result.message = 'Password non presente.';
         } else {
-            missingArgs = false;
+            missingArgs = 0;
         }
 
         if(!missingArgs) {
@@ -190,15 +193,17 @@ module.exports.insertUser = function(email, password) {
  * Ritorna tutti gli utenti nel database.
  */
 // module.exports.getUser = function(email) {
-//     // Inizializzo la risposta.
+//     /*
+ // * Inizializzo la risposta.
+ // */
 //     var result = new ApiResponse();
-//     var missingArgs = true;
+//     var missingArgs = 1;
 //
 //     if (!email) {
 //         // Email mancante.
 //         result.message = 'Email non presente.';
 //     }  else {
-//         missingArgs = false;
+//         missingArgs = 0;
 //     }
 //
 //     if(!missingArgs) {
@@ -226,16 +231,18 @@ module.exports.insertUser = function(email, password) {
  */
 module.exports.getUser = function(email) {
     return new Promise(function(resolve, reject) {
-        // Inizializzo la risposta.
+        /*
+         * Inizializzo la risposta.
+         */
         var result = new ApiResponse();
-        var missingArgs = true;
+        var missingArgs = 1;
 
         if (!email) {
             // Email mancante.
             result.message = 'Email non presente.';
 
         }  else {
-            missingArgs = false;
+            missingArgs = 0;
         }
 
         if(!missingArgs) {
@@ -266,7 +273,9 @@ module.exports.getUser = function(email) {
  */
 module.exports.getUsers = function() {
     return new Promise(function(resolve, reject) {
-        // Inizializzo la risposta.
+        /*
+         * Inizializzo la risposta.
+         */
         var result = new ApiResponse();
 
         db.users.find(function(error, docs) {
@@ -294,28 +303,221 @@ module.exports.getUsers = function() {
  */
 module.exports.deleteUser = function(email) {
     return new Promise(function(resolve, reject) {
-        // Inizializzo la risposta.
+        /*
+         * Inizializzo la risposta.
+         */
         var result = new ApiResponse();
-        var missingArgs = true;
+        var missingArgs = 1;
 
         if (!email) {
             // Email mancante.
             result.message = 'Email non presente.';
 
         }  else {
-            missingArgs = false;
+            missingArgs = 0;
         }
 
         if(!missingArgs) {
             db.users.remove({email: email}, function(error, docs) {
                 if(error) {
-            		util.logFail('Errore nella ricerca dell\'utente.');
+            		util.logFail('Errore nella rimozione dell\'utente.');
                     console.log(error);
-                    result.message = `Errore nella ricerca dell\'utente. ${error}`;
+                    result.message = `Errore nella rimozione dell\'utente. ${error}`;
             	} else {
                     util.logSuccess('Successo rimozione utente nel database.');
                     util.debug(docs);
 
+                    result.setSuccess();
+                }
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
+    });
+}
+
+
+// JSON CLIP
+// {
+//     "userId": {int}
+//     "uploaded-file": "",
+//     "title": "",
+//     "geoloc": "",
+//     "language": "",
+//     "audience": "",
+//     "detail": "",
+//     "content": "",
+//     "published": "",
+//     "purpose": []
+// }
+
+
+/**
+ * Messaggi di errore per le operazioni sulle clip.
+ * @const {string}
+ */
+const CLIPS_ERR_GET    = 'Errore nella ricerca di tutte le clip.';
+const CLIPS_ERR_DELETE = 'Errore nella ricerca dell\'utente.';
+
+
+
+/*
+ * Inserisce un nuovo oggetto 'clip' nella collezione.
+ */
+module.exports.putClip = function(clip) {
+    return new Promise(function(resolve, reject) {
+        /*
+         * Inizializzo la risposta.
+         */
+        var result = new ApiResponse();
+        var missingArgs = 1;
+
+        if (!clip) {
+            result.message = 'Clip non presente.';
+        } else {
+            missingArgs = 0;
+        }
+
+        if(!missingArgs) {
+            db.clips.insert(clip);
+            result.setSuccess();
+            result.message = 'Utente inserito correttamente.';
+        }
+
+        resolve(result);
+    });
+}
+
+
+/**
+ * Preleva una clip dal database con un ID specifico.
+ * @param {int} id.
+ * @return {Promise}
+ */
+module.exports.getClip = function(id) {
+    return new Promise(function(resolve, reject) {
+        /*
+         * Inizializzo la risposta.
+         */
+        var result = new ApiResponse();
+        var missingArgs = 1;
+
+        if (!id) {
+            result.message = 'Id non presente.';
+        }  else {
+            missingArgs = 0;
+        }
+
+        if(!missingArgs) {
+            db.clips.find({_id: id}, function(error, docs) {
+                if(error) {
+            		util.logFail(CLIPS_ERR_GET);
+                    console.log(error);
+                    result.message = CLIPS_ERR_GET + ' ' + error;
+            	} else {
+                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.debug(docs);
+                    result.setSuccess();
+                    result.content = docs;
+                }
+
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
+    });
+}
+
+
+
+/**
+ * Preleva tutte clip dal database di un utente.
+ * @param {int} userId.
+ * @return {Promise}
+ */
+module.exports.getClips = function(userId, published = -1) {
+    return new Promise(function(resolve, reject) {
+        /*
+         * Inizializzo la risposta.
+         */
+        var result = new ApiResponse();
+        var missingArgs = 1;
+
+        if (!id) {
+            result.message = 'Id non presente.';
+        }  else {
+            missingArgs = 0;
+        }
+
+        /*
+         * Controllo se si vogliono estrarre tutte le clip, quelle pubblicate o
+         * quelle non pubblicate.
+         */
+        if (published === -1 || published === null) {
+            var dataFilter = {
+                userId: userId
+            };
+        } else if (published) {
+            var dataFilter = {
+                userId: userId,
+                published: 1
+            };
+        } else {
+            var dataFilter = {
+                userId: userId,
+                published: 0
+            };
+        }
+
+        if(!missingArgs) {
+            db.clips.find(dataFilter, function(error, docs) {
+                if(error) {
+            		util.logFail(CLIPS_ERR_GET);
+                    console.log(error);
+                    result.message = CLIPS_ERR_GET + ' ' + error;
+            	} else {
+                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.debug(docs);
+                    result.setSuccess();
+                    result.content = docs;
+                }
+                resolve(result);
+            });
+        } else {
+            resolve(result);
+        }
+    });
+}
+
+
+/*
+ * Elimina una clip dal database con un ID specifico.
+ */
+module.exports.deleteClip = function(id) {
+    return new Promise(function(resolve, reject) {
+        /*
+         * Inizializzo la risposta.
+         */
+        var result = new ApiResponse();
+        var missingArgs = 1;
+
+        if (!id) {
+            result.message = 'Id non presente.';
+        }  else {
+            missingArgs = 0;
+        }
+
+        if(!missingArgs) {
+            db.clips.remove({_id: id}, function(error, docs) {
+                if(error) {
+            		util.logFail(CLIPS_ERR_DELETE);
+                    util.debug(error);
+                    result.message = CLIPS_ERR_DELETE + ' ' + error;
+            	} else {
+                    util.logSuccess(`Successo rimozione della clip [${id}] dal database.`);
+                    util.debug(docs);
                     result.setSuccess();
                 }
                 resolve(result);
