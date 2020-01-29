@@ -3,6 +3,8 @@
 
 <head>
 
+  <title>WHERE AM I</title>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
@@ -38,35 +40,197 @@
   <div class="d-flex toggled" id="wrapper">
 
     <!-- Sidebar -->
-    <div class="bg-dark border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading font-weight-bold text-white ">Where am I</div>
+    <div class="bg-dark border-right text-center" id="sidebar-wrapper">
+      <div class='float-right w-100'><button id="close_menu" type="button" class="close m-2 text-white" aria-label="Close">&times;</button></div>
+      <div class="sidebar-heading font-weight-bold text-white "><h2><b>WHERE AM I</b></h2></div>
+
+      <br><br>
+      <form id="formLanguage" enctype = 'multipart/form-data'>
+        <div class="form-group _form-group">
+          <label for="clipLanguage" class="text-white">Lingua predefinita:</label>
+          <select name="language" class="form-control" style="width: 80%; margin: 0 10% 0 10%;" id="language">
+            <option value="ita">Italiano</option>
+            <option value="eng">English</option>
+            <option value="deu">Deutsch</option>
+            <option value="fra">Français</option>
+            <option value="esp">Español</option>
+          </select>
+        </div>
+      </form>
+
       <div id="container-forms">
-        <form class="form-signin">
-            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
+        <form id="signin" class="form-signin">
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Login</h1>
 
-            <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
-            <input type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+            <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required="">
 
-            <button class="btn btn-success btn-block" type="submit"><i class="fas fa-sign-in-alt"></i> Sign in</button>
+            <input class="btn btn-success btn-block" value="Login as Editor" type="submit">
 
             <hr>
             <!-- <p>Don't have an account!</p>  -->
-            <button class="btn btn-primary btn-block" type="button" id="btn-signup"><i class="fas fa-user-plus"></i> Sign up New Account</button>
-            </form>
+            <button class="btn btn-primary btn-block" type="button" id="btn-signup"><i class="fas fa-user-plus"></i> Sign up New Account as Editor</button>
+        </form>
 
-            <form action="/signup/" class="form-signup">
+        <form action="/signup/" id="signup" class="form-signup">
 
-                <input type="email" id="user-email" class="form-control" placeholder="Email address" required autofocus="">
-                <input type="password" id="user-pass" class="form-control" placeholder="Password" required autofocus="">
-                <input type="password" id="user-repeatpass" class="form-control" placeholder="Repeat Password" required autofocus="">
-				<input type="radio" id="type-browser"  name="user-type" value="browser" required autofocus=""><label>Browser</label>
-				<input type="radio" id="type-editor"  name="user-type" value="Editor" required autofocus=""><label>Editor</label>
-                <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up</button>
-                <a href="#" id="cancel_signup"><i class="fas fa-angle-left"></i> Back</a>
-            </form>
-            <br>
+            <input type="email" name="email" id="user-email" class="form-control" placeholder="Email address" required autofocus="">
+            <input type="password" name="password" id="user-pass" class="form-control" placeholder="Password" required autofocus="">
+            <input type="password" id="user-repeatpass" class="form-control" placeholder="Repeat Password" required autofocus="">
+            <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-user-plus"></i> Sign Up as Editor</button>
+            <a href="#" id="cancel_signup"><i class="fas fa-angle-left"></i> Back</a>
+        </form>
+
 
         </div>
+
+        <!-- Bottone che apre il form di creazione clip (per l'Editor) -->
+       <button class='btn btn-primary' type='button' id="create_clip" data-toggle="modal" data-target="#modalNewClip">Crea clip</button>
+       <div class="modal fade" id="modalNewClip" role="dialog">
+         <div class="modal-dialog modal-lg">
+           <div class="modal-content _modal-content text-left">
+             <div class="modal-header _modal-header">
+                 <h4 class="modal-title">Crea una nuova clip</h4>
+             </div>
+             <div class="modal-body _modal-body">
+
+               <form id="myForm" enctype = 'multipart/form-data'>
+                 <div class="form-group _form-group">
+                   <label for="clipRecord">Registra la clip</label><br>
+                   <div id="audio_record_div"></div>
+                   <!-- <input name="uploaded-file" type='file' accept="x/*" capture> -->
+                   <button type='button' class='btn btn-primary' id="record_clip_button">Registra</button>
+                   <button type='button' class='btn btn-primary' id='stop_record_clip_button'>Stop</button>
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipTitle">Titolo</label>
+                   <input name="title" type="text" class="form-control" id="title" placeholder="Inserisci qua il titolo della clip" required maxlength="100"> <!-- 100 è il limite di caratteri dei titoli di youtube -->
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipGeoloc">Geolocalizzazione</label>
+                   <input name="geoloc" type="text" class="form-control" id="geoloc" placeholder=" ---Richiede geolocaizzazione dell'utente--- " required pattern="[A-Z 0-9]{2,8}[+][A-Z 0-9]{0,6}" title="OLC Format">
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipLanguage">Lingua</label>
+                   <select name="language" class="form-control" id="language">
+                     <option value="ita">Italiano</option>
+                     <option value="eng">English</option>
+                     <option value="deu">Deutsch</option>
+                     <option value="fra">Français</option>
+                     <option value="esp">Español</option>
+                   </select>
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipPurpose">Scopo</label>
+                   <br>
+                   <div class="form-check form-check-inline" id="purpose">
+                     <div id="purpose_what" class="_arrow">
+                       <input type="radio" name="purpose" value="what">
+                       <label class="form-check-label _form-check-label _pointer" for="inlineRadio1">What</label>
+                     </div>
+                     <div id="purpose_how" class="_arrow">
+                       <input type="radio" name="purpose" value="how">
+                       <label class="form-check-label _form-check-label _pointer" for="inlineRadio2">How</label>
+                     </div>
+                     <div id="purpose_why" class="_arrow">
+                       <input type="radio" name="purpose" value="why">
+                       <label class="form-check-label _form-check-label _pointer" for="inlineRadio3">Why</label>
+                     </div>
+                   </div>
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipAudience">Pubblico</label>
+                   <select name="audience" class="form-control" id="audience">
+                     <option value="">Non Specificato</option>
+                     <option value="gen">Pubblico Generico</option>
+                     <option value="pre">Pre-Scuola</option>
+                     <option value="elm">Scuola Primaria</option>
+                     <option value="mid">Scuola Media</option>
+                     <option value="scl">Specialisti del Settore</option>
+                   </select>
+                 </div>
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipDetail">Livello di dettaglio del contenuto (1-20)<br>[Facoltativo]</label>
+                   <input name="detail" type="number" class="form-control" id="detail" min="1" max="20">
+                 </div>
+                 <br>
+
+                 <div class="form-group _form-group">
+                   <label for="clipContent">Contenuto [Max 3]</label>
+                   <div id="contentOption"></div>
+                   <select name="content" class="form-control" id="content" multiple>
+                     <option value="none">Nessuno...</option>
+                     <option value="nat">Natura</option>
+                     <option value="art">Arte</option>
+                     <option value="his">Storia</option>
+                     <option value="flk">Folklore</option>
+                     <option value="mod">Cultura Moderna</option>
+                     <option value="rel">Religione</option>
+                     <option value="cui">Cucina e Drink</option>
+                     <option value="spo">Sport</option>
+                     <option value="mus">Musica</option>
+                     <option value="mov">Film</option>
+                     <option value="fas">Moda</option>
+                     <option value="shp">Shopping</option>
+                     <option value="tec">Tecnologia</option>
+                     <option value="pop">Cultura Pop e Gossip</option>
+                     <option value="prs">Esperienze Personali</option>
+                     <option value="oth">Altro</option>
+                   </select>
+                 </div>
+
+                 <br>
+                 <div class="form-group _form-group">
+                   <label for="clipCreator">Email Utente</label>
+                   <input name="email" type="email" class="form-control" id="creator" readonly required>
+                 </div>
+                 <br>
+                 <div class="form-check">
+                   <input name="published" type="checkbox" class="form-check-input published" id="published_checkbox" value="published">
+                   <label class="form-check-label _form-check-label _pointer _label_checkbox" id="published_label">Rendi pubblica la tua clip</label>
+                 </div>
+                 <br>
+                 <div id="div_save_clip">
+                   <input type="submit" id="save_clip" class="btn btn-primary" value="Salva la clip">
+                 </div>
+                 <br>
+               </form>
+
+             </div>
+             <div class="modal-footer _flex">
+               <div class="_flex_left" id="back_form_div"></div>
+               <div class="_flex_right">
+                 <button type="button" id="close_form" class="btn btn-primary _flex" data-dismiss="modal">Close</button>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+       <br><br>
+
+     <!-- //Bottone che apre la lista di clip salvate ma non ancora pubblicate -->
+      <button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalClipNotPublished" id="notPublishedList">Clip salvate non pubblicate</button>
+      <div class="modal fade" id="modalClipNotPublished" role="dialog">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content _modal-content">
+            <div class="modal-header _modal-header">
+                <h4 class="modal-title">Clip da pubblicare</h4>
+            </div>
+            <div class="modal-body _modal-body" id="_modal-body-clip-not-published">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
     </div>
     <!-- /#sidebar-wrapper -->
@@ -74,15 +238,31 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
 
-      <nav style="height:10%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
+      <nav style="height:10%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom d-flex flex-nowrap justify-content-between">
         <button class="btn btn-primary" id="menu-toggle">Menu</button>
-          <button class="btn btn-secondary" id="menu-toggle" onclick="getOfflinePosition()">O</button>
-          <button class="btn btn-secondary" id="menu-toggle" onclick="addMarker()">+</button>
+        <button class="btn btn-secondary" id="center-position" onclick="getOfflinePosition()"><img src='img/center_position.png' class='img_btn _poiter'></button>
+          <!-- //Bottone che apre la lista delle clip nei dintorni (tra i 50 e i 100 metri) -->
+        <button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalLocationList" id="locationList">Luoghi</button>
+        <div class="modal fade" id="modalLocationList" role="dialog">
+         <div class="modal-dialog modal-sm">
+           <div class="modal-content _modal-content">
+             <div class="modal-header _modal-header">
+                 <h4 class="modal-title">Altri luoghi da visitare</h4>
+             </div>
+             <div class="modal-body _modal-body" id="_modal-body-location-list">
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+             </div>
+           </div>
+         </div>
+        </div>
       </nav>
 
 
       <div style="width:100%; height:80%" id="map"></div>
  <footer style="height:10%" class="page-footer bg-dark">
+
      <!-- Bottone WhereAmI -->
    <div class="footer-copyright text-center mx-auto p-3">
 		<button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalWhereAmI" id="buttonWhereAmI">WhereAmI</button>
@@ -97,168 +277,6 @@
 			</div>
 		</div>
 
-       <!-- //Bottone che apre la lista delle clip nei dintorni (tra i 50 e i 100 metri) -->
-		<button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalLocationList" id="requestLocationList">Luoghi nei dintorni</button>
-		<div class="modal fade" id="modalLocationList" role="dialog">
-			<div class="modal-dialog modal-sm">
-				<div class="modal-content _modal-content">
-					<div class="modal-header _modal-header">
-							<h4 class="modal-title">Altri luoghi da visitare</h4>
-					</div>
-					<div class="modal-body _modal-body" id="_modal-body-location-list">
-					</div>
-					<div class="modal-footer">
-							<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-       <!-- //Bottone che apre la lista di clip salvate ma non ancora pubblicate -->
-		<button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalClipNotPublished" id="requestClipNotPublished">Clip salvate non pubblicate</button>
-		<div class="modal fade" id="modalClipNotPublished" role="dialog">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content _modal-content">
-					<div class="modal-header _modal-header">
-							<h4 class="modal-title">Clip da pubblicare</h4>
-					</div>
-					<div class="modal-body _modal-body" id="_modal-body-clip-not-published">
-					</div>
-					<div class="modal-footer">
-							<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-					</div>
-				</div>
-			</div>
-		</div>
-
-       <!-- Bottone che apre il form di creazione clip (per l'Editor) -->
-		<button class='btn btn-primary' type='button' id="create_clip" data-toggle="modal" data-target="#modalNewClip">Crea clip</button>
-		<div class="modal fade" id="modalNewClip" role="dialog">
-			<div class="modal-dialog modal-lg">
-				<div class="modal-content _modal-content text-left">
-					<div class="modal-header _modal-header">
-							<h4 class="modal-title">Crea una nuova clip</h4>
-					</div>
-					<div class="modal-body _modal-body">
-
-						<form id="myForm" enctype = 'multipart/form-data'>
-							<div class="form-group _form-group">
-								<label for="clipRecord">Registra la clip</label><br>
-								<div id="audio_record_div"></div>
-								<!-- <input name="uploaded-file" type='file' accept="x/*" capture> -->
-								<button type='button' class='btn btn-primary' id="record_clip_button">Registra</button>
-								<button type='button' class='btn btn-primary' id='stop_record_clip_button'>Stop</button>
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipTitle">Titolo</label>
-								<input name="title" type="text" class="form-control" id="title" placeholder="Inserisci qua il titolo della clip" required maxlength="100"> <!-- 100 è il limite di caratteri dei titoli di youtube -->
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipGeoloc">Geolocalizzazione</label>
-								<input name="geoloc" type="text" class="form-control" id="geoloc" placeholder=" ---Richiede geolocaizzazione dell'utente--- " required pattern="[A-Z 0-9]{2,8}[+][A-Z 0-9]{0,6}" title="OLC Format">
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipLanguage">Lingua</label>
-								<select name="language" class="form-control" id="language">
-									<option value="ita">Italiano</option>
-									<option value="eng">English</option>
-									<option value="deu">Deutsch</option>
-									<option value="fra">Français</option>
-									<option value="esp">Español</option>
-								</select>
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipPurpose">Scopo</label>
-								<br>
-								<div class="form-check form-check-inline" id="purpose">
-									<div id="purpose_what" class="_arrow">
-										<input type="radio" name="purpose" value="what">
-										<label class="form-check-label _form-check-label _pointer" for="inlineRadio1">What</label>
-									</div>
-									<div id="purpose_how" class="_arrow">
-										<input type="radio" name="purpose" value="how">
-										<label class="form-check-label _form-check-label _pointer" for="inlineRadio2">How</label>
-									</div>
-									<div id="purpose_why" class="_arrow">
-										<input type="radio" name="purpose" value="why">
-										<label class="form-check-label _form-check-label _pointer" for="inlineRadio3">Why</label>
-									</div>
-								</div>
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipAudience">Pubblico</label>
-								<select name="audience" class="form-control" id="audience">
-									<option value="">Non Specificato</option>
-									<option value="gen">Pubblico Generico</option>
-									<option value="pre">Pre-Scuola</option>
-									<option value="elm">Scuola Primaria</option>
-									<option value="mid">Scuola Media</option>
-									<option value="scl">Specialisti del Settore</option>
-								</select>
-							</div>
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipDetail">Livello di dettaglio del contenuto (1-20)<br>[Facoltativo]</label>
-								<input name="detail" type="number" class="form-control" id="detail" min="1" max="20">
-							</div>
-							<br>
-
-							<div class="form-group _form-group">
-								<label for="clipContent">Contenuto [Max 3]</label>
-								<div id="contentOption"></div>
-								<select name="content" class="form-control" id="content" multiple>
-									<option value="none">Nessuno...</option>
-									<option value="nat">Natura</option>
-									<option value="art">Arte</option>
-									<option value="his">Storia</option>
-									<option value="flk">Folklore</option>
-									<option value="mod">Cultura Moderna</option>
-									<option value="rel">Religione</option>
-									<option value="cui">Cucina e Drink</option>
-									<option value="spo">Sport</option>
-									<option value="mus">Musica</option>
-									<option value="mov">Film</option>
-									<option value="fas">Moda</option>
-									<option value="shp">Shopping</option>
-									<option value="tec">Tecnologia</option>
-									<option value="pop">Cultura Pop e Gossip</option>
-									<option value="prs">Esperienze Personali</option>
-									<option value="oth">Altro</option>
-								</select>
-							</div>
-
-							<br>
-							<div class="form-group _form-group">
-								<label for="clipCreator">Email Utente</label>
-								<input name="email" type="email" class="form-control" id="creator" readonly required>
-							</div>
-							<br>
-							<div class="form-check">
-								<input name="published" type="checkbox" class="form-check-input published" id="published_checkbox" value="published">
-								<label class="form-check-label _form-check-label _pointer _label_checkbox" id="published_label">Rendi pubblica la tua clip</label>
-							</div>
-							<br>
-							<div id="div_save_clip">
-								<input type="submit" id="save_clip" class="btn btn-primary" value="Salva la clip">
-							</div>
-							<br>
-						</form>
-
-					</div>
-					<div class="modal-footer _flex">
-						<div class="_flex_left" id="back_form_div"></div>
-						<div class="_flex_right">
-							<button type="button" id="close_form" class="btn btn-primary _flex" data-dismiss="modal">Close</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
    </div>
    </footer>
     </div>
