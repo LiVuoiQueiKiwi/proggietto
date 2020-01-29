@@ -20,8 +20,11 @@ jQuery(function ($) {
 		$('#container-forms #cancel_signup').click(toggleSignUp);
 	})
 
+    var audioBlob = new Blob()
 
-    $('#create_clip').hide()
+    $('#save_clip').prop('disabled', true)
+
+    //$('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
@@ -103,24 +106,19 @@ jQuery(function ($) {
 						)
 
 						mediaRecorder.addEventListener("stop", () => {
-							const audioBlob = new Blob(audioChunks)
+							audioBlob = new Blob(audioChunks)
 							const audioUrl = URL.createObjectURL(audioBlob)
 
-              var file=''
-              var reader = new FileReader()
-              reader.onload = function () {
-                file = reader.result
-              }
-              reader.readAsBinaryString(audioBlob)
+              audioBlob.lastModifiedDate = new Date();
 
-              reader.onloadend = function () {
+            //  reader.onloadend = function () {
                 $('#stop_record_clip_button').hide()
   							$('#record_clip_button').show()
   							$('#record_clip_button').text('Cancella e registra')
   							$("#record_clip_button").attr('new-clip', 1)
-  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls file="+file+">Your browser does not support the audio element.</audio>")
+  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
                 $('#save_clip').prop('disabled', false)
-              }
+          //    }
 
 						})
 
@@ -192,9 +190,10 @@ jQuery(function ($) {
 						formData.append('link', $("#record_clip_button").attr('data-link'))
 					}
 
-        //caso in cui sto creando una nuova clip. la carico
-				formData.append('uploaded-file', $('#audio_record').attr('file'))
-
+          //caso in cui sto creando una nuova clip. la carico
+          audioBlob.name = 'file.mp3';
+  				formData.append('uploaded-file', audioBlob, audioBlob.name)/*$('#audio_record').attr('file')*/
+          console.log(audioBlob);
 				}
 				else{ //caso in cui ho modificato i metadati ma non la clip. aggiorno i metadati alla clip precedente
 					formData.append('link', $("#record_clip_button").attr('data-link'))
@@ -208,6 +207,7 @@ jQuery(function ($) {
 
 				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
 
+      audioBlob = new Blob()
       $("#modalNewClip").modal('hide')
       cleanForm()
 
@@ -863,6 +863,7 @@ function notPublishedList(){
         			$("#contentOption").html(html)
         			$("#record_clip_button").text("Cancella e registra un'altra clip")
         			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
+              $('#save_clip').prop('disabled', false)
         			$("#record_clip_button").attr('new-clip', 0)
         			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
         			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
@@ -903,6 +904,7 @@ function cleanForm(){
 
 	$('#myForm')[0].reset()
 	$("#audio_record_div").html('')
+  $('#save_clip').prop('disabled', true)
 	$("#contentOption").html('')
 	$("#back_form_div").html('')
 	$("#save_clip").attr('value', "Salva la clip")
