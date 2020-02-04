@@ -49,6 +49,11 @@ app.use(express.json());
  */
 app.use(express.urlencoded({extended: true}));
 
+app.use(function(request, response, next) {
+  response.header('Access-Control-Allow-Origin', '*');
+  response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 
 /**
@@ -92,7 +97,6 @@ app.get('/', function(request, response) {
 
 app.post('/users/login', function(request, response) {
 
-    /****/util.debug(request.body.email, request.body.password);
     util.terminal('>>> Begin of login section.');
 
     /*
@@ -124,17 +128,12 @@ app.post('/users/login', function(request, response) {
      */
     util.terminal('Performing database query.');
     db.getUser(email).then(function(result) {
-
-        /****/util.debug(result);
-
         /*
          * Controllo se e' stato trovato un account
          */
         if (result.success) {
 
             var userData = result.content[0];
-            /****/ util.debug(userData.password);
-            /****/ util.debug(db.sha1(password));
 
             /*
              * Controllo se le due password coincidono.
@@ -158,7 +157,7 @@ app.post('/users/login', function(request, response) {
 
         // Rispondo al client con il risultato.
         sendToClient(response, serverResponse);
-    });
+    }, util.handlePromiseRejection);
 });
 
 
@@ -167,9 +166,6 @@ app.post('/users/login', function(request, response) {
  * Gestione API per l'aggiunta di un nuovo utente.
  */
 app.put('/users', function(request, response) {
-
-    /****/util.debug(request.body.email,request.body.password);
-
     /*
      * Prelevo gli argomenti della richiesta.
      */
@@ -186,7 +182,7 @@ app.put('/users', function(request, response) {
          * Rispondo al client con il risultato.
          */
         sendToClient(response, result);
-    });
+    }, util.handlePromiseRejection);
 });
 
 
@@ -205,7 +201,7 @@ app.get('/users', function(request, response) {
          * Rispondo al client con il risultato.
          */
         sendToClient(response, result);
-    });
+    }, util.handlePromiseRejection);
 });
 /****/
 
@@ -222,7 +218,7 @@ app.get('/users/:email', function(request, response) {
     db.getUser(email).then(function(result) {
         // Rispondo al client con il risultato.
         sendToClient(response, result);
-    });
+    }, util.handlePromiseRejection);
 });
 
 
@@ -248,8 +244,6 @@ app.delete('/users/:email', function(request, response) {
      */
     var email = request.params.email;
 
-    /****/util.debug(email);
-
     /*
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
@@ -264,7 +258,7 @@ app.delete('/users/:email', function(request, response) {
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
     }
@@ -316,20 +310,18 @@ app.put('/clips', function(request, response) {
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
-
-
-    sendToClient(response, serverResponse);
 });
 
 
 /*
  * Restituisce al client UNA singola clip avente l'ID in input
  */
-app.get('/clips/:id', function(request, response) {
+app.get('/clips/:clipId', function(request, response) {
     /*
      * Inizializzo la sessione.
      */
@@ -343,30 +335,27 @@ app.get('/clips/:id', function(request, response) {
     /*
      * Prelevo gli argomenti della richiesta.
      */
-    var id = request.params.id;
-
-    /****/util.debug(id);
+    var clipId = parseInt(request.params.clipId);
 
     /*
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
     if (isUserLogged(sess)) {
-        util.logSuccess(`Richiesta GET ricevuta. Prelievo una clip con id ${id} per l'utente ${email}`);
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo una clip con id ${clipId} per l'utente ${sess.userEmail}`);
 
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClip(sess.userId).then(function(result) {
+        db.getClip(sess.userId, clipId).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
-
-    sendToClient(response, serverResponse);
 });
 
 
@@ -388,22 +377,21 @@ app.get('/clips', function(request, response) {
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
     if (isUserLogged(sess)) {
-        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo TUTTE le clip con per l'utente ${sess.userEmail}`);
 
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClip(sess.userId).then(function(result) {
+        db.getClips(sess.userId).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
-
-    sendToClient(response, serverResponse);
 });
 
 
@@ -411,7 +399,7 @@ app.get('/clips', function(request, response) {
 /*
  * Restituisce TUTTE le clip PUBBLICATE di un utente.
  */
-app.get('/clips/public', function(request, response) {
+app.get('/public', function(request, response) {
     /*
      * Inizializzo la sessione.
      */
@@ -426,22 +414,21 @@ app.get('/clips/public', function(request, response) {
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
     if (isUserLogged(sess)) {
-        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip PUBBLICHE per l'utente ${sess.userEmail}`);
 
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClip(sess.userId, 1).then(function(result) {
+        db.getClips(sess.userId, 1).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
-
-    sendToClient(response, serverResponse);
 });
 
 
@@ -449,7 +436,7 @@ app.get('/clips/public', function(request, response) {
 /*
  * Restituisce TUTTE le clip PRIVATE di un utente.
  */
-app.get('/clips/private', function(request, response) {
+app.get('/private', function(request, response) {
     /*
      * Inizializzo la sessione.
      */
@@ -464,23 +451,83 @@ app.get('/clips/private', function(request, response) {
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
     if (isUserLogged(sess)) {
-        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip con id ${id} per l'utente ${email}`);
+        util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip PRIVATE per l'utente ${sess.userEmail}`);
 
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClip(sess.userId, 0).then(function(result) {
+        db.getClips(sess.userId, 0).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
-
-    sendToClient(response, serverResponse);
 });
+
+
+
+/*
+ * Restituisce le clip piu' vicine all'utente.
+ */
+// app.get('/nearest/:location', function(request, response) {
+//     /*
+//      * Inizializzo la sessione.
+//      */
+//     sess = request.session;
+//
+//     /*
+//      * Inizializzo la risposta.
+//      */
+//     var serverResponse = new ApiResponse();
+//
+//     /*
+//      * Prelevo gli argomenti della richiesta.
+//      */
+//     var location = request.params.location;
+//
+//     /*
+//      * Solo un utente autenticato puo' eliminare il proprio account.
+//      */
+//     if (isUserLogged(sess)) {
+//         util.logSuccess(`Richiesta GET ricevuta. Prelievo le clip piu' vicine a [${location}] all'utente ${sess.userEmail}`);
+//
+//         /*
+//          * Inizializzo il risultato.
+//          */
+//         var filteredClips = [];
+//
+//         /*
+//          * Prelievo tutte le clip.
+//          */
+//         db.getClips(sess.userId).then(function(result) {
+//
+//             /****/ util.debug(result);
+//
+//             if (result.success) {
+//                 result.content.forEach(function(clip) {
+//                     // if (util.getDistance(location, clip.geoloc)) {
+//                         clip.TEST = util.getDistance(location, clip.geoloc);
+//                         filteredClips.push(clip);
+//                     // }
+//                 });
+//
+//                 result.content = filteredClips;
+//             } else {
+//                 /*
+//                  * Rispondo al client con il risultato (errore).
+//                  */
+//                 sendToClient(response, result);
+//             }
+//         }, util.handlePromiseRejection);
+//     } else {
+//         serverResponse.message = NO_AUTH_MESSAGE;
+//         sendToClient(response, serverResponse);
+//     }
+// });
 
 
 
@@ -500,13 +547,11 @@ app.delete('/clips/:id', function(request, response) {
      */
     var id = request.params.id;
 
-    /****/util.debug(id);
-
     /*
      * Solo un utente autenticato puo' eliminare il proprio account.
      */
     if (isUserLogged(sess) && email == sess.userEmail) {
-        util.logSuccess(`Richiesta DELETE ricevuta. Elimino la clip con id ${id} per l'utente ${email}`);
+        util.logSuccess(`Richiesta DELETE ricevuta. Elimino la clip con id ${id} per l'utente ${sess.userEmail}`);
 
         /*
          * Eseguo l'operazione richiesta.
@@ -516,12 +561,32 @@ app.delete('/clips/:id', function(request, response) {
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
-        });
+        }, util.handlePromiseRejection);
     } else {
         serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
     }
+});
 
-    sendToClient(response, serverResponse);
+
+
+app.get('/fs', function(request, response) {
+    var fs = require('fs');
+    var path = require('path');
+    var filePath = path.join(__dirname, 'fsTest.html');
+
+    fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
+        if (!err) {
+            util.debug(data);
+            var singleLine = data.replace(/(\r\n|\n|\r)/gm, '');
+            util.logSuccess(singleLine);
+            sendToClient(response, singleLine);
+        } else {
+            util.logFail(err);
+        }
+    });
+
+
 });
 
 
@@ -552,8 +617,6 @@ var sendToClient = function(response, data) {
      */
     var stringOutput = toJson(data);
 
-    /****/util.debug(stringOutput);
-
     /*
      * Rispondo al client con il risultato.
      */
@@ -580,6 +643,9 @@ var toJson = function(data) {
 var isUserLogged = function(session) {
     return session.userIsLogged && session.userEmail;
 }
+
+
+
 
 //
 // // Configure our HTTP server to respond with Hello World to all requests.
