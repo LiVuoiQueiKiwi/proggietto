@@ -17,6 +17,8 @@ module.exports =
         <button id = 'test9-btn'>Preleva clip vicine</button>
 
         <button id = 'test10-btn'>Lettura su disco</button>
+
+        <div id = 'htmlResult'></div>
         <script>
                 var clips = [{
         			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
@@ -174,9 +176,8 @@ module.exports =
                 });
                 $('#test8-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/clips/public',
+                        url: 'http://localhost:8000/public',
                         method: 'GET',
-                        data: clips,
                         dataType: 'json'
                     }).done(function(data) {
                         handleSuccess(data);
@@ -186,11 +187,8 @@ module.exports =
                 });
                 $('#test9-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/clips/nearest',
+                        url: 'http://localhost:8000/nearest/6PH57VP3+PR',
                         method: 'GET',
-                        data: {
-                            location: '6PH57VP3+PR'
-                        },
                         dataType: 'json'
                     }).done(function(data) {
                         handleSuccess(data);
@@ -199,7 +197,7 @@ module.exports =
                     });
                 });
 
-                $('#test9-btn').click(function() {
+                $('#test10-btn').click(function() {
                     $.ajax({
                         url: 'http://localhost:8000/fs',
                         method: 'GET',
@@ -207,6 +205,7 @@ module.exports =
                         dataType: 'html'
                     }).done(function(data) {
                         handleSuccess(data);
+                        $('#htmlResult').html(data);
                     }).fail(function(jqXhr, status, error) {
                         handleFail(jqXhr, status, error);
                     });
