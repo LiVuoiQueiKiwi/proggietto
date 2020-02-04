@@ -20,6 +20,9 @@ jQuery(function ($) {
 		$('#container-forms #cancel_signup').click(toggleSignUp);
 	})
 
+    var audioBlob = new Blob()
+
+    $('#save_clip').prop('disabled', true)
 
     $('#create_clip').hide()
 
@@ -103,24 +106,19 @@ jQuery(function ($) {
 						)
 
 						mediaRecorder.addEventListener("stop", () => {
-							const audioBlob = new Blob(audioChunks)
+							audioBlob = new Blob(audioChunks)
 							const audioUrl = URL.createObjectURL(audioBlob)
 
-              var file=''
-              var reader = new FileReader()
-              reader.onload = function () {
-                file = reader.result
-              }
-              reader.readAsBinaryString(audioBlob)
+              audioBlob.lastModifiedDate = new Date();
 
-              reader.onloadend = function () {
+            //  reader.onloadend = function () {
                 $('#stop_record_clip_button').hide()
   							$('#record_clip_button').show()
   							$('#record_clip_button').text('Cancella e registra')
   							$("#record_clip_button").attr('new-clip', 1)
-  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls file="+file+">Your browser does not support the audio element.</audio>")
+  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
                 $('#save_clip').prop('disabled', false)
-              }
+          //    }
 
 						})
 
@@ -192,9 +190,10 @@ jQuery(function ($) {
 						formData.append('link', $("#record_clip_button").attr('data-link'))
 					}
 
-        //caso in cui sto creando una nuova clip. la carico
-				formData.append('uploaded-file', $('#audio_record').attr('file'))
-
+          //caso in cui sto creando una nuova clip. la carico
+          audioBlob.name = 'file.mp3';
+  				formData.append('uploaded-file', audioBlob, audioBlob.name)/*$('#audio_record').attr('file')*/
+          console.log(audioBlob);
 				}
 				else{ //caso in cui ho modificato i metadati ma non la clip. aggiorno i metadati alla clip precedente
 					formData.append('link', $("#record_clip_button").attr('data-link'))
@@ -208,6 +207,7 @@ jQuery(function ($) {
 
 				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
 
+      audioBlob = new Blob()
       $("#modalNewClip").modal('hide')
       cleanForm()
 
@@ -234,7 +234,7 @@ jQuery(function ($) {
             processData: false,	// Evita che Jquery faccia operazioni sui dati.
             contentType: false,	// Evita che Jquery faccia operazioni sui dati.
             success: function(receiveData){
-              if(receiveData.sign_in=='1'){
+              if(receiveData.success){
                 alert('Login eseguito con successo!')
                 $('#container-forms').html('')
                 $('#container-forms').css('margin', '0')
@@ -244,7 +244,7 @@ jQuery(function ($) {
                 $("#creator").attr('value', $('#now_editor').attr('email'))
               }
               else{
-                alert(receiveData.sign_in)
+                alert(receiveData.message)
               }
             }
           }
@@ -271,7 +271,7 @@ jQuery(function ($) {
             processData: false,	// Evita che Jquery faccia operazioni sui dati.
             contentType: false,	// Evita che Jquery faccia operazioni sui dati.
             success: function(receiveData){
-              if(receiveData.sign_up=='1'){
+              if(receiveData.success){
                 alert('Registrazione avvenuta con successo!')
                 $('#container-forms').html('')
                 $('#container-forms').css('margin', '0')
@@ -281,7 +281,7 @@ jQuery(function ($) {
                 $("#creator").attr('value', $('#now_editor').attr('email'))
               }
               else{
-                alert(receiveData.sign_up)
+                alert(receiveData.message)
               }
             }
           }
@@ -624,27 +624,31 @@ function printLocation(callback) {
       url: "clip_list.json",
       dataType: "json",
       success: function(receiveData){
+        if(receiveData.success){
+          //STAMPA DEL JSON
+          //alert(JSON.stringify(receiveData))
+          clip_near_list_json_global=receiveData.content.clip_near
+          clip_far_list_json_global=receiveData.content.clip_far
+          //alert(clip_list_json_global.clip_near.length)
 
-        //STAMPA DEL JSON
-        //alert(JSON.stringify(receiveData))
-        clip_near_list_json_global=receiveData.clip_near
-        clip_far_list_json_global=receiveData.clip_far
-        //alert(clip_list_json_global.clip_near.length)
-
-        markers.forEach(function(marker) {
-          if (marker._id != 1){
-              clearMarker(marker._id);
-              //console.log('markers: '+markers);
+          markers.forEach(function(marker) {
+            if (marker._id != 1){
+                clearMarker(marker._id);
+                //console.log('markers: '+markers);
+            }
+          })
+          for(var i=0; i<(clip_near_list_json_global.length); i++){
+            printMarker(clip_near_list_json_global[i].geoloc, clip_near_list_json_global[i].title, 'img/marker-point-near.png')
           }
-        })
-        for(var i=0; i<(clip_near_list_json_global.length); i++){
-          printMarker(clip_near_list_json_global[i].geoloc, clip_near_list_json_global[i].title, 'img/marker-point-near.png')
-        }
 
-        for(var i=0; i<(clip_far_list_json_global.length); i++){
-          printMarker(clip_far_list_json_global[i].geoloc, clip_far_list_json_global[i].title, 'img/marker-point.png')
+          for(var i=0; i<(clip_far_list_json_global.length); i++){
+            printMarker(clip_far_list_json_global[i].geoloc, clip_far_list_json_global[i].title, 'img/marker-point.png')
+          }
+          if (callback) callback()
         }
-        if (callback) callback()
+        else{
+          alert(receiveData.message)
+        }
       }
     }
   )
@@ -797,82 +801,89 @@ function notPublishedList(){
       url: "clip_not_published.json",
       dataType: "json",
       success: function(clipList){
-        var html=''
-      	if((clipList.clip_list).length==0){
-      		html="<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>"
-      	}
-      	else{
-      		//lista di clip con nome, metadati, traccia
-      		for(var i=0; i<(clipList.clip_list).length; i++){
-      			//aggiungo (nel DOM) le clip
-      			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5><audio src='"+clipList.clip_list[i].audio_file+
-      					"' class='_clipNotPublished' controls>Your browser does not support the audio element.</audio><div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
-      					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
-      					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
+        if(clipList.success){
+          clipList=clipList.content
+          var html=''
+        	if((clipList.clip_list).length==0){
+        		html="<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>"
+        	}
+        	else{
+        		//lista di clip con nome, metadati, traccia
+        		for(var i=0; i<(clipList.clip_list).length; i++){
+        			//aggiungo (nel DOM) le clip
+        			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5><audio src='"+clipList.clip_list[i].audio_file+
+        					"' class='_clipNotPublished' controls>Your browser does not support the audio element.</audio><div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
+        					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
+        					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
 
-      			for(var j=0; j<(clipList.clip_list[i].content).length; j++){
-      				html+=dict[clipList.clip_list[i].content[j]]
-      				if(j+1!=(clipList.clip_list[i].content).length)
-      					html+=", "
-      			}
-      			html+=	"<br></div><div class='_flex_wrap_space'>"+
-      					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].audio_file+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
-      					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
-      		}
-      	}
+        			for(var j=0; j<(clipList.clip_list[i].content).length; j++){
+        				html+=dict[clipList.clip_list[i].content[j]]
+        				if(j+1!=(clipList.clip_list[i].content).length)
+        					html+=", "
+        			}
+        			html+=	"<br></div><div class='_flex_wrap_space'>"+
+        					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].audio_file+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
+        					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+        		}
+        	}
 
-      	$("#_modal-body-clip-not-published").html(html)
+        	$("#_modal-body-clip-not-published").html(html)
 
-      	$(".publish_clip").click(
-      		function(){ //rende pubblica la clip
-      			var updateData = new FormData()
-      			updateData.append('data-link', $(this).attr('data-link'))
-      			ajaxSendData(updateData, '') //inserire link del server (Funzione: setClipPublished)
-      			$("#modalClipNotPublished").modal('hide')
-      		}
-      	)
+        	$(".publish_clip").click(
+        		function(){ //rende pubblica la clip
+        			var updateData = new FormData()
+        			updateData.append('data-link', $(this).attr('data-link'))
+        			ajaxSendData(updateData, '') //inserire link del server (Funzione: setClipPublished)
+        			$("#modalClipNotPublished").modal('hide')
+        		}
+        	)
 
-      	$(".modify_clip").click(
-      		function(){
-      			cleanForm()
-      			$("#modalClipNotPublished").modal('hide')
+        	$(".modify_clip").click(
+        		function(){
+        			cleanForm()
+        			$("#modalClipNotPublished").modal('hide')
 
-      			$("#title").attr('value', ($(this).attr('data-title')))
-      			$("#geoloc").attr('value', ($(this).attr('data-geoloc')))
-      			if($(this).attr('data-language')!='')
-      				$("#language option[value="+$(this).attr('data-language')+"]").attr('selected', 'selected')
-      			else
-      				$("#language option[value='ita'").attr('selected', 'selected')
-      			if($(this).attr('data-purpose')!='')
-      				$("#purpose input[value="+$(this).attr('data-purpose')+"]").prop('checked', true)
-      			else
-      				$("#purpose input[value='what']").prop('checked', true)
-      			$("#audience option[value='"+$(this).attr('data-audience')+"']").attr('selected', 'selected')
-      			$("#detail").attr('value', ($(this).attr('data-detail')))
-      			var html=''
-      			var contentArray=$(this).attr('data-content').split(',')
-      			for(var i=0; i<contentArray.length; i++){
-      				html+= "<div value='"+contentArray[i]+"' class='alert alert-info _alert'><a href='#' class='close _close' data-dismiss='alert' aria-label='close'>&times;</a>"+dict[contentArray[i]]+"</div>"
-      			}
-      			$("#contentOption").html(html)
-      			$("#record_clip_button").text("Cancella e registra un'altra clip")
-      			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
-      			$("#record_clip_button").attr('new-clip', 0)
-      			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
-      			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
+        			$("#title").attr('value', ($(this).attr('data-title')))
+        			$("#geoloc").attr('value', ($(this).attr('data-geoloc')))
+        			if($(this).attr('data-language')!='')
+        				$("#language option[value="+$(this).attr('data-language')+"]").attr('selected', 'selected')
+        			else
+        				$("#language option[value='ita'").attr('selected', 'selected')
+        			if($(this).attr('data-purpose')!='')
+        				$("#purpose input[value="+$(this).attr('data-purpose')+"]").prop('checked', true)
+        			else
+        				$("#purpose input[value='what']").prop('checked', true)
+        			$("#audience option[value='"+$(this).attr('data-audience')+"']").attr('selected', 'selected')
+        			$("#detail").attr('value', ($(this).attr('data-detail')))
+        			var html=''
+        			var contentArray=$(this).attr('data-content').split(',')
+        			for(var i=0; i<contentArray.length; i++){
+        				html+= "<div value='"+contentArray[i]+"' class='alert alert-info _alert'><a href='#' class='close _close' data-dismiss='alert' aria-label='close'>&times;</a>"+dict[contentArray[i]]+"</div>"
+        			}
+        			$("#contentOption").html(html)
+        			$("#record_clip_button").text("Cancella e registra un'altra clip")
+        			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
+              $('#save_clip').prop('disabled', false)
+        			$("#record_clip_button").attr('new-clip', 0)
+        			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
+        			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
 
-      			$("#back_form").click(
-      				function(){
-      					$("#modalNewClip").modal('hide')
-      					$("#modalClipNotPublished").modal('show')
-      				}
-      			)
+        			$("#back_form").click(
+        				function(){
+        					$("#modalNewClip").modal('hide')
+        					$("#modalClipNotPublished").modal('show')
+        				}
+        			)
 
-      			$("#modalNewClip").modal('show')
+        			$("#modalNewClip").modal('show')
 
-      		}
-      	)
+        		}
+        	)
 
+        }
+        else{
+          alert(clipList.message)
+        }
       }
     }
   )
@@ -893,6 +904,7 @@ function cleanForm(){
 
 	$('#myForm')[0].reset()
 	$("#audio_record_div").html('')
+  $('#save_clip').prop('disabled', true)
 	$("#contentOption").html('')
 	$("#back_form_div").html('')
 	$("#save_clip").attr('value', "Salva la clip")
