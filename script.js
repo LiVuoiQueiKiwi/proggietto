@@ -24,7 +24,7 @@ jQuery(function ($) {
 
     $('#save_clip').prop('disabled', true)
 
-    //$('#create_clip').hide()
+    $('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
