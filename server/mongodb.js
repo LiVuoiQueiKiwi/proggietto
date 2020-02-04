@@ -177,12 +177,13 @@ module.exports.putUser = function(email, password) {
                 if (error) {
                     // Riporto l'errorore nella risposta.
                     result.message = error;
+                    reject(result.message);
                 }
 
                 resolve(result);
             });
         } else {
-            resolve(result);
+            reject(result.message);
         }
     });
 }
@@ -248,9 +249,10 @@ module.exports.getUser = function(email) {
         if(!missingArgs) {
             db.users.find({email: email}, function(error, docs) {
                 if(error) {
-            		util.logFail('Errore nella ricerca dell\'utente.');
-                    console.log(error);
+            		// util.logFail('Errore nella ricerca dell\'utente.');
+                    // console.log(error);
                     result.message = `Errore nella ricerca dell\'utente. ${error}`;
+                    reject(result.message);
             	} else {
                     util.logSuccess('Successo prelievo utente nel database.');
                     util.debug(docs);
@@ -280,9 +282,10 @@ module.exports.getUsers = function() {
 
         db.users.find(function(error, docs) {
             if(error) {
-        		util.logFail('Errore nella ricerca degli utente.');
-                console.log(error);
+        		// util.logFail('Errore nella ricerca degli utente.');
+                // console.log(error);
                 result.message = `Errore nella ricerca dell\'utente. ${error}`;
+                reject(result.message);
         	} else {
                 util.logSuccess('Successo prelievo utenti nel database.');
                 util.debug(docs);
@@ -320,9 +323,10 @@ module.exports.deleteUser = function(email) {
         if(!missingArgs) {
             db.users.remove({email: email}, function(error, docs) {
                 if(error) {
-            		util.logFail('Errore nella rimozione dell\'utente.');
-                    console.log(error);
+            		// util.logFail('Errore nella rimozione dell\'utente.');
+                    // console.log(error);
                     result.message = `Errore nella rimozione dell\'utente. ${error}`;
+                    reject(result.message);
             	} else {
                     util.logSuccess('Successo rimozione utente nel database.');
                     util.debug(docs);
@@ -332,7 +336,7 @@ module.exports.deleteUser = function(email) {
                 resolve(result);
             });
         } else {
-            resolve(result);
+            reject(result.message);
         }
     });
 }
@@ -382,7 +386,7 @@ module.exports.putClip = function(clip) {
         if(!missingArgs) {
             db.clips.insert(clip);
             result.setSuccess();
-            result.message = 'Utente inserito correttamente.';
+            result.message = 'Clip inserita correttamente.';
         }
 
         resolve(result);
@@ -392,10 +396,11 @@ module.exports.putClip = function(clip) {
 
 /**
  * Preleva una clip dal database con un ID specifico.
- * @param {int} id.
+ * @param {int} userId.
+ * @param {int} clipId.
  * @return {Promise}
  */
-module.exports.getClip = function(id) {
+module.exports.getClip = function(userId, clipId) {
     return new Promise(function(resolve, reject) {
         /*
          * Inizializzo la risposta.
@@ -403,20 +408,23 @@ module.exports.getClip = function(id) {
         var result = new ApiResponse();
         var missingArgs = 1;
 
-        if (!id) {
-            result.message = 'Id non presente.';
-        }  else {
+        if (!userId) {
+            result.message = 'User ID non presente.';
+        } if (!clipId) {
+            result.message = 'Clip ID non presente.';
+        } else {
             missingArgs = 0;
         }
 
         if(!missingArgs) {
-            db.clips.find({_id: id}, function(error, docs) {
+            db.clips.find({userId: userId, _id: clipId}, function(error, docs) {
                 if(error) {
-            		util.logFail(CLIPS_ERR_GET);
-                    console.log(error);
+            		// util.logFail(CLIPS_ERR_GET);
+                    // console.log(error);
                     result.message = CLIPS_ERR_GET + ' ' + error;
+                    reject(result.message);
             	} else {
-                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.logSuccess('Successo prelievo della clip nel database.');
                     util.debug(docs);
                     result.setSuccess();
                     result.content = docs;
@@ -425,7 +433,7 @@ module.exports.getClip = function(id) {
                 resolve(result);
             });
         } else {
-            resolve(result);
+            reject(result.message);
         }
     });
 }
@@ -435,6 +443,7 @@ module.exports.getClip = function(id) {
 /**
  * Preleva tutte clip dal database di un utente.
  * @param {int} userId.
+ * @param {int} published.
  * @return {Promise}
  */
 module.exports.getClips = function(userId, published = -1) {
@@ -445,8 +454,8 @@ module.exports.getClips = function(userId, published = -1) {
         var result = new ApiResponse();
         var missingArgs = 1;
 
-        if (!id) {
-            result.message = 'Id non presente.';
+        if (!userId) {
+            result.message = 'User ID non presente.';
         }  else {
             missingArgs = 0;
         }
@@ -474,11 +483,12 @@ module.exports.getClips = function(userId, published = -1) {
         if(!missingArgs) {
             db.clips.find(dataFilter, function(error, docs) {
                 if(error) {
-            		util.logFail(CLIPS_ERR_GET);
-                    console.log(error);
+            		// util.logFail(CLIPS_ERR_GET);
+                    // console.log(error);
                     result.message = CLIPS_ERR_GET + ' ' + error;
+                    reject(result.message);
             	} else {
-                    util.logSuccess('Successo prelievo utenti nel database.');
+                    util.logSuccess('Successo prelievo clip dal database.');
                     util.debug(docs);
                     result.setSuccess();
                     result.content = docs;
@@ -486,7 +496,7 @@ module.exports.getClips = function(userId, published = -1) {
                 resolve(result);
             });
         } else {
-            resolve(result);
+            reject(result.message);
         }
     });
 }
@@ -495,7 +505,7 @@ module.exports.getClips = function(userId, published = -1) {
 /*
  * Elimina una clip dal database con un ID specifico.
  */
-module.exports.deleteClip = function(id) {
+module.exports.deleteClip = function(clipId) {
     return new Promise(function(resolve, reject) {
         /*
          * Inizializzo la risposta.
@@ -503,173 +513,32 @@ module.exports.deleteClip = function(id) {
         var result = new ApiResponse();
         var missingArgs = 1;
 
-        if (!id) {
-            result.message = 'Id non presente.';
-        }  else {
+        if (!clipId) {
+            result.message = 'Clip ID non presente.';
+        } else {
             missingArgs = 0;
         }
 
         if(!missingArgs) {
-            db.clips.remove({_id: id}, function(error, docs) {
+            db.clips.remove({_id: clipId}, function(error, docs) {
                 if(error) {
-            		util.logFail(CLIPS_ERR_DELETE);
-                    util.debug(error);
+            		// util.logFail(CLIPS_ERR_DELETE);
+                    // util.debug(error);
                     result.message = CLIPS_ERR_DELETE + ' ' + error;
+                    reject(result.message);
             	} else {
-                    util.logSuccess(`Successo rimozione della clip [${id}] dal database.`);
+                    util.logSuccess(`Successo rimozione della clip [${clipId}] dal database.`);
                     util.debug(docs);
                     result.setSuccess();
                 }
                 resolve(result);
             });
         } else {
-            resolve(result);
+            reject(result.message);
         }
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// #####################################################################
-
-
-
-
-
-
-// /**/
-// MongoClient.connect(url, function(clienterrororor, db) {
-//     if (clienterrororor) throw clienterrororor;
-//
-//     console.log("Database created!");
-//
-//     var dbObject = db.db(MONGODB_NAME);
-//
-//     try {
-//         initCollections(dbObject);
-//     } catch (e) {
-//
-//     } finally {
-//
-//     }
-// });
-// /**/
-
-
-//
-// function initCollections(dbObject) {
-//   // dbObject.getCollectionNames();
-//
-//   /*
-//    *  Crea le collezioni nel database.
-//    *
-//    *  E' davvero necessario creare le collezioni? Le collezioni non esistiono,
-//    *  finche' non hanno contenuto.
-//    */
-//   for (var collectionName in COLLECTIONS) {
-//     doOperationOnDatabase(function() {
-//       dbObject.createCollection(collectionName, function(collectionerrororor, res) {
-//         if (collectionerrororor) throw collectionerrororor;
-//
-//         console.log(`Collection ${collectionName} created.`);
-//       });
-//     });
-//   }
-// }
-//
-// /**
-//  * Esegue un'operazione sul database, non gestendo pero' gli errororori.
-//  */
-// function doOperationOnDatabase(callback) {
-//     try {
-//         callback();
-//     } catch (exception) {
-//         throw exception;
-//     } finally {
-//         db.close();
-//     }
-// }
-//
-//
-// // function insertUser(user) {
-// //     MongoClient.connect(url, function(erroror, db) {
-// //   if (erroror) throw erroror;
-// //   var dbo = db.db("mydb");
-// //   var myobj = { name: "Company Inc", address: "Highway 37" };
-// //   dbo.collection("customers").insertOne(myobj, function(erroror, res) {
-// //     if (erroror) throw erroror;
-// //     console.log("1 document inserted");
-// //     db.close();
-// //   });
-// // });
-// // }
-//
-// /**
-//  * Crea una connessione al database di MongoDB.
-//  */
-// function connect() {
-//     MongoClient.connect(URL, function(clienterrororor, db) {
-//         if (clienterrororor) throw clienterrororor;
-//
-//         console.log("Database created!");
-//
-//         var dbObject = db.db(MONGODB_NAME);
-//
-//         try {
-//             initCollections(dbObject);
-//         } catch (e) {
-//
-//         } finally {
-//
-//         }
-//     });
-//     return dbObject;
-// }
-//
-// /**
-//  * Inserisce un oggetto utente nel database.
-//  *
-//  * @param object dbObject: l'oggetto database.
-//  * @param object user: l'oggetto utente.
-//  */
-// module.exports.insertUser = function(dbObject, {username, password}) {
-//     /*
-//      * Calcolo l'hash sulla password.
-//      */
-//     var hash = sha1(password);
-//
-//     dbObject.collection(COLLECTION_USERS).insertOne({username, hash}, handleResult);
-// }
-//
-// function handleResult(errororor, result) {
-//   // Codice gestore del risultato dell'operazione sul database.
-//   if (errororor) throw errororor;
-//
-//   insertSuccess(result);
-// }
-//
-// function insertSuccess(result) {
-//   // Codice eseguito al successo dell'operazione sul database.
-//   console.log('1 document inserted');
-// }
 
 
 /**
