@@ -1,0 +1,6 @@
+va bene che ogni volta che voglio stampare una location (printLocation) mi dia undefined
+--testare che funzioni la comunicazione col serever per il ricevimento delle location da stampare
+--aggiungere funzione che ordina le locaqtion in base alla distanza
+
+va bene che ogni volta che entro alla login/signuo mi dia undefined
+--testare che funzioni la comunicazione col serever per il ricevimento delle info dei login/signup

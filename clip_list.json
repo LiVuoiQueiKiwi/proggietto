@@ -1,120 +1,124 @@
 {
-	"clip_near":
-	[
-		{
-			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
-			"link": "htttttttttp",
-			"title": "Near 1",
-			"geoloc": "8FPHF9X4+9M",
-			"language": "fra",
-			"audience": "pre",
-			"detail": "2",
-			"content": ["rel", "nat"],
-			"email": "",
-			"published": "",
-			"purpose": "why",
-			"distance": "5"
-		},
-		{
-			"audio_file": "ParoleSterili_Demo_220118.wav",
-			"link": "hththththt",
-			"title": "Near 2",
-			"geoloc": "8FPHF9X4+6V",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Near 3",
-			"geoloc": "8FPHF9X4+3P",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Near 4",
-			"geoloc": "8FPHF9X4+F4",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		}
-	],
-	"clip_far":
-	[
-		{
-			"audio_file": "ParoleSterili_Demo_220118.wav",
-			"link": "htttttttttp",
-			"title": "Far 1",
-			"geoloc": "8FPHF9X6+CR",
-			"language": "fra",
-			"audience": "pre",
-			"detail": "2",
-			"content": ["rel", "nat"],
-			"email": "",
-			"published": "",
-			"purpose": "why",
-			"distance": "5"
-		},
-		{
-			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
-			"link": "hththththt",
-			"title": "Far 2",
-			"geoloc": "8FPHF9V4+XC",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Far 3",
-			"geoloc": "8FPHF9X2+CW",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Far 4",
-			"geoloc": "8FPHG923+6F",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		}
-	]
+	"success": 1,
+	"content":{
+		"clip_near":
+		[
+			{
+				"audio_file": "",
+				"link": "htttttttttp",
+				"title": "Near 1",
+				"geoloc": "8FPHF9X4+9M",
+				"language": "fra",
+				"audience": "pre",
+				"detail": "2",
+				"content": ["rel", "nat"],
+				"email": "",
+				"published": "",
+				"purpose": "why",
+				"distance": "5"
+			},
+			{
+				"audio_file": "",
+				"link": "hththththt",
+				"title": "Near 2",
+				"geoloc": "8FPHF9X4+6V",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"audio_file": "",
+				"link": "",
+				"title": "Near 3",
+				"geoloc": "8FPHF9X4+3P",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"audio_file": "",
+				"link": "",
+				"title": "Near 4",
+				"geoloc": "8FPHF9X4+F4",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			}
+		],
+		"clip_far":
+		[
+			{
+				"audio_file": "",
+				"link": "htttttttttp",
+				"title": "Far 1",
+				"geoloc": "8FPHF9X6+CR",
+				"language": "fra",
+				"audience": "pre",
+				"detail": "2",
+				"content": ["rel", "nat"],
+				"email": "",
+				"published": "",
+				"purpose": "why",
+				"distance": "5"
+			},
+			{
+				"audio_file": "",
+				"link": "hththththt",
+				"title": "Far 2",
+				"geoloc": "8FPHF9V4+XC",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"audio_file": "",
+				"link": "",
+				"title": "Far 3",
+				"geoloc": "8FPHF9X2+CW",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"audio_file": "",
+				"link": "",
+				"title": "Far 4",
+				"geoloc": "8FPHG923+6F",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			}
+		]
+	},
+	"message": "Errore"
 }

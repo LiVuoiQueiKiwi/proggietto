@@ -89,7 +89,7 @@ jQuery(function ($) {
 
 						$('#record_clip_button').hide()
 						$('#stop_record_clip_button').show()
-						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='png/mic.gif'>\t\tRecording...")
+						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='img/mic.gif'>\t\tRecording...")
             $('#save_clip').prop('disabled', true)
 
 						$('#stop_record_clip_button').click(
@@ -613,10 +613,10 @@ var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "França
 var clip_near_list_json_global, clip_far_list_json_global, clip_visited_before
 
 function printLocation(callback) {
-  //richiesta al server della lista delle clip vicine, IN ORDINE DI DISTANZA (!!!QUINDI SOLO DELLE CLIP ENTRO I 50 METRI DI DISTANZA!!!)
-  //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
+  //richiesta al server della lista delle clip dell'utente
+
   //mando la posizione attuale e ricevo un clip_list.json
-  //tramite url inviola posizione corrente e la lingua delle clip da scaricare (presa dal menu)
+  //tramite url invio la posizione corrente e la lingua delle clip da scaricare (presa dal menu)
   //inserire link del server (Funzione: getClip)
 
   $.ajax(
@@ -626,10 +626,18 @@ function printLocation(callback) {
       success: function(receiveData){
         if(receiveData.success){
           //STAMPA DEL JSON
+
+
+          /*!!!!!!!!!!!!!!!!!!!!!!!
+          CHIAMARE SU receiveData.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
+          IN clip_near_list_json_global METTO L CLIP FINO A 50 METRI, IN clip_far_list_json_global LE ALTRE
+          //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
+          */
           //alert(JSON.stringify(receiveData))
           clip_near_list_json_global=receiveData.content.clip_near
           clip_far_list_json_global=receiveData.content.clip_far
           //alert(clip_list_json_global.clip_near.length)
+
 
           markers.forEach(function(marker) {
             if (marker._id != 1){
@@ -684,9 +692,9 @@ function printWhereAmI(){
 	if((clip_near_list_json_global).length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
     if((clip_far_list_json_global).length!=0)
-      html+="<audio autoplay src='Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+      html+="<audio autoplay src='audio/Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
     else
-      html+="<audio autoplay src='Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+      html+="<audio autoplay src='audio/Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
 		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
@@ -704,9 +712,9 @@ function printWhereAmI(){
 
 		html+="	<audio src='"+clip_near_list_json_global[0].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
 				"<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='png/014-left arrow.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='png/009-next.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='png/031-right arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='img/014-left arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='img/009-next.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='img/031-right arrow.png'></button>"+
 				"</div>"
 
 
@@ -731,7 +739,7 @@ function printWhereAmI(){
         $('#next').click(
     			function(){
             clip_visited_before.push(clip_near_list_json_global[0])
-            audio_add="<div style='display: none;'><audio src='Raggiungi_il_punto.mp3' autoplay></audio></div>"
+            audio_add="<div style='display: none;'><audio src='audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
             $("#modalWhereAmI").modal('hide')
             $('body').append(audio_add)
             highlight(clip_far_list_json_global[0].geoloc, clip_far_list_json_global[0].title)
@@ -746,7 +754,7 @@ function printWhereAmI(){
           $('#previous').click(
       			function(){
               var clipBefore=clip_visited_before.shift()
-              audio_add="<div style='display: none;'><audio src='Raggiungi_il_punto.mp3' autoplay></audio></div>"
+              audio_add="<div style='display: none;'><audio src='audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
               $("#modalWhereAmI").modal('hide')
               $('body').append(audio_add)
               highlight(clipBefore.geoloc, clipBefore.title)
