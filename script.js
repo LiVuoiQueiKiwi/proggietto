@@ -318,6 +318,7 @@ jQuery(function ($) {
     )
 
 		$('#modalWhereAmI').on('hidden.bs.modal', function () {
+      printLocation()
 			$('#_modal-body-whereAmI').html('')
 		})
 
@@ -631,8 +632,9 @@ function printLocation(callback) {
           /*!!!!!!!!!!!!!!!!!!!!!!!
           CHIAMARE SU receiveData.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
           IN clip_near_list_json_global METTO L CLIP FINO A 50 METRI, IN clip_far_list_json_global LE ALTRE
-          //la prima clip della lista è il luogo di interesse (DA VISUALIZZARE COME LUOGO PRINCIPALE)
-          */
+          //la prima clip della lista è il luogo di interesse
+          !!!!!!!!!!!!!!!!!!!!!!!*/
+
           //alert(JSON.stringify(receiveData))
           clip_near_list_json_global=receiveData.content.clip_near
           clip_far_list_json_global=receiveData.content.clip_far
@@ -710,8 +712,12 @@ function printWhereAmI(){
 
 		html+="<br></div>"
 
-		html+="	<audio src='"+clip_near_list_json_global[0].audio_file+"' class='_clipNotPublished' autoplay controls>Your browser does not support the audio element.</audio>"+
-				"<div class='_flex_center'>"+
+    if(clip_near_list_json_global[0].link=="")
+      html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
+    else
+		  html+="<iframe width='250' height='80' src='"+clip_near_list_json_global[0].link+"?autoplay=1'></iframe>"
+
+    html+="<div class='_flex_center'>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='img/014-left arrow.png'></button>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='img/009-next.png'></button>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='img/031-right arrow.png'></button>"+
@@ -770,7 +776,7 @@ function printWhereAmI(){
 }
 
 function locationList(){
-
+  printLocation()
 	var html=''
 	if(clip_far_list_json_global.length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>"
@@ -819,8 +825,15 @@ function notPublishedList(){
         		//lista di clip con nome, metadati, traccia
         		for(var i=0; i<(clipList.clip_list).length; i++){
         			//aggiungo (nel DOM) le clip
-        			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5><audio src='"+clipList.clip_list[i].audio_file+
-        					"' class='_clipNotPublished' controls>Your browser does not support the audio element.</audio><div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
+
+        			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5>"
+
+              if(clipList.clip_list[i].link=="")
+                html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
+              else
+          		  html+="<iframe width='250' height='80' src='"+clipList.clip_list[i].link+"?autoplay=1'></iframe>"
+
+              html+="<div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
         					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
         					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
 
@@ -830,7 +843,7 @@ function notPublishedList(){
         					html+=", "
         			}
         			html+=	"<br></div><div class='_flex_wrap_space'>"+
-        					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].audio_file+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
+        					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].link+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
         					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
         		}
         	}

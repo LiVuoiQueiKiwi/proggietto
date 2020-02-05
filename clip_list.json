@@ -4,8 +4,7 @@
 		"clip_near":
 		[
 			{
-				"audio_file": "",
-				"link": "htttttttttp",
+				"link": "",
 				"title": "Near 1",
 				"geoloc": "8FPHF9X4+9M",
 				"language": "fra",
@@ -18,8 +17,7 @@
 				"distance": "5"
 			},
 			{
-				"audio_file": "",
-				"link": "hththththt",
+				"link": "https://www.youtube.com/embed/tgbNymZ7vqY",
 				"title": "Near 2",
 				"geoloc": "8FPHF9X4+6V",
 				"language": "",
@@ -32,7 +30,6 @@
 				"distance": ""
 			},
 			{
-				"audio_file": "",
 				"link": "",
 				"title": "Near 3",
 				"geoloc": "8FPHF9X4+3P",
@@ -46,7 +43,6 @@
 				"distance": ""
 			},
 			{
-				"audio_file": "",
 				"link": "",
 				"title": "Near 4",
 				"geoloc": "8FPHF9X4+F4",
@@ -63,7 +59,6 @@
 		"clip_far":
 		[
 			{
-				"audio_file": "",
 				"link": "htttttttttp",
 				"title": "Far 1",
 				"geoloc": "8FPHF9X6+CR",
@@ -77,7 +72,6 @@
 				"distance": "5"
 			},
 			{
-				"audio_file": "",
 				"link": "hththththt",
 				"title": "Far 2",
 				"geoloc": "8FPHF9V4+XC",
@@ -91,7 +85,6 @@
 				"distance": ""
 			},
 			{
-				"audio_file": "",
 				"link": "",
 				"title": "Far 3",
 				"geoloc": "8FPHF9X2+CW",
@@ -105,7 +98,6 @@
 				"distance": ""
 			},
 			{
-				"audio_file": "",
 				"link": "",
 				"title": "Far 4",
 				"geoloc": "8FPHG923+6F",
@@ -120,5 +112,5 @@
 			}
 		]
 	},
-	"message": "Errore"
+	"message": "Impossibile cercare le clip"
 }
