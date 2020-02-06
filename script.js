@@ -278,26 +278,22 @@ $("#signup").submit(function (event){
 	    type: 'PUT',
 	    data: formData,
 	    processData: false,	// Evita che Jquery faccia operazioni sui dati.
-	    contentType: false,	// Evita che Jquery faccia operazioni sui dati.
-	    success: function(receiveData){
-	      if(receiveData.success){
-	        alert('Registrazione avvenuta con successo!')
-	        $('#container-forms').html('')
-	        $('#container-forms').css('margin', '0')
-	        $('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
-	        $('#create_clip').show()
-	        $('#notPublishedList').show()
-	        $("#creator").attr('value', $('#now_editor').attr('email'))
-	      }
-	      else{
-	        alert(receiveData.message);
-	      }
-	    }
-	  }
-	)
+	    contentType: false	// Evita che Jquery faccia operazioni sui dati.
+	}).done(function(data) {
+		if(data.success){
+			alert('Registrazione avvenuta con successo!')
+			$('#container-forms').html('')
+			$('#container-forms').css('margin', '0')
+			$('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
+			$('#create_clip').show()
+			$('#notPublishedList').show()
+			$("#creator").attr('value', $('#now_editor').attr('email'))
+		} else{
+			alert(data.message);
+		}
+	});
 
-	}
-);
+});
 
 		$("#create_clip").click(
 			function(){
