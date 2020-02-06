@@ -676,7 +676,7 @@ function printLocation(callback) {
   $.ajax(
     {
       // url: "clip_list.json",
-      url: 'localhost/clips',
+      url: 'https://localhost/clips',
       dataType: "json",
       success: function(data){
         if(data.success){
@@ -849,7 +849,7 @@ function notPublishedList(){
   $.ajax(
     {
       // url: "clip_not_published.json",
-	  url: 'localhost/clips/private',
+	  url: 'https://localhost/clips/private',
       dataType: "json",
       success: function(data) {
         if(data.success){
