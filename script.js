@@ -609,7 +609,30 @@ function compareDistances(a,b) {
 
 
 
+/**
+ * Funzione che restituisce una lista delle clip filtrate per lingua.
+ * @param language {string}. La lingua da filtrare..
+ * @param clips {Array}. La lista di tutte le clip dell'utente.
+ * @return {Array}
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+function filterClipsByLanguage(language, clips) {
+	/*
+	 * La lista delle clip con la lingua richiesta.
+	 */
+	var filteredClips = [];
 
+	/*
+	 * Scansiono tutte le clip in input.
+	 */
+	clips.forEach(function(clip, i, array) {
+		if (clip.language == language) {
+			filteredClips.push(clip);
+		}
+	});
+
+	return filteredClips;
+}
 
 
 
@@ -688,7 +711,11 @@ function printLocation(callback) {
       success: function(data){
         if(data.success){
 
-          var clips = data.content;
+			/*
+			 * Filtro subito le clip in base alla lingua.
+			 */
+			var language = $('#language option:selected').val();
+			var clips = filterClipsByLanguage(language, data.content);
 
           /*!!!!!!!!!!!!!!!!!!!!!!!
           CHIAMARE SU data.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
