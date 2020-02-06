@@ -224,7 +224,7 @@ jQuery(function ($) {
 
 
 //submit del form di Login editor
-$("#signin").submit(function (event) {
+$('#signin').submit(function (event) {
 	event.preventDefault()
 
 	//raccoglie tutti i dati del form
@@ -262,44 +262,42 @@ $("#signin").submit(function (event) {
 	});
 });
 
-    //submit del form di Sign up editor
-		$("#signup").submit(
-			function (event){
-        event.preventDefault()
+//submit del form di Sign up editor
+$("#signup").submit(function (event){
+	event.preventDefault()
 
-				//raccoglie tutti i dati del form
-				//creazione json da inviare al server
-        //ricevo un email.json
-				var formData = new FormData(signup)
+	//raccoglie tutti i dati del form
+	//creazione json da inviare al server
+//ricevo un email.json
+	var formData = new FormData(signup);
 
-        $.ajax(
-          {
-            // url: "email.json", //inserire link del server (Funzione: sign_up)
-			url: `${SITE_PROTOCOL}://localhost/users`,
-            dataType: 'json',
-            type: 'PUT',
-            data: formData,
-            processData: false,	// Evita che Jquery faccia operazioni sui dati.
-            contentType: false,	// Evita che Jquery faccia operazioni sui dati.
-            success: function(receiveData){
-              if(receiveData.success){
-                alert('Registrazione avvenuta con successo!')
-                $('#container-forms').html('')
-                $('#container-forms').css('margin', '0')
-                $('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
-                $('#create_clip').show()
-                $('#notPublishedList').show()
-                $("#creator").attr('value', $('#now_editor').attr('email'))
-              }
-              else{
-                alert(receiveData.message)
-              }
-            }
-          }
-        )
+	$.ajax({
+	    // url: "email.json", //inserire link del server (Funzione: sign_up)
+		url: `${SITE_PROTOCOL}://localhost/users`,
+	    dataType: 'json',
+	    type: 'PUT',
+	    data: formData,
+	    processData: false,	// Evita che Jquery faccia operazioni sui dati.
+	    contentType: false,	// Evita che Jquery faccia operazioni sui dati.
+	    success: function(receiveData){
+	      if(receiveData.success){
+	        alert('Registrazione avvenuta con successo!')
+	        $('#container-forms').html('')
+	        $('#container-forms').css('margin', '0')
+	        $('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
+	        $('#create_clip').show()
+	        $('#notPublishedList').show()
+	        $("#creator").attr('value', $('#now_editor').attr('email'))
+	      }
+	      else{
+	        alert(receiveData.message);
+	      }
+	    }
+	  }
+	)
 
-			}
-		)
+	}
+);
 
 		$("#create_clip").click(
 			function(){
