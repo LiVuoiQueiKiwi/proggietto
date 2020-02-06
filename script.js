@@ -580,22 +580,98 @@ function printLocation(callback) {
 
   $.ajax(
     {
-      url: "clip_list.json",
+      // url: "clip_list.json",
+      /* G. */
+      url: 'localhost/clips',
+      /*****/
       dataType: "json",
-      success: function(receiveData){
-        if(receiveData.success){
+      success: function(data){
+        if(data.success){
           //STAMPA DEL JSON
 
 
           /*!!!!!!!!!!!!!!!!!!!!!!!
-          CHIAMARE SU receiveData.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
+          CHIAMARE SU data.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
           IN clip_near_list_json_global METTO L CLIP FINO A 50 METRI, IN clip_far_list_json_global LE ALTRE
           //la prima clip della lista è il luogo di interesse
           !!!!!!!!!!!!!!!!!!!!!!!*/
 
-          //alert(JSON.stringify(receiveData))
-          clip_near_list_json_global=receiveData.content.clip_near
-          clip_far_list_json_global=receiveData.content.clip_far
+          /**
+           * Raggio massimo delle clip visualizzabili (in metri).
+           * @const {int}
+           * @author Simone Grillini <grillini.simo@gmail.com>
+           */
+           var MAX_CLIP_RANGE = 100;
+
+           /**
+            * Raggio minimo delle clip visualizzabili (in metri).
+            * @const {int}
+            * @author Simone Grillini <grillini.simo@gmail.com>
+            */
+            var MIN_CLIP_RANGE = 50;
+
+			/**
+			* Funzione che confronta la distanza di due oggetti.
+			* @param a {Object}. Il primo oggetto con campo 'distance' da
+			* confrontare
+			* @param b {Object}. Il secondo oggetto con campo 'distance' da
+			* confrontare
+			* @return {int}
+			* @author Simone Grillini <grillini.simo@gmail.com>
+			*/
+			function compare(a,b) {
+				return a.distance < b.distance ? -1: (a.distance > b.distance ? return 1 : return 0);
+			}
+
+			/**
+			* Funzione che restituisce una lista delle clip entro una distanza.
+			* @param referenceLocation {string}. La coordinata di riferimento nel
+			* formato OLC.
+			* @param clips {Array}. La lista di tutte le clip dell'utente.
+			* @return {Array}
+			* @author Simone Grillini <grillini.simo@gmail.com>
+			*/
+			var getRangeClips = function(referenceLocation, rangeDistance, clips) {
+			   /*
+			    * La lista delle clip entro la massima distanza visualizzabile.
+			    */
+			   var filteredClips = [];
+
+			   /*
+			    * Scansiono tutte le clip in input.
+			    */
+			   clips.forEach(function(clip, i, array) {
+			       /*
+			        * Memorizzo le coordinate della clip e calcolo la distanza.
+			        */
+			       var clipLocation = clip.geoloc;
+			       array[i].distance = getDistance(referenceLocation, clipLocation);
+
+			       if (distance <= rangeDistance) {
+			           /*
+			            * La clip e' nel raggio desiderato e quindi la memorizzo
+			            * nell'output..
+			            */
+			           filteredClips.push(clip);
+			       }
+			   });
+
+			   /*
+			    * Ordino le clip per distanza.
+				*/
+			   filteredClips.sort(compare);
+
+			   return farClips;
+			}
+
+			/* TEST */
+			clip_near_list_json_global = getRangeClips(ACTUAL_LOCATION, MIN_CLIP_RANGE, data.content.clip_near);
+            clip_far_list_json_global = getRangeClips(ACTUAL_LOCATION, MAX_CLIP_RANGE, data.content.clip_far);
+			/*****/
+
+          //alert(JSON.stringify(data))
+          // clip_near_list_json_global=data.content.clip_near
+          // clip_far_list_json_global=data.content.clip_far
           //alert(clip_list_json_global.clip_near.length)
 
 
@@ -614,7 +690,7 @@ function printLocation(callback) {
           if (callback) callback()
         }
         else{
-          alert(receiveData.message)
+          alert(data.message)
         }
       }
     }
