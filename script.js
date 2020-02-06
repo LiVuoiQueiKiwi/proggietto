@@ -79,8 +79,6 @@ jQuery(function ($) {
 		$("#record_clip_button").click(
 			function(){
 
-				//var file = $( '#fileTag' )[0].files[0]
-
 				navigator.mediaDevices.getUserMedia({ audio: true }).then(
 					stream => {
 						var mediaRecorder = new MediaRecorder(stream)
@@ -111,14 +109,13 @@ jQuery(function ($) {
 
               audioBlob.lastModifiedDate = new Date();
 
-            //  reader.onloadend = function () {
                 $('#stop_record_clip_button').hide()
   							$('#record_clip_button').show()
   							$('#record_clip_button').text('Cancella e registra')
   							$("#record_clip_button").attr('new-clip', 1)
   							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
                 $('#save_clip').prop('disabled', false)
-          //    }
+
 
 						})
 
@@ -158,12 +155,18 @@ jQuery(function ($) {
 
 		//submit del form di cariamento clip
 		$("#myForm").submit(
+      // Se il json contiene:
+      // 		-Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
+      //		-Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
+      //		-Metadati + File (NO Link): Carico nuova clip (File + Metadati)
+
+
 			function (event){
         event.preventDefault()
 
 				//raccoglie tutti i dati del form
 				//controlla che ci sia l'audio
-        //
+
 				//creazione json da inviare al server
 				var formData = new FormData(myForm)	// La forma di .append e' ( chiave, valore )
 
@@ -186,26 +189,22 @@ jQuery(function ($) {
 					formData.append('published', '0')
 
 				if($("#record_clip_button").attr('new-clip')==1){
-					if($("#record_clip_button").attr('data-link')){ //caso in cui ho modificato la clip. elimino la precedente e carico la nuova clip
+					if($("#record_clip_button").attr('data-link')){
+            // Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
 						formData.append('link', $("#record_clip_button").attr('data-link'))
+            deleteVideo(formData.link)
 					}
 
-          //caso in cui sto creando una nuova clip. la carico
+          // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
           audioBlob.name = 'file.mp3';
-  				formData.append('uploaded-file', audioBlob, audioBlob.name)/*$('#audio_record').attr('file')*/
-          console.log(audioBlob);
+          uploadVideo(audioBlob, formData)
+
 				}
-				else{ //caso in cui ho modificato i metadati ma non la clip. aggiorno i metadati alla clip precedente
+				else{
+          // Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
 					formData.append('link', $("#record_clip_button").attr('data-link'))
+          updateVideo(formData)
 				}
-
-				// Invio tutto il contenuto con AJAX.
-				// Se il json contiene:
-				// 		-Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
-				//		-Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-				//		-Metadati + File (NO Link): Carico nuova clip (File + Metadati)
-
-				ajaxSendData(formData, '') //inserire link del server (Funzione: uploadClip)
 
       audioBlob = new Blob()
       $("#modalNewClip").modal('hide')
@@ -215,6 +214,8 @@ jQuery(function ($) {
 		)
 
 
+
+
     //submit del form di Login editor
 		$("#signin").submit(
 			function (event){
@@ -222,6 +223,7 @@ jQuery(function ($) {
 
 				//raccoglie tutti i dati del form
 				//creazione json da inviare al server
+        //ricevo un email.json
         var email=$('#inputEmail').val()
 				var formData = new FormData(signin)
 
@@ -260,6 +262,7 @@ jQuery(function ($) {
 
 				//raccoglie tutti i dati del form
 				//creazione json da inviare al server
+        //ricevo un email.json
 				var formData = new FormData(signup)
 
         $.ajax(
@@ -345,24 +348,7 @@ function init(){
 
 
 
-    /*
-    function getLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
-      } else {
-        window.alert("Geolocation is not supported by this browser.");
-      }
-    }
 
-    function showPosition(position) {
-        map.addLayer(createPositionMarker({lat: position.coords.latitude, lng: position.coords.longitude}));
-
-    }*/
-
-
-
-    //map.on('locationfound', onLocationFound);
-	//map.on('locationerror', onLocationError);
 	 map.locate({
         setView: true,
         minZoom: 16,
@@ -373,24 +359,12 @@ function init(){
 
 
 
-
-
     }).on("locationerror", error => {
             console.log("Errore");
     });
 
 
 
-
-
-    //var mark = createPositionMarker();
-    //console.log(mark._id);
-
-    //map.addControl( new L.Control.Gps({marker:mark,autoCenter:true,maxZoom: 16}) );
-    //console.log(position_Marker(mark));
-
-
-    //map.addControl( new L.Control.Gps({autoCenter:true,maxZoom: 16}) )
     var gps = new L.Control.Gps({autoCenter:true,maxZoom: 16}).addTo(map);
     var searchControl = new L.esri.Controls.Geosearch().addTo(map);
     var results = new L.LayerGroup().addTo(map);
@@ -501,21 +475,7 @@ function highlight(olc, title){
     });
 }
 
-/* Handle Position Functions */
 
-/*
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else {
-    window.alert("Geolocation is not supported by this browser.");
-  }
-}
-
-function showPosition(position) {
-    map.addLayer(createPositionMarker({lat: position.coords.latitude, lng: position.coords.longitude}));
-
-}*/
 
 function getOfflinePosition(){
     var center
@@ -615,9 +575,7 @@ var clip_near_list_json_global, clip_far_list_json_global, clip_visited_before
 
 function printLocation(callback) {
   //richiesta al server della lista delle clip dell'utente
-
-  //mando la posizione attuale e ricevo un clip_list.json
-  //tramite url invio la posizione corrente e la lingua delle clip da scaricare (presa dal menu)
+  //ricevo un clip_list.json
   //inserire link del server (Funzione: getClip)
 
   $.ajax(
@@ -644,7 +602,6 @@ function printLocation(callback) {
           markers.forEach(function(marker) {
             if (marker._id != 1){
                 clearMarker(marker._id);
-                //console.log('markers: '+markers);
             }
           })
           for(var i=0; i<(clip_near_list_json_global.length); i++){
@@ -662,29 +619,6 @@ function printLocation(callback) {
       }
     }
   )
-}
-
-
-
-function ajaxSendData(dataToSend, url){
-	/*$.ajax(
-		{
-			url: url,
-			type: 'POST',
-			dataType: 'json',
-			data: dataToSend,
-			processData: false,	// Evita che Jquery faccia operazioni sui dati.
-			contentType: false	// Evita che Jquery faccia operazioni sui dati.
-		}
-	)*/
-
-	//STAMPA DEL JSON
-	var print=''
-	for (var pair of dataToSend.entries()) {
-		print+=(pair[0]+ ' - ' + pair[1]);
-		print+='\n'
-	}
-	alert(print)
 }
 
 function printWhereAmI(){
@@ -806,8 +740,7 @@ function locationList(){
 
 function notPublishedList(){
   //richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
-	//mando la email dell'utente e ricevo un clip_not_published.json
-	//la email dell'utente viene mandata tramite indirizzo url
+	//ricevo un clip_not_published.json
 	//inserire link del server (Funzione: getNotPublishedClip)
 
   $.ajax(
@@ -854,7 +787,22 @@ function notPublishedList(){
         		function(){ //rende pubblica la clip
         			var updateData = new FormData()
         			updateData.append('data-link', $(this).attr('data-link'))
-        			ajaxSendData(updateData, '') //inserire link del server (Funzione: setClipPublished)
+
+
+              //INSERIRE L'AGGIORNAMENTO DELLA CLIP COME PUBBLICA SU YOUTUBE
+              /*$.ajax(
+            		{
+            			url: '', //inserire link del server (Funzione: setClipPublished)
+            			type: 'POST',
+            			dataType: 'json',
+            			data: updateData,
+            			processData: false,	// Evita che Jquery faccia operazioni sui dati.
+            			contentType: false	// Evita che Jquery faccia operazioni sui dati.
+            		}
+            	)*/
+
+
+
         			$("#modalClipNotPublished").modal('hide')
         		}
         	)
@@ -931,3 +879,11 @@ function cleanForm(){
 	$("#save_clip").attr('value', "Salva la clip")
 	$("#record_clip_button").text("Registra")
 }
+
+/*      STAMPA DI UN JSON
+          var print=''
+          for (var pair of dataToSend.entries()) {
+            print+=(pair[0]+ ' - ' + pair[1]);
+            print+='\n'
+          }
+          alert(print)*/
