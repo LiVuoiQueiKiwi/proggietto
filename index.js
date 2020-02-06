@@ -312,7 +312,7 @@ app.put('/clips', function(request, response) {
 
 
 
-app.update('/clips', function(request, response) {
+app.post('/clips', function(request, response) {
     /*
      * Inizializzo la sessione.
      */
