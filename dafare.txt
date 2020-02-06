@@ -25,16 +25,11 @@ inserire link al server + funzione sign_up
 
 
 
-Gestione delle clip non pubblicate. mi arrivano solo quelle non pubblicate o mi arrivano tutte quelle dell'utente e le filtra il client?
+Gestione delle clip non pubblicate. mi arrivano solo quelle non pubblicate
 
 insierire link al server + funzione getNotPublishedClip
 
 quando clicco pubblica: rende pubblica la funzione nel server e online su yotube--> GESTIONE RENDI CLIP PUBBLICA SU YOUTUBE
-
-inserire link al server + funzione setClipPublished, che salva nel database che la clip ora è pubblica
-
-
-
 
 GESTIONE UPLOAD VIDEO
 
@@ -44,8 +39,10 @@ GESTIONE UPDATE VIDEO
 
 audioblob globale serve? (probabilmente si)
 
-inserire link al server + funzione uploadclip che salva un nuovo video nel db
+inserire link al server + funzione uploadClip che salva un nuovo video nel db
 
-inserire link al server + funzione deleteclip che cancella un video nel db
+inserire link al server + funzione deleteClip che cancella un video nel db
 
-inserire link al server + funzione updateclip che modifica i metadati di un video nel db
+inserire link al server + funzione updateClip che modifica i metadati di un video nel db
+
+inserire link al server + funzione setClipPublished che salva nel database che la clip ora è pubblica
