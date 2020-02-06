@@ -1,22 +1,22 @@
 nel json delle clip il server mi ritorna solo il 'link' del video, non il 'file_audio'
 
-il json che ritorna il server (clip_list.json) non distingue tra near e far clip
-
 testare che funzioni la comunicazione col server per la ricezione delle clip da stampare
 
 
 
 
-testare che funzioni la comunicazione col serever per la ricezione delle info dei login/signup
+testare che funzioni la comunicazione col server per la ricezione delle info dei login/signup
 
-testare che funzioni la comunicazione col serever per l'invio delle info dei login/signup
-
-
+testare che funzioni la comunicazione col server per l'invio delle info dei login/signup
 
 
-Gestione delle clip non pubblicate. mi arrivano solo quelle non pubblicate
+
+
+Gestione delle clip non pubblicate
 
 quando clicco pubblica: rende pubblica la funzione nel server e online su yotube--> GESTIONE RENDI CLIP PUBBLICA SU YOUTUBE
+
+inserire link al server + funzione setClipPublished che salva nel database che la clip ora è pubblica
 
 GESTIONE UPLOAD VIDEO
 
@@ -31,12 +31,3 @@ inserire link al server + funzione uploadClip che salva un nuovo video nel db
 inserire link al server + funzione deleteClip che cancella un video nel db
 
 inserire link al server + funzione updateClip che modifica i metadati di un video nel db
-
-inserire link al server + funzione setClipPublished che salva nel database che la clip ora è pubblica
-
-
-
-
-getmarkeryourposition
-
-$("#creator").attr('value', $('#now_editor').attr('email'))
