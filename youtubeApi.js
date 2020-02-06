@@ -1,18 +1,9 @@
 function uploadVideo(file, metadata) {
 
-  //metadata_formatted= Formattazione corretta di metadata
-      var print=''
-      for (var pair of metadata.entries()) {
-        print+=(pair[0]+ ' - ' + pair[1]);
-        print+='\n'
-      }
-      alert(print)
-      description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"
-      for(i=0; i<(metadata.get('content')).length; i++)
-        description+=metadata.content[i]
+      description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
       if(metadata.get('audience')!='')
         description+=":"+metadata.get('audience')
-      if((metadata.get('detail')!='')
+      if(metadata.get('detail')!='')
         description+=":"+metadata.get('detail')
 
       metadata_formatted=
@@ -26,7 +17,7 @@ function uploadVideo(file, metadata) {
           "privacyStatus": "private"
         }
       }
-      alert(metadata_formatted)
+      //alert(metadata_formatted.snippet.description)
 
 
 	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
@@ -69,17 +60,11 @@ function uploadVideoSuccess(idVideo, formData){
 
 
 
-function deleteVideo(link) {
+function deleteVideo(id) {
 
-    /*  var print=''
-      for (var pair of metadata.entries()) {
-        print+=(pair[0]+ ' - ' + pair[1]);
-        print+='\n'
-      }
-      alert(print)*/
-/* GESTIONE ELIMINAZIONE VIDEO DA YOUTUBE SAPENDO IL LINK DEL VIDEO
+
+/* GESTIONE ELIMINAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
 	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-
 
 	$.ajax({
 		url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
@@ -89,7 +74,7 @@ function deleteVideo(link) {
 		processData: false,
 		method: 'POST',
 		success: function(data){
-      deleteVideoSuccess(link)
+      deleteVideoSuccess(id)
     },
 		error: function(error){
         alert(error)
@@ -97,14 +82,14 @@ function deleteVideo(link) {
 	})*/
 }
 
-function deleteVideoSuccess(link){
+function deleteVideoSuccess(id){
 
     $.ajax(
       {
         url: '', //inserire link del server (Funzione: deleteClip)
         type: 'POST',
         dataType: 'json',
-        data: link,
+        data: id,
         processData: false,	// Evita che Jquery faccia operazioni sui dati.
         contentType: false	// Evita che Jquery faccia operazioni sui dati.
       }
@@ -115,12 +100,7 @@ function deleteVideoSuccess(link){
 
 function updateVideo(formData) {
 
-    /*  var print=''
-      for (var pair of metadata.entries()) {
-        print+=(pair[0]+ ' - ' + pair[1]);
-        print+='\n'
-      }
-      alert(print)*/
+  
 /* GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO IL LINK DEL VIDEO
 	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 

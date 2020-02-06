@@ -5,6 +5,7 @@
 		[
 			{
 				"link": "",
+				"id": "",
 				"title": "Near 1",
 				"geoloc": "8FPHF9X4+9M",
 				"language": "fra",
@@ -18,6 +19,7 @@
 			},
 			{
 				"link": "https://www.youtube.com/embed/tgbNymZ7vqY",
+				"id": "",
 				"title": "Near 2",
 				"geoloc": "8FPHF9X4+6V",
 				"language": "",
@@ -31,6 +33,7 @@
 			},
 			{
 				"link": "",
+				"id": "",
 				"title": "Near 3",
 				"geoloc": "8FPHF9X4+3P",
 				"language": "",
@@ -44,6 +47,7 @@
 			},
 			{
 				"link": "",
+				"id": "",
 				"title": "Near 4",
 				"geoloc": "8FPHF9X4+F4",
 				"language": "",
