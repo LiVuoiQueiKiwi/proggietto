@@ -725,7 +725,7 @@ function printLocation(callback) {
 
 
 			/* TEST */
-			var actualUserLocation = getmarkeryourposition();
+			var actualUserLocation = getMarkerYourPosition();
 			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
             clip_far_list_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_global);
 			/*****/
