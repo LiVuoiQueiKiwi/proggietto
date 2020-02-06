@@ -573,6 +573,102 @@ var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "França
 
 var clip_near_list_json_global, clip_far_list_json_global, clip_visited_before
 
+
+
+/**
+ * Raggio massimo delle clip visualizzabili (in metri).
+ * @const {int}
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+var MAX_CLIP_RANGE = 100;
+
+
+
+/**
+ * Raggio minimo delle clip visualizzabili (in metri).
+ * @const {int}
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+var MIN_CLIP_RANGE = 50;
+
+
+
+/**
+ * Funzione che confronta la distanza di due oggetti.
+ * @param a {Object}. Il primo oggetto con campo 'distance' da
+ * confrontare
+ * @param b {Object}. Il secondo oggetto con campo 'distance' da
+ * confrontare
+ * @return {int}
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+function compare(a,b) {
+	return a.distance < b.distance ? -1: (a.distance > b.distance ? return 1 : return 0);
+}
+
+
+
+/**
+ * Funzione che restituisce una lista delle clip entro una distanza.
+ * @param referenceLocation {string}. La coordinata di riferimento nel
+ * formato OLC.
+ * @param clips {Array}. La lista di tutte le clip dell'utente.
+ * @return {Array}
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+var getRangeClips = function(referenceLocation, rangeDistance, clips) {
+	/*
+	 * La lista delle clip entro la massima distanza visualizzabile.
+	 */
+	var filteredClips = [];
+
+	/*
+	 * Scansiono tutte le clip in input.
+	 */
+	clips.forEach(function(clip, i, array) {
+		/*
+		 * Memorizzo le coordinate della clip e calcolo la distanza.
+		 */
+		var clipLocation = clip.geoloc;
+		array[i].distance = getDistance(referenceLocation, clipLocation);
+
+		if (distance <= rangeDistance) {
+			/*
+			 * La clip e' nel raggio desiderato e quindi la memorizzo
+			 * nell'output..
+			 */
+			filteredClips.push(clip);
+		}
+	});
+
+	/*
+	 * Ordino le clip per distanza.
+	 */
+	filteredClips.sort(compare);
+
+	return farClips;
+}
+
+
+/**
+ * Funzione che restituisce la differenza tra array.
+ * @param array {Array}. L'array da sottrarre.
+ * @return {Array}.
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+Array.prototype.diff = function(array) {
+	/*
+	 * Se l'array in input e' un valore 'falsy', ritorno la copia di questo
+	 * array.
+	 */
+    if (!array || !Array.prototype.isPrototypeOf(array)) {
+        return this.slice(0);
+    }
+	return this.filter(x => !array.includes(x));
+}
+
+
+
 function printLocation(callback) {
   //richiesta al server della lista delle clip dell'utente
   //ricevo un clip_list.json
@@ -581,9 +677,7 @@ function printLocation(callback) {
   $.ajax(
     {
       // url: "clip_list.json",
-      /* G. */
       url: 'localhost/clips',
-      /*****/
       dataType: "json",
       success: function(data){
         if(data.success){
@@ -596,77 +690,10 @@ function printLocation(callback) {
           //la prima clip della lista è il luogo di interesse
           !!!!!!!!!!!!!!!!!!!!!!!*/
 
-          /**
-           * Raggio massimo delle clip visualizzabili (in metri).
-           * @const {int}
-           * @author Simone Grillini <grillini.simo@gmail.com>
-           */
-           var MAX_CLIP_RANGE = 100;
-
-           /**
-            * Raggio minimo delle clip visualizzabili (in metri).
-            * @const {int}
-            * @author Simone Grillini <grillini.simo@gmail.com>
-            */
-            var MIN_CLIP_RANGE = 50;
-
-			/**
-			* Funzione che confronta la distanza di due oggetti.
-			* @param a {Object}. Il primo oggetto con campo 'distance' da
-			* confrontare
-			* @param b {Object}. Il secondo oggetto con campo 'distance' da
-			* confrontare
-			* @return {int}
-			* @author Simone Grillini <grillini.simo@gmail.com>
-			*/
-			function compare(a,b) {
-				return a.distance < b.distance ? -1: (a.distance > b.distance ? return 1 : return 0);
-			}
-
-			/**
-			* Funzione che restituisce una lista delle clip entro una distanza.
-			* @param referenceLocation {string}. La coordinata di riferimento nel
-			* formato OLC.
-			* @param clips {Array}. La lista di tutte le clip dell'utente.
-			* @return {Array}
-			* @author Simone Grillini <grillini.simo@gmail.com>
-			*/
-			var getRangeClips = function(referenceLocation, rangeDistance, clips) {
-			   /*
-			    * La lista delle clip entro la massima distanza visualizzabile.
-			    */
-			   var filteredClips = [];
-
-			   /*
-			    * Scansiono tutte le clip in input.
-			    */
-			   clips.forEach(function(clip, i, array) {
-			       /*
-			        * Memorizzo le coordinate della clip e calcolo la distanza.
-			        */
-			       var clipLocation = clip.geoloc;
-			       array[i].distance = getDistance(referenceLocation, clipLocation);
-
-			       if (distance <= rangeDistance) {
-			           /*
-			            * La clip e' nel raggio desiderato e quindi la memorizzo
-			            * nell'output..
-			            */
-			           filteredClips.push(clip);
-			       }
-			   });
-
-			   /*
-			    * Ordino le clip per distanza.
-				*/
-			   filteredClips.sort(compare);
-
-			   return farClips;
-			}
 
 			/* TEST */
 			clip_near_list_json_global = getRangeClips(ACTUAL_LOCATION, MIN_CLIP_RANGE, data.content.clip_near);
-            clip_far_list_json_global = getRangeClips(ACTUAL_LOCATION, MAX_CLIP_RANGE, data.content.clip_far);
+            clip_far_list_json_global = getRangeClips(ACTUAL_LOCATION, MAX_CLIP_RANGE, data.content.clip_far).diff(clip_near_list_json_global);
 			/*****/
 
           //alert(JSON.stringify(data))
@@ -687,7 +714,7 @@ function printLocation(callback) {
           for(var i=0; i<(clip_far_list_json_global.length); i++){
             printMarker(clip_far_list_json_global[i].geoloc, clip_far_list_json_global[i].title, 'img/marker-point.png')
           }
-          if (callback) callback()
+          if (callback) callback();
         }
         else{
           alert(data.message)
@@ -821,39 +848,48 @@ function notPublishedList(){
 
   $.ajax(
     {
-      url: "clip_not_published.json",
+      // url: "clip_not_published.json",
+	  url: 'localhost/clips/private',
       dataType: "json",
-      success: function(clipList){
-        if(clipList.success){
-          clipList=clipList.content
-          var html=''
-        	if((clipList.clip_list).length==0){
-        		html="<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>"
-        	}
-        	else{
+      success: function(data) {
+        if(data.success){
+
+			var clipList = data.content;
+			var html = '';
+
+        	// if((clipList.clip_list).length==0){
+			if (!clipList.length) {
+        		html = "<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>";
+        	} else {
         		//lista di clip con nome, metadati, traccia
-        		for(var i=0; i<(clipList.clip_list).length; i++){
+        		for (var i = 0; i < clipList.length; i++) {
         			//aggiungo (nel DOM) le clip
 
-        			html+=	"<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> "+clipList.clip_list[i].title+"</h5>"
+        			html += "<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> " + clipList[i].title + "</h5>";
 
-              if(clipList.clip_list[i].link=="")
-                html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
-              else
-          		  html+="<iframe width='250' height='80' src='"+clipList.clip_list[i].link+"?autoplay=1'></iframe>"
+					if (clipList[i].link == "") {
+						html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>";
+					} else {
+						html += "<iframe width='250' height='80' src='" + clipList[i].link + "?autoplay=1'></iframe>";
+					}
 
-              html+="<div class='left _modalOverflow'><b>Geolocalizzazione:</b> "+clipList.clip_list[i].geoloc+
-        					"<br><b>Lingua:</b> "+dict[clipList.clip_list[i].language]+"<br><b>Scopo:</b> "+dict[clipList.clip_list[i].purpose]+"<br><b>Pubblico:</b> "+dict[clipList.clip_list[i].audience]+
-        					"<br><b>Dettaglio:</b> "+clipList.clip_list[i].detail+"<br><b>Contenuto:</b> ";
+					html += "<div class='left _modalOverflow'><b>Geolocalizzazione:</b> " + clipList[i].geoloc +
+								"<br><b>Lingua:</b> " + dict[clipList[i].language] + "<br><b>Scopo:</b> " + dict[clipList[i].purpose] + "<br><b>Pubblico:</b> " + dict[clipList[i].audience] +
+								"<br><b>Dettaglio:</b> " + clipList[i].detail + "<br><b>Contenuto:</b> ";
 
-        			for(var j=0; j<(clipList.clip_list[i].content).length; j++){
-        				html+=dict[clipList.clip_list[i].content[j]]
-        				if(j+1!=(clipList.clip_list[i].content).length)
-        					html+=", "
-        			}
-        			html+=	"<br></div><div class='_flex_wrap_space'>"+
-        					"<button data-id='"+clipList.clip_list[i].id+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].link+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
-        					"<button data-id='"+clipList.clip_list[i].id+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+
+					/*
+					 * Cosa stracazzo fa questo loop?.
+					 */
+        			// for (var j = 0; j < clipList[i].content).length; j++){
+        			// 	html+=dict[clipList[i].content[j]]
+        			// 	if(j+1!=(clipList[i].content).length)
+        			// 		html+=", "
+        			// }
+
+        			html +=	"<br></div><div class='_flex_wrap_space'>" +
+        					"<button data-id='" + clipList[i].id + "' data-title='"+clipList[i].title + "' data-audio='" + clipList[i].link + "' data-geoloc='" + clipList[i].geoloc+"' data-language='" + clipList[i].language+"' data-purpose='" + clipList[i].purpose + "' data-audience='" + clipList[i].audience+"' data-detail='"+clipList[i].detail + "' data-content='" + clipList[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
+        					"<button data-id='" + clipList[i].id + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
         		}
         	}
 
