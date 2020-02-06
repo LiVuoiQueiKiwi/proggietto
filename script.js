@@ -701,7 +701,6 @@ Array.prototype.diff = function(array) {
 function printLocation(callback) {
   //richiesta al server della lista delle clip dell'utente
   //ricevo un clip_list.json
-  //inserire link del server (Funzione: getClip)
 
   $.ajax(
     {
@@ -878,7 +877,6 @@ function locationList(){
 function notPublishedList(){
   //richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
 	//ricevo un clip_not_published.json
-	//inserire link del server (Funzione: getNotPublishedClip)
 
   $.ajax(
     {
