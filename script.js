@@ -189,10 +189,10 @@ jQuery(function ($) {
 					formData.append('published', '0')
 
 				if($("#record_clip_button").attr('new-clip')==1){
-					if($("#record_clip_button").attr('data-link')){
+					if($("#record_clip_button").attr('data-id')){
             // Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
-						formData.append('link', $("#record_clip_button").attr('data-link'))
-            deleteVideo(formData.link)
+						formData.append('id', $("#record_clip_button").attr('data-id'))
+            deleteVideo(formData.id)
 					}
 
           // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
@@ -202,7 +202,7 @@ jQuery(function ($) {
 				}
 				else{
           // Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-					formData.append('link', $("#record_clip_button").attr('data-link'))
+					formData.append('link', $("#record_clip_button").attr('data-id'))
           updateVideo(formData)
 				}
 
@@ -776,8 +776,8 @@ function notPublishedList(){
         					html+=", "
         			}
         			html+=	"<br></div><div class='_flex_wrap_space'>"+
-        					"<button data-link='"+clipList.clip_list[i].link+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].link+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
-        					"<button data-link='"+clipList.clip_list[i].link+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+        					"<button data-id='"+clipList.clip_list[i].id+"' data-title='"+clipList.clip_list[i].title+"' data-audio='"+clipList.clip_list[i].link+"' data-geoloc='"+clipList.clip_list[i].geoloc+"' data-language='"+clipList.clip_list[i].language+"' data-purpose='"+clipList.clip_list[i].purpose+"' data-audience='"+clipList.clip_list[i].audience+"' data-detail='"+clipList.clip_list[i].detail+"' data-content='"+clipList.clip_list[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>"+
+        					"<button data-id='"+clipList.clip_list[i].id+"' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
         		}
         	}
 
@@ -785,23 +785,8 @@ function notPublishedList(){
 
         	$(".publish_clip").click(
         		function(){ //rende pubblica la clip
-        			var updateData = new FormData()
-        			updateData.append('data-link', $(this).attr('data-link'))
 
-
-              //INSERIRE L'AGGIORNAMENTO DELLA CLIP COME PUBBLICA SU YOUTUBE
-              /*$.ajax(
-            		{
-            			url: '', //inserire link del server (Funzione: setClipPublished)
-            			type: 'POST',
-            			dataType: 'json',
-            			data: updateData,
-            			processData: false,	// Evita che Jquery faccia operazioni sui dati.
-            			contentType: false	// Evita che Jquery faccia operazioni sui dati.
-            		}
-            	)*/
-
-
+              publishVideo($(this).attr('data-id'))
 
         			$("#modalClipNotPublished").modal('hide')
         		}
@@ -834,7 +819,7 @@ function notPublishedList(){
         			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
               $('#save_clip').prop('disabled', false)
         			$("#record_clip_button").attr('new-clip', 0)
-        			$("#record_clip_button").attr('data-link', $(this).attr('data-link'))
+        			$("#record_clip_button").attr('data-id', $(this).attr('data-id'))
         			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
 
         			$("#back_form").click(
@@ -860,7 +845,7 @@ function notPublishedList(){
 
 function cleanForm(){
 
-	$("#record_clip_button").removeAttr('data-link')
+	$("#record_clip_button").removeAttr('data-id')
 	$("#title").attr('value', '')
 	$("#geoloc").attr('value', '')
 	$("#myForm option").removeAttr('selected')

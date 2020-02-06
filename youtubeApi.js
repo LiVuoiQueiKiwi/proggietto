@@ -100,8 +100,8 @@ function deleteVideoSuccess(id){
 
 function updateVideo(formData) {
 
-  
-/* GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO IL LINK DEL VIDEO
+
+/* GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
 	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
 
@@ -113,7 +113,7 @@ function updateVideo(formData) {
 		processData: false,
 		method: 'POST',
 		success: function(data){
-      updateVideoSuccess(link)
+      updateVideoSuccess(formData)
     },
 		error: function(error){
         alert(error)
@@ -126,6 +126,44 @@ function updateVideoSuccess(formData){
     $.ajax(
       {
         url: '', //inserire link del server (Funzione: updateClip)
+        type: 'POST',
+        dataType: 'json',
+        data: formData,
+        processData: false,	// Evita che Jquery faccia operazioni sui dati.
+        contentType: false	// Evita che Jquery faccia operazioni sui dati.
+      }
+    )
+}
+
+
+function publishVideo(id) {
+
+
+/* GESTIONE PUBBLICAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
+	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+
+
+	$.ajax({
+		url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
+		data: form,
+		cache: false,
+		contentType: false,
+		processData: false,
+		method: 'POST',
+		success: function(data){
+        publishVideoSuccess(id)
+    },
+		error: function(error){
+        alert(error)
+    }
+	})*/
+}
+
+function publishVideoSuccess(id){
+
+    $.ajax(
+      {
+        url: '', //inserire link del server (Funzione: setClipPublished)
         type: 'POST',
         dataType: 'json',
         data: formData,
