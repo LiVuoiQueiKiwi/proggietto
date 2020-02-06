@@ -2,7 +2,7 @@
  * Protocollo di comunicazione per le chiamate AJAX.
  * @const {string}.
  */
-var SITE_PROTOCOL = 'http';
+var SITE_PROTOCOL = 'https';
 
 
 //http://www.fromtexttospeech.com/
@@ -573,7 +573,8 @@ function setCenterView(coords){
 
 var dict={"ita": "Italiano", "eng": "English", "deu": "Deutsch", "fra": "Français", "esp": "Español", "what": "What", "how": "How", "why": "Why", "gen": "Pubblico Generico", "pre": "Pre-Scuola", "elm": "Scuola Primaria", "mid": "Scuola Media", "scl": "Specialisti del Settore", "none": "Nessuno...", "nat": "Natura", "art": "Arte", "his": "Storia", "flk": "Folklore", "mod": "Cultura Moderna", "rel": "Religione", "cui": "Cucina e Drink", "spo": "Sport", "mus": "Musica", "mov": "Film", "fas": "Moda", "shp": "Shopping", "tec": "Tecnologia", "pop": "Cultura Pop e Gossip", "prs": "Esperienze Personali", "oth": "Altro"}
 
-var clip_near_list_json_global, clip_far_list_json_global, clip_visited_before
+var clip_list_global;
+var clip_near_list_global, clip_far_list_global, clip_visited_before
 
 
 
@@ -608,6 +609,10 @@ function compareDistances(a,b) {
 
 
 
+
+
+
+
 /**
  * Funzione che restituisce una lista delle clip entro una distanza.
  * @param referenceLocation {string}. La coordinata di riferimento nel
@@ -616,7 +621,7 @@ function compareDistances(a,b) {
  * @return {Array}
  * @author Simone Grillini <grillini.simo@gmail.com>
  */
-var getRangeClips = function(referenceLocation, rangeDistance, clips) {
+function getRangeClips(referenceLocation, rangeDistance, clips) {
 	/*
 	 * La lista delle clip entro la massima distanza visualizzabile.
 	 */
@@ -687,20 +692,20 @@ function printLocation(callback) {
 
           /*!!!!!!!!!!!!!!!!!!!!!!!
           CHIAMARE SU data.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
-          IN clip_near_list_json_global METTO L CLIP FINO A 50 METRI, IN clip_far_list_json_global LE ALTRE
+          IN clip_near_list_global METTO L CLIP FINO A 50 METRI, IN clip_far_list_global LE ALTRE
           //la prima clip della lista è il luogo di interesse
           !!!!!!!!!!!!!!!!!!!!!!!*/
 
 
 			/* TEST */
 			var actualUserLocation = getmarkeryourposition();
-			clip_near_list_json_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
-            clip_far_list_json_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_json_global);
+			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
+            clip_far_list_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_global);
 			/*****/
 
           //alert(JSON.stringify(data))
-          // clip_near_list_json_global=data.content.clip_near
-          // clip_far_list_json_global=data.content.clip_far
+          // clip_near_list_global=data.content.clip_near
+          // clip_far_list_global=data.content.clip_far
           //alert(clip_list_json_global.clip_near.length)
 
 
@@ -709,12 +714,12 @@ function printLocation(callback) {
                 clearMarker(marker._id);
             }
           })
-          for(var i=0; i<(clip_near_list_json_global.length); i++){
-            printMarker(clip_near_list_json_global[i].geoloc, clip_near_list_json_global[i].title, 'img/marker-point-near.png')
+          for(var i=0; i<(clip_near_list_global.length); i++){
+            printMarker(clip_near_list_global[i].geoloc, clip_near_list_global[i].title, 'img/marker-point-near.png')
           }
 
-          for(var i=0; i<(clip_far_list_json_global.length); i++){
-            printMarker(clip_far_list_json_global[i].geoloc, clip_far_list_json_global[i].title, 'img/marker-point.png')
+          for(var i=0; i<(clip_far_list_global.length); i++){
+            printMarker(clip_far_list_global[i].geoloc, clip_far_list_global[i].title, 'img/marker-point.png')
           }
           if (callback) callback();
         }
@@ -730,31 +735,31 @@ function printWhereAmI(){
 	//stampa della lista di clip (la prima è il luogo di interesse) e i bottoni di whereAmI
 
 	var html=''
-	if((clip_near_list_json_global).length==0){
+	if((clip_near_list_global).length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
-    if((clip_far_list_json_global).length!=0)
+    if((clip_far_list_global).length!=0)
       html+="<audio autoplay src='audio/Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
     else
       html+="<audio autoplay src='audio/Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
 		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
-		html+=	"<h5 class='_modalOverflow m-0'><b>"+clip_near_list_json_global[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clip_near_list_json_global[0].language]+
-				"<br><b>Scopo:</b> "+dict[clip_near_list_json_global[0].purpose]+"<br><b>Pubblico:</b> "+dict[clip_near_list_json_global[0].audience]+
-				"<br><b>Dettaglio:</b> "+clip_near_list_json_global[0].detail+"<br><b>Contenuto:</b> "
+		html+=	"<h5 class='_modalOverflow m-0'><b>"+clip_near_list_global[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clip_near_list_global[0].language]+
+				"<br><b>Scopo:</b> "+dict[clip_near_list_global[0].purpose]+"<br><b>Pubblico:</b> "+dict[clip_near_list_global[0].audience]+
+				"<br><b>Dettaglio:</b> "+clip_near_list_global[0].detail+"<br><b>Contenuto:</b> "
 
-		for(var j=0; j<(clip_near_list_json_global[0].content).length; j++){
-			html+=dict[clip_near_list_json_global[0].content[j]]
-			if(j+1!=(clip_near_list_json_global[0].content).length)
+		for(var j=0; j<(clip_near_list_global[0].content).length; j++){
+			html+=dict[clip_near_list_global[0].content[j]]
+			if(j+1!=(clip_near_list_global[0].content).length)
 				html+=", "
 		}
 
 		html+="<br></div>"
 
-    if(clip_near_list_json_global[0].link=="")
+    if(clip_near_list_global[0].link=="")
       html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
     else
-		  html+="<iframe width='250' height='80' src='"+clip_near_list_json_global[0].link+"?autoplay=1'></iframe>"
+		  html+="<iframe width='250' height='80' src='"+clip_near_list_global[0].link+"?autoplay=1'></iframe>"
 
     html+="<div class='_flex_center'>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='img/014-left arrow.png'></button>"+
@@ -765,29 +770,29 @@ function printWhereAmI(){
 
 		$('#_modal-body-whereAmI').html(html)
 
-		if(clip_near_list_json_global.length==0)
+		if(clip_near_list_global.length==0)
 			$('#more').addClass('img_disable')
 		else{
       $('#more').removeClass('img_disable')
 			$('#more').click(
 				function(){
-          clip_near_list_json_global.shift()
+          clip_near_list_global.shift()
 					printWhereAmI()
 				}
 			)
 		}
 
-    if(clip_far_list_json_global[0]==undefined)
+    if(clip_far_list_global[0]==undefined)
 			$('#next').addClass('img_disable')
       else{
         $('#next').removeClass('img_disable')
         $('#next').click(
     			function(){
-            clip_visited_before.push(clip_near_list_json_global[0])
+            clip_visited_before.push(clip_near_list_global[0])
             audio_add="<div style='display: none;'><audio src='audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
             $("#modalWhereAmI").modal('hide')
             $('body').append(audio_add)
-            highlight(clip_far_list_json_global[0].geoloc, clip_far_list_json_global[0].title)
+            highlight(clip_far_list_global[0].geoloc, clip_far_list_global[0].title)
     			}
     		)
       }
@@ -808,8 +813,8 @@ function printWhereAmI(){
         }
 
 
-		//alert(clip_near_list_json_global[0].geoloc)
-		highlight(clip_near_list_json_global[0].geoloc, clip_near_list_json_global[0].title)
+		//alert(clip_near_list_global[0].geoloc)
+		highlight(clip_near_list_global[0].geoloc, clip_near_list_global[0].title)
 	}
 
 }
@@ -817,18 +822,18 @@ function printWhereAmI(){
 function locationList(){
   printLocation()
 	var html=''
-	if(clip_far_list_json_global.length==0){
+	if(clip_far_list_global.length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>"
 	}
 	else{
     //aggiungo (nel DOM) la location alla lista. on click chiamo la funzione che mi evidenzia il luogo sulla mappa, passandogli la geoloc
     html+="<h5 class='text-center'><b>Nelle vicinanze</b></h5>"
-    for(var i=0; i<clip_near_list_json_global.length; i++){
-			html+="<div class='_modalList _pointer' data-location='" + clip_near_list_json_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_near_list_json_global[i].title+"</h5></div>";
+    for(var i=0; i<clip_near_list_global.length; i++){
+			html+="<div class='_modalList _pointer' data-location='" + clip_near_list_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_near_list_global[i].title+"</h5></div>";
 		}
     html+="<br><h5 class='text-center'><b>Nei dintorni</b></h5>"
-    for(var i=0; i<clip_far_list_json_global.length; i++){
-			html+="<div class='_modalList _pointer' data-location='" + clip_far_list_json_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_far_list_json_global[i].title+"</h5></div>";
+    for(var i=0; i<clip_far_list_global.length; i++){
+			html+="<div class='_modalList _pointer' data-location='" + clip_far_list_global[i].geoloc + "'><h5 class='_modalh5'>"+clip_far_list_global[i].title+"</h5></div>";
 		}
   }
 	$("#_modal-body-location-list").html(html)
