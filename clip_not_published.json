@@ -1,8 +1,7 @@
 {
 	"success": 1,
-	"content":{
-		"clip_list":
-		[
+	"content":[
+
 			{
 				"link": "",
 				"id": "",
@@ -59,7 +58,7 @@
 				"purpose": "",
 				"distance": ""
 			}
-		]
-	},
+
+	],
 	"message": "errore ricerca clip"
 }
