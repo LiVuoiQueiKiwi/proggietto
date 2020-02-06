@@ -18,9 +18,11 @@ const util = require('./util.js');
  */
 var ApiResponse = require('./apiResponse.js');
 
-/****/
-var MongoClient = mongo.MongoClient;
-/****/
+
+
+/*****/ var MongoClient = mongo.MongoClient;
+
+
 
 /**
  * L'host sul quale il database MongoDB e' in esecuzione.
@@ -28,11 +30,15 @@ var MongoClient = mongo.MongoClient;
  */
 const MONGODB_HOST = 'localhost';
 
+
+
 /**
  * Il nome del database utilizzato su MongoDB.
  * @const {string}
  */
 const MONGODB_NAME = 'WhereAmIDb';
+
+
 
 /**
  *  La porta alla quale il databse di MongoDB risponde.
@@ -40,11 +46,15 @@ const MONGODB_NAME = 'WhereAmIDb';
  */
 const MONGODB_PORT = 27017;
 
+
+
 /**
  * L'URL completo del databse di MongoDB.
  * @const {string}
  */
 const URL = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_NAME}`;
+
+
 
 /**
  * Il nome della collezione degli utenti.
@@ -52,10 +62,12 @@ const URL = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_NAME}`;
  */
 const COLLECTION_USERS = 'users';
 
- /**
-  * Il nome della collezione delle clip.
-  * @const {string}
-  */
+
+
+/**
+ * Il nome della collezione delle clip.
+ * @const {string}
+ */
 const COLLECTION_CLIPS = 'clips';
 
 /**
@@ -79,8 +91,9 @@ var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
 
 
 
-// ⊥✕✓✔✖⚠
-// Inizializzo gli eventi principali (principalmente per debug).
+/*
+ * Inizializzo gli eventi principali (principalmente per debug).
+ */
 db.on('error', function (error) {
     util.logFail('Database error. ', error);
 })
@@ -89,53 +102,11 @@ db.on('connect', function () {
     util.logSuccess('Database connected.');
 })
 
+
+
 /*
  * Inserisce un nuovo utente nel database.
  */
-// module.exports.insertUser = function(email, password) {
-//     /*
- // * Inizializzo la risposta.
- // */
-//     var result = new ApiResponse();
-//     var missingArgs = 1;
-//
-//     if (!email) {
-//         // Email mancante.
-//         result.message = 'Email non presente.';
-//     } else if (!password) {
-//         // Password mancante
-//         result.message = 'Password non presente.';
-//     } else {
-//         missingArgs = 0;
-//     }
-//
-//     if (!missingArgs) {
-//         // I parrametri sono presenti e quindi proseguo.
-//         var data = {
-//             email: email,
-//             hash: sha1(password)
-//         };
-//
-//         // Controllo se esiste gia' un account con la stessa email.
-//         db.users.findOne({email: email}, function(error,docs) {
-//             if (!docs) {
-//                 // Il record non e' stato trovato, quindi memorizzo il nuovo
-//                 // account.
-//                 db.mycollection.save(data);
-//
-//                 result.setSuccess();
-//             } else {
-//                 result.message = 'Esiste gia\' un account con questo indirizzo email';
-//             }
-//
-//             if (error) {
-//                 // Riporto l'errorore nella risposta.
-//                 result.message = error;
-//             }
-//         });
-//     }
-// }
-
 module.exports.putUser = function(email, password) {
     return new Promise(function(resolve, reject) {
         /*
@@ -270,6 +241,7 @@ module.exports.getUser = function(email) {
 }
 
 
+
 /**
  *  Ritorna tutti gli utenti presenti nel database.
  */
@@ -330,10 +302,9 @@ module.exports.deleteUser = function(email) {
             	} else {
                     util.logSuccess('Successo rimozione utente nel database.');
                     util.debug(docs);
-
                     result.setSuccess();
+					resolve(result);
                 }
-                resolve(result);
             });
         } else {
             reject(result.message);
@@ -387,11 +358,43 @@ module.exports.putClip = function(clip) {
             db.clips.insert(clip);
             result.setSuccess();
             result.message = 'Clip inserita correttamente.';
+			resolve(result);
+        } else {
+        	reject(result.message);
         }
-
-        resolve(result);
     });
 }
+
+
+
+/*
+ * Aggiorna un oggetto 'clip' nella collezione.
+ */
+module.exports.updateClip = function(clip) {
+    return new Promise(function(resolve, reject) {
+        /*
+         * Inizializzo la risposta.
+         */
+        var result = new ApiResponse();
+        var missingArgs = 1;
+
+        if (!clip) {
+            result.message = 'Clip non presente.';
+        } else {
+            missingArgs = 0;
+        }
+
+        if(!missingArgs) {
+            db.clips.update({_id: clip._id}, {$set: clip});
+            result.setSuccess();
+            result.message = 'Clip aggiornata correttamente.';
+			resolve(result);
+        } else {
+        	reject(result.message);
+        }
+    });
+}
+
 
 
 /**
@@ -428,9 +431,8 @@ module.exports.getClip = function(userId, clipId) {
                     util.debug(docs);
                     result.setSuccess();
                     result.content = docs;
+					resolve(result);
                 }
-
-                resolve(result);
             });
         } else {
             reject(result.message);
@@ -492,8 +494,8 @@ module.exports.getClips = function(userId, published = -1) {
                     util.debug(docs);
                     result.setSuccess();
                     result.content = docs;
+					resolve(result);
                 }
-                resolve(result);
             });
         } else {
             reject(result.message);
@@ -530,8 +532,8 @@ module.exports.deleteClip = function(clipId) {
                     util.logSuccess(`Successo rimozione della clip [${clipId}] dal database.`);
                     util.debug(docs);
                     result.setSuccess();
+					resolve(result);
                 }
-                resolve(result);
             });
         } else {
             reject(result.message);
