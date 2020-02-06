@@ -1,7 +1,3 @@
-/****/var http = require( 'http' );
-/****/var fs = require( 'fs' );
-/****/var url = require( 'url' );
-
 var express = require('express');
 var session = require('express-session');
 var db = require('./mongodb.js');
@@ -16,7 +12,7 @@ var ApiResponse = require('./apiResponse.js');
  */
 var util = require('./util.js');
 
-/****/var testPage = require('./jqueryTestPage.js');
+/*****/var testPage = require('./jqueryTestPage.js');
 
 /**
  * Percorso relativo della cartella in cui si trovano i documenti HTML.
@@ -120,9 +116,6 @@ app.post('/users/login', function(request, response) {
     var serverResponse = new ApiResponse
     util.terminal('Initializing API response object');
 
-
-    // util.logSuccess(`Richiesta POST ricevuta. Verifica di login per l'utente: ${email}`);
-
     /*
      * Eseguo l'operazione richiesta.
      */
@@ -186,9 +179,9 @@ app.put('/users', function(request, response) {
 });
 
 
-/****/
+/*****/
 // SOLO PER TESTING.
-/****/
+/*****/
 app.get('/users', function(request, response) {
 
     util.logSuccess(`Richiesta GET ricevuta. Ricerca di tutti gli utenti`);
@@ -203,7 +196,7 @@ app.get('/users', function(request, response) {
         sendToClient(response, result);
     }, util.handlePromiseRejection);
 });
-/****/
+/*****/
 
 
 app.get('/users/:email', function(request, response) {
@@ -316,6 +309,52 @@ app.put('/clips', function(request, response) {
         sendToClient(response, serverResponse);
     }
 });
+
+
+
+app.update('/clips', function(request, response) {
+    /*
+     * Inizializzo la sessione.
+     */
+    sess = request.session;
+
+    /*
+     * Inizializzo la risposta.
+     */
+    var serverResponse = new ApiResponse();
+
+    /*
+     * Prelevo gli argomenti della richiesta.
+     */
+    var clip = request.body.clip;
+
+    /*
+     * Controllo se l'utente e' loggato.
+     */
+    if (isUserLogged(sess)) {
+
+        util.logSuccess(`Richiesta UPDATE ricevuta. Aggiornamento della clip [${clip._id}] per ${sess.userEmail}`);
+
+        /*
+         * Aggiungo all'oggetto della clip, l'ID dell'utente.
+         */
+        clip.userId = sess.userId;
+
+        /*
+         * Eseguo l'operazione richiesta.
+         */
+        db.updateClip(clip).then(function(result) {
+            /*
+             * Rispondo al client con il risultato.
+             */
+            sendToClient(response, result);
+        }, util.handlePromiseRejection);
+    } else {
+        serverResponse.message = NO_AUTH_MESSAGE;
+        sendToClient(response, serverResponse);
+    }
+});
+
 
 
 /*
@@ -505,7 +544,7 @@ app.get('/private', function(request, response) {
 //          */
 //         db.getClips(sess.userId).then(function(result) {
 //
-//             /****/ util.debug(result);
+//             /*****/ util.debug(result);
 //
 //             if (result.success) {
 //                 result.content.forEach(function(clip) {
