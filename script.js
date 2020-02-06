@@ -595,14 +595,12 @@ var MIN_CLIP_RANGE = 50;
 
 /**
  * Funzione che confronta la distanza di due oggetti.
- * @param a {Object}. Il primo oggetto con campo 'distance' da
- * confrontare
- * @param b {Object}. Il secondo oggetto con campo 'distance' da
- * confrontare
+ * @param a {Object}. Il primo oggetto con campo 'distance' da confrontare
+ * @param b {Object}. Il secondo oggetto con campo 'distance' da confrontare
  * @return {int}
  * @author Simone Grillini <grillini.simo@gmail.com>
  */
-function compare(a,b) {
+function compareDistances(a,b) {
 	return a.distance < b.distance ? -1: (a.distance > b.distance ? return 1 : return 0);
 }
 
@@ -644,10 +642,11 @@ var getRangeClips = function(referenceLocation, rangeDistance, clips) {
 	/*
 	 * Ordino le clip per distanza.
 	 */
-	filteredClips.sort(compare);
+	filteredClips.sort(compareDistances);
 
-	return farClips;
+	return filteredClips;
 }
+
 
 
 /**
@@ -681,8 +680,8 @@ function printLocation(callback) {
       dataType: "json",
       success: function(data){
         if(data.success){
-          //STAMPA DEL JSON
 
+          var clips = data.content;
 
           /*!!!!!!!!!!!!!!!!!!!!!!!
           CHIAMARE SU data.content FUNZIONE CHE SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
@@ -692,8 +691,9 @@ function printLocation(callback) {
 
 
 			/* TEST */
-			clip_near_list_json_global = getRangeClips(ACTUAL_LOCATION, MIN_CLIP_RANGE, data.content.clip_near);
-            clip_far_list_json_global = getRangeClips(ACTUAL_LOCATION, MAX_CLIP_RANGE, data.content.clip_far).diff(clip_near_list_json_global);
+			var actualUserLocation = getmarkeryourposition();
+			clip_near_list_json_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
+            clip_far_list_json_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_json_global);
 			/*****/
 
           //alert(JSON.stringify(data))
