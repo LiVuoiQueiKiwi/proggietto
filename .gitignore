@@ -2,3 +2,4 @@
 **/db
 **/mongod.lock
 **/npm-debug.log
+**/sendToHost.sh
