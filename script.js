@@ -1,3 +1,10 @@
+/**
+ * Protocollo di comunicazione per le chiamate AJAX.
+ * @const {string}.
+ */
+var SITE_PROTOCOL = 'http';
+
+
 //http://www.fromtexttospeech.com/
 
 jQuery(function ($) {
@@ -216,44 +223,44 @@ jQuery(function ($) {
 
 
 
-    //submit del form di Login editor
-		$("#signin").submit(
-			function (event){
-        event.preventDefault()
+//submit del form di Login editor
+$("#signin").submit(function (event) {
+	event.preventDefault()
 
-				//raccoglie tutti i dati del form
-				//creazione json da inviare al server
-        //ricevo un email.json
-        var email=$('#inputEmail').val()
-				var formData = new FormData(signin)
+	//raccoglie tutti i dati del form
+	//creazione json da inviare al server
+	//ricevo un email.json
+	var email = $('#inputEmail').val();
+	var password = $('#inputPassword').val();
+	// var formData = new FormData(signin);
 
-        $.ajax(
-          {
-            url: "email.json", //inserire link del server (Funzione: sign_in)
-            dataType: "json",
-            type: 'POST',
-            data: formData,
-            processData: false,	// Evita che Jquery faccia operazioni sui dati.
-            contentType: false,	// Evita che Jquery faccia operazioni sui dati.
-            success: function(receiveData){
-              if(receiveData.success){
-                alert('Login eseguito con successo!')
-                $('#container-forms').html('')
-                $('#container-forms').css('margin', '0')
-                $('#formLanguage').append('<br><br><br><h5 id="now_editor" email='+email+' class="text-white"><b>'+email+'<br>You are now an EDITOR!</b></h5><br>')
-                $('#create_clip').show()
-                $('#notPublishedList').show()
-                $("#creator").attr('value', $('#now_editor').attr('email'))
-              }
-              else{
-                alert(receiveData.message)
-              }
-            }
-          }
-        )
-
-			}
-		)
+	$.ajax({
+		// url: "email.json", //inserire link del server (Funzione: sign_in)
+		url: `${SITE_PROTOCOL}://localhost/users/login`,
+		dataType: 'json',
+		type: 'POST',
+		data: {
+			email: email,
+			password: password
+		},
+		processData: false,	// Evita che Jquery faccia operazioni sui dati.
+		contentType: false	// Evita che Jquery faccia operazioni sui dati.
+	}).done(function(data){
+		if(data.success){
+			alert('Login eseguito con successo!');
+			$('#container-forms').html('');
+			$('#container-forms').css('margin', '0');
+			$('#formLanguage').append(`<br><br><br><h5 id="now_editor" email = '${email}' class="text-white"><b>'${email}'<br>You are now an EDITOR!</b></h5><br>`);
+			$('#create_clip').show();
+			$('#notPublishedList').show();
+			$("#creator").attr('value', $('#now_editor').attr('email'));
+		} else {
+			alert(data.message);
+		}
+	}).fail(function(jqXhr, status, error){
+		// Gestione dell'errore AJAX.
+	});
+});
 
     //submit del form di Sign up editor
 		$("#signup").submit(
@@ -267,9 +274,10 @@ jQuery(function ($) {
 
         $.ajax(
           {
-            url: "email.json", //inserire link del server (Funzione: sign_up)
-            dataType: "json",
-            type: 'POST',
+            // url: "email.json", //inserire link del server (Funzione: sign_up)
+			url: `${SITE_PROTOCOL}://localhost/users`,
+            dataType: 'json',
+            type: 'PUT',
             data: formData,
             processData: false,	// Evita che Jquery faccia operazioni sui dati.
             contentType: false,	// Evita che Jquery faccia operazioni sui dati.
@@ -676,7 +684,7 @@ function printLocation(callback) {
   $.ajax(
     {
       // url: "clip_list.json",
-      url: 'https://localhost/clips',
+      url: `${SITE_PROTOCOL}://localhost/clips`,
       dataType: "json",
       success: function(data){
         if(data.success){
@@ -849,7 +857,7 @@ function notPublishedList(){
   $.ajax(
     {
       // url: "clip_not_published.json",
-	  url: 'https://localhost/clips/private',
+	  url: `${SITE_PROTOCOL}://localhost/clips/private`,
       dataType: "json",
       success: function(data) {
         if(data.success){
