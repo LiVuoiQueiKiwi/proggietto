@@ -1,61 +1,65 @@
 {
-	"clip_list":
-	[
-		{
-			"audio_file": "Parole Sterili Mastered PriStudio 24 Bit.wav",
-			"link": "htttttttttp",
-			"title": "Near 1",
-			"geoloc": "8FPHF9X4+9M",
-			"language": "fra",
-			"audience": "pre",
-			"detail": "2",
-			"content": ["rel", "nat"],
-			"email": "",
-			"published": "",
-			"purpose": "why",
-			"distance": "5"
-		},
-		{
-			"audio_file": "ParoleSterili_Demo_220118.wav",
-			"link": "hththththt",
-			"title": "Near 2",
-			"geoloc": "8FPHF9X4+6V",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Near 3",
-			"geoloc": "8FPHF9X4+3P",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		},
-		{
-			"audio_file": "",
-			"link": "",
-			"title": "Near 4",
-			"geoloc": "8FPHF9X4+F4",
-			"language": "",
-			"audience": "",
-			"detail": "",
-			"content": [],
-			"email": "",
-			"published": "",
-			"purpose": "",
-			"distance": ""
-		}
-	]
+	"success": 1,
+	"content":{
+		"clip_list":
+		[
+			{
+				"link": "",
+				"id": "",
+				"title": "Near 1",
+				"geoloc": "8FPHF9X4+9M",
+				"language": "fra",
+				"audience": "pre",
+				"detail": "2",
+				"content": ["rel", "nat"],
+				"email": "",
+				"published": "",
+				"purpose": "why",
+				"distance": "5"
+			},
+			{
+				"link": "https://www.youtube.com/embed/tgbNymZ7vqY",
+				"id": "",
+				"title": "Near 2",
+				"geoloc": "8FPHF9X4+6V",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"link": "",
+				"id": "",
+				"title": "Near 3",
+				"geoloc": "8FPHF9X4+3P",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			},
+			{
+				"link": "",
+				"id": "",
+				"title": "Near 4",
+				"geoloc": "8FPHF9X4+F4",
+				"language": "",
+				"audience": "",
+				"detail": "",
+				"content": [],
+				"email": "",
+				"published": "",
+				"purpose": "",
+				"distance": ""
+			}
+		]
+	},
+	"message": "errore ricerca clip"
 }
