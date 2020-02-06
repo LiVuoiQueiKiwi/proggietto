@@ -601,7 +601,7 @@ var MIN_CLIP_RANGE = 50;
  * @author Simone Grillini <grillini.simo@gmail.com>
  */
 function compareDistances(a,b) {
-	return a.distance < b.distance ? -1: (a.distance > b.distance ? return 1 : return 0);
+	return a.distance < b.distance ? -1: (a.distance > b.distance ? 1 : 0);
 }
 
 
