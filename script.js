@@ -346,14 +346,9 @@ var map,mpos, markers=[];
 
 function init(){
 
-
-if (map != undefined) { map.remove(); }
+    if (map != undefined) { map.remove(); }
 
     map = L.map('map');
-
-
-
-
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 8,
         maxZoom: 16
