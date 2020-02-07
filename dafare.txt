@@ -2,9 +2,6 @@ nel json delle clip il server mi ritorna solo il 'link' del video, non il 'file_
 
 testare che funzioni la comunicazione col server per la ricezione delle clip da stampare
 
-
-
-
 testare che funzioni la comunicazione col server per la ricezione delle info dei login/signup
 
 testare che funzioni la comunicazione col server per l'invio delle info dei login/signup
