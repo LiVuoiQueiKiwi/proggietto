@@ -928,7 +928,7 @@ function notPublishedList(){
 
         			html +=	"<br></div><div class='_flex_wrap_space'>" +
         					"<button data-id='" + clipList[i].id + "' data-title='"+clipList[i].title + "' data-audio='" + clipList[i].link + "' data-geoloc='" + clipList[i].geoloc+"' data-language='" + clipList[i].language+"' data-purpose='" + clipList[i].purpose + "' data-audience='" + clipList[i].audience+"' data-detail='"+clipList[i].detail + "' data-content='" + clipList[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
-        					"<button data-id='" + clipList[i].id + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+        					"<button data-id='" + clipList[i].id + "' data-title='"+clipList[i].title + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
         		}
         	}
 
@@ -937,7 +937,7 @@ function notPublishedList(){
         	$(".publish_clip").click(
         		function(){ //rende pubblica la clip
 
-              publishVideo($(this).attr('data-id'))
+              publishVideo($(this).attr('data-id'), $(this).attr('data-title'))
 
         			$("#modalClipNotPublished").modal('hide')
         		}
