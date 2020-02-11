@@ -215,7 +215,6 @@ jQuery(function ($) {
 
       audioBlob = new Blob()
       $("#modalNewClip").modal('hide')
-      cleanForm()
 
       }
 		)
@@ -235,7 +234,7 @@ $('#signin').submit(function (event) {
 	// var formData = new FormData(signin);
 
 	$.ajax({
-		// url: "email.json", //inserire link del server (Funzione: sign_in)
+		//url: "email.json", //inserire link del server (Funzione: sign_in)
 		url: `${SITE_PROTOCOL}://localhost/users/login`,
 		dataType: 'json',
 		type: 'POST',
@@ -272,8 +271,8 @@ $("#signup").submit(function (event){
 	var formData = new FormData(signup);
 
 	$.ajax({
-	    // url: "email.json", //inserire link del server (Funzione: sign_up)
-		url: `${SITE_PROTOCOL}://localhost/users`,
+	    //url: "email.json", //inserire link del server (Funzione: sign_up)
+		  url: `${SITE_PROTOCOL}://localhost/users`,
 	    dataType: 'json',
 	    type: 'PUT',
 	    data: formData,
@@ -298,6 +297,7 @@ $("#signup").submit(function (event){
 		$("#create_clip").click(
 			function(){
 				cleanForm()
+        $("#geoloc").attr('value',  getMarkerYourPosition());
 			}
 		)
 
@@ -327,6 +327,14 @@ $("#signup").submit(function (event){
 			$('#_modal-body-whereAmI').html('')
 		})
 
+    $('#modalClipNotPublished').on('hidden.bs.modal', function () {
+			$('.frame').attr('src', $('.frame').attr('src'))
+		})
+
+    $('#modalNewClip').on('hidden.bs.modal', function () {
+			cleanForm()
+		})
+
 
 
 
@@ -338,9 +346,7 @@ var map,mpos, markers=[];
 
 function init(){
 
-
-
-
+    if (map != undefined) { map.remove(); }
 
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -357,7 +363,7 @@ function init(){
         maxZoom: 16
     }).on("locationfound", e => {
             map.addLayer(createPositionMarker(e.latlng));
-
+            printLocation()
 
 
 
@@ -386,7 +392,7 @@ function init(){
 
     clip_visited_before=[]
 
-    printLocation()
+
 
 }
 
@@ -701,11 +707,9 @@ Array.prototype.diff = function(array) {
 function printLocation(callback) {
   //richiesta al server della lista delle clip dell'utente
   //ricevo un clip_list.json
-  //inserire link del server (Funzione: getClip)
-
   $.ajax(
     {
-      // url: "clip_list.json",
+      //url: "clip_list.json",
       url: `${SITE_PROTOCOL}://localhost/clips`,
       dataType: "json",
       success: function(data){
@@ -725,14 +729,16 @@ function printLocation(callback) {
 
 
 			/* TEST */
-			var actualUserLocation = getmarkeryourposition();
+			var actualUserLocation = getMarkerYourPosition();
+
+      //console.log(actualUserLocation)
 			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
             clip_far_list_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_global);
 			/*****/
 
           //alert(JSON.stringify(data))
-          // clip_near_list_global=data.content.clip_near
-          // clip_far_list_global=data.content.clip_far
+          // clip_near_list_global=data.content
+          // clip_far_list_global=data.content
           //alert(clip_list_json_global.clip_near.length)
 
 
@@ -878,12 +884,11 @@ function locationList(){
 function notPublishedList(){
   //richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
 	//ricevo un clip_not_published.json
-	//inserire link del server (Funzione: getNotPublishedClip)
 
   $.ajax(
     {
-      // url: "clip_not_published.json",
-	  url: `${SITE_PROTOCOL}://localhost/clips/private`,
+      //url: "clip_not_published.json",
+	    url: `${SITE_PROTOCOL}://localhost/clips/private`,
       dataType: "json",
       success: function(data) {
         if(data.success){
@@ -904,7 +909,7 @@ function notPublishedList(){
 					if (clipList[i].link == "") {
 						html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>";
 					} else {
-						html += "<iframe width='250' height='80' src='" + clipList[i].link + "?autoplay=1'></iframe>";
+						html += "<iframe class='frame' width='250' height='80' src='" + clipList[i].link + "'></iframe>";
 					}
 
 					html += "<div class='left _modalOverflow'><b>Geolocalizzazione:</b> " + clipList[i].geoloc +
@@ -962,7 +967,7 @@ function notPublishedList(){
         			}
         			$("#contentOption").html(html)
         			$("#record_clip_button").text("Cancella e registra un'altra clip")
-        			$("#audio_record_div").html("<audio src='"+$(this).attr('data-audio')+"' id='audio_record' controls>Your browser does not support the audio element.</audio>")
+        			$("#audio_record_div").html("<iframe class='frame' width='250' height='80' src='" + $(this).attr('data-audio') + "'></iframe>")
               $('#save_clip').prop('disabled', false)
         			$("#record_clip_button").attr('new-clip', 0)
         			$("#record_clip_button").attr('data-id', $(this).attr('data-id'))
@@ -993,7 +998,6 @@ function cleanForm(){
 
 	$("#record_clip_button").removeAttr('data-id')
 	$("#title").attr('value', '')
-	$("#geoloc").attr('value', '')
 	$("#myForm option").removeAttr('selected')
 	$("#language option[value='ita']").attr('selected', 'selected')
 	$("#purpose input[value='what']").attr('checked', true)

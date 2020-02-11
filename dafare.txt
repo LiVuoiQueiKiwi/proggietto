@@ -1,35 +1,19 @@
-fare funzione da mettere dentro a printLocation CHE, ricevute tutte le clip:
--seleziona le clip della lingua giusta (presa dal menu)
--SELEZIONA LE CLIP ENTRO 100 METRI E ORDINA LE CLIP IN BASE ALLA DISTANZA
--le divide tra vicine (50m) e lontane
-
 nel json delle clip il server mi ritorna solo il 'link' del video, non il 'file_audio'
 
-il json che ritorna il server (clip_list.json) non distingue tra near e far clip
+testare che funzioni la comunicazione col server per la ricezione delle clip da stampare
 
-testare che funzioni la comunicazione col serever per la riceezione delle clip da stampare
+testare che funzioni la comunicazione col server per la ricezione delle info dei login/signup
 
-inserire link al server + funzione getClip
-
-
-
-
-testare che funzioni la comunicazione col serever per la ricezione delle info dei login/signup
-
-testare che funzioni la comunicazione col serever per l'invio delle info dei login/signup
-
-inserire link al server + funzione sign_in
-
-inserire link al server + funzione sign_up
+testare che funzioni la comunicazione col server per l'invio delle info dei login/signup
 
 
 
 
-Gestione delle clip non pubblicate. mi arrivano solo quelle non pubblicate
-
-insierire link al server + funzione getNotPublishedClip
+Gestione delle clip non pubblicate
 
 quando clicco pubblica: rende pubblica la funzione nel server e online su yotube--> GESTIONE RENDI CLIP PUBBLICA SU YOUTUBE
+
+inserire link al server + funzione setClipPublished che salva nel database che la clip ora è pubblica
 
 GESTIONE UPLOAD VIDEO
 
@@ -44,5 +28,3 @@ inserire link al server + funzione uploadClip che salva un nuovo video nel db
 inserire link al server + funzione deleteClip che cancella un video nel db
 
 inserire link al server + funzione updateClip che modifica i metadati di un video nel db
-
-inserire link al server + funzione setClipPublished che salva nel database che la clip ora è pubblica
