@@ -9,6 +9,12 @@ var mongo = require('mongodb');
 const crypto = require('crypto');
 
 /*
+ * Per le operazioni sul database MongoDb.
+ */
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
+
+/*
  * Per l'utilizzo di funzioni generali.
  */
 const util = require('./util.js');
@@ -18,19 +24,11 @@ const util = require('./util.js');
  */
 var ApiResponse = require('./apiResponse.js');
 
-
-
-/*****/ var MongoClient = mongo.MongoClient;
-
-
-
 /**
  * L'host sul quale il database MongoDB e' in esecuzione.
  * @const {string}
  */
 const MONGODB_HOST = 'localhost';
-
-
 
 /**
  * Il nome del database utilizzato su MongoDB.
@@ -38,15 +36,11 @@ const MONGODB_HOST = 'localhost';
  */
 const MONGODB_NAME = 'WhereAmIDb';
 
-
-
 /**
  *  La porta alla quale il databse di MongoDB risponde.
  * @const {number}
  */
 const MONGODB_PORT = 27017;
-
-
 
 /**
  * L'URL completo del databse di MongoDB.
@@ -54,15 +48,11 @@ const MONGODB_PORT = 27017;
  */
 const URL = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_NAME}`;
 
-
-
 /**
  * Il nome della collezione degli utenti.
  * @const {string}
  */
 const COLLECTION_USERS = 'users';
-
-
 
 /**
  * Il nome della collezione delle clip.
@@ -78,16 +68,6 @@ const COLLECTIONS = [ COLLECTION_USERS, COLLECTION_CLIPS ];
 
 
 
-
-
-
-
-
-
-// #################################################################
-
-var mongojs = require('mongojs');
-var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
 
 
 
@@ -160,43 +140,6 @@ module.exports.putUser = function(email, password) {
 }
 
 
-
-/*
- * Ritorna tutti gli utenti nel database.
- */
-// module.exports.getUser = function(email) {
-//     /*
- // * Inizializzo la risposta.
- // */
-//     var result = new ApiResponse();
-//     var missingArgs = 1;
-//
-//     if (!email) {
-//         // Email mancante.
-//         result.message = 'Email non presente.';
-//     }  else {
-//         missingArgs = 0;
-//     }
-//
-//     if(!missingArgs) {
-//         db.users.find({email: email}, function(error, docs) {
-//             if(error) {
-//         		util.logFail('Errore nella ricerca dell\'utente.');
-//                 console.log(error);
-//                 result.message = `Errore nella ricerca dell\'utente. ${error}`;
-//         	} else {
-//                 util.logSuccess('Successo prelievo utenti nel database.');
-//                 util.debug(docs);
-//
-//                 result.setSuccess();
-//                 result.content = docs;
-//             }
-//
-//             return result;
-//         });
-//     }
-//
-// }
 
 /**
  * Ritorna un utente avente una email specifica.
@@ -313,26 +256,12 @@ module.exports.deleteUser = function(email) {
 }
 
 
-// JSON CLIP
-// {
-//     "userId": {int}
-//     "uploaded-file": "",
-//     "title": "",
-//     "geoloc": "",
-//     "language": "",
-//     "audience": "",
-//     "detail": "",
-//     "content": "",
-//     "published": "",
-//     "purpose": []
-// }
-
 
 /**
  * Messaggi di errore per le operazioni sulle clip.
  * @const {string}
  */
-const CLIPS_ERR_GET    = 'Errore nella ricerca di tutte le clip.';
+const CLIPS_ERR_GET    = 'Errore nella ricerca delle clip.';
 const CLIPS_ERR_DELETE = 'Errore nella ricerca dell\'utente.';
 
 
@@ -504,6 +433,7 @@ module.exports.getClips = function(userId, published = -1) {
 }
 
 
+
 /*
  * Elimina una clip dal database con un ID specifico.
  */
@@ -551,6 +481,7 @@ module.exports.deleteClip = function(clipId) {
 var sha1 = function(string) {
      return crypto.createHash('sha1').update(JSON.stringify(string)).digest('hex');
 }
+
 
 
 module.exports.sha1 = sha1;
