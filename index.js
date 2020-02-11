@@ -15,10 +15,10 @@ var util = require('./util.js');
 /*****/var testPage = require('./jqueryTestPage.js');
 
 /**
- * Percorso relativo della cartella in cui si trovano i documenti HTML.
+ * Percorso relativo della pagina principale del sito.
  * @const {string}
  */
-const DOC_FOLDER = 'htdocs';
+const MAIN_PAGE_RELATIVE_PATH = 'main.html';
 
 /**
  * Porta di ascolto del server.
@@ -46,6 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.use(function(request, response, next) {
+  response.setHeader('Access-Control-Allow-Methods', 'POST, PUT, OPTIONS, DELETE, GET');
   response.header('Access-Control-Allow-Origin', '*');
   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
@@ -79,11 +80,22 @@ const NO_AUTH_MESSAGE = 'Accesso API non autorizzato';
 // });
 
 
-app.get('/', function(request, response) {
-	response.send(testPage);
-    util.logSuccess('Pagina principale inviata.');
-});
+app.get('/', sendMainPage);
 
+app.get('/index', sendMainPage);
+
+
+
+/**
+ * Funzione che invia al client la pagina principale.
+ * @param {Object} request
+ * @param {Object} response
+ * @author Simone Grillini <grillini.simo@gmail.com>
+ */
+function sendMainPage(request, response) {
+	res.sendFile(`${__dirname}/${MAIN_PAGE_RELATIVE_PATH}`);
+	util.logSuccess('Pagina principale inviata.');
+}
 
 
 // #############################################################################
