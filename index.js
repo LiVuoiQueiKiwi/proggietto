@@ -84,6 +84,10 @@ app.get('/', sendMainPage);
 
 app.get('/index', sendMainPage);
 
+app.get('/test', function(request, response) {
+	response.send(testPage);
+});
+
 
 
 /**
