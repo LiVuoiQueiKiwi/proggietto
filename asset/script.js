@@ -2,6 +2,16 @@
 
 jQuery(function ($) {
 
+	/*function init() {
+	  gapi.load('auth2', function() {
+		/* Ready. Make a call to gapi.auth2.init or some other API */
+	/*	parans={
+		  client_id: 'CLIENT_ID.apps.googleusercontent.com'
+		}
+		gapi.auth2.init()
+	  });
+	}*/
+
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
       $("#wrapper").toggleClass("toggled");
@@ -24,7 +34,7 @@ jQuery(function ($) {
 
     $('#save_clip').prop('disabled', true)
 
-    $('#create_clip').hide()
+    //$('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
@@ -87,7 +97,7 @@ jQuery(function ($) {
 
 						$('#record_clip_button').hide()
 						$('#stop_record_clip_button').show()
-						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='img/mic.gif'>\t\tRecording...")
+						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='asset/img/mic.gif'>\t\tRecording...")
             $('#save_clip').prop('disabled', true)
 
 						$('#stop_record_clip_button').click(
@@ -255,35 +265,46 @@ $('#signin').submit(function (event) {
 });
 
 //submit del form di Sign up editor
-$("#signup").submit(function (event){
+$('#signup').submit(function (event){
 	event.preventDefault()
 
 	//raccoglie tutti i dati del form
 	//creazione json da inviare al server
 //ricevo un email.json
-	var formData = new FormData(signup);
-
-	$.ajax({
-	    //url: "email.json", //inserire link del server (Funzione: sign_up)
-		  url: 'users',
-	    dataType: 'json',
-	    type: 'PUT',
-	    data: formData,
-	    processData: false,	// Evita che Jquery faccia operazioni sui dati.
-	    contentType: false	// Evita che Jquery faccia operazioni sui dati.
-	}).done(function(data) {
-		if(data.success){
-			alert('Registrazione avvenuta con successo!')
-			$('#container-forms').html('')
-			$('#container-forms').css('margin', '0')
-			$('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
-			$('#create_clip').show()
-			$('#notPublishedList').show()
-			$("#creator").attr('value', $('#now_editor').attr('email'))
-		} else{
-			alert(data.message);
-		}
-	});
+	var email = $('#user-email').val();
+	var password = $('#user-pass').val();
+	var r_password = $('#user-repeatpass').val();
+	if(password==r_password){
+		$.ajax({
+			//url: "email.json", //inserire link del server (Funzione: sign_up)
+			url: 'users',
+			dataType: 'json',
+			type: 'PUT',
+			data: {
+				email: email,
+				password: password
+			},
+			processData: false,	// Evita che Jquery faccia operazioni sui dati.
+			contentType: false	// Evita che Jquery faccia operazioni sui dati.
+		}).done(function(data) {
+			if(data.success){
+				alert('Registrazione avvenuta con successo!')
+				$('#container-forms').html('')
+				$('#container-forms').css('margin', '0')
+				$('#formLanguage').append('<br><br><br><h5 class="text-white"><b>You are now an EDITOR!</b></h5><br>')
+				$('#create_clip').show()
+				$('#notPublishedList').show()
+				$("#creator").attr('value', $('#now_editor').attr('email'))
+			} else{
+				alert(data.message);
+			}
+		}).fail(function(jqXhr, status, error){
+			console.log(error)
+			// Gestione dell'errore AJAX.
+		});
+	}
+	else
+		alert('Password non corrispondenti!')
 
 });
 
@@ -703,7 +724,7 @@ function printLocation(callback) {
   $.ajax(
     {
       //url: "clip_list.json",
-      url: 'clips',
+      url: 'all_clips',
       dataType: "json",
       success: function(data){
         if(data.success){
@@ -741,11 +762,11 @@ function printLocation(callback) {
             }
           })
           for(var i=0; i<(clip_near_list_global.length); i++){
-            printMarker(clip_near_list_global[i].geoloc, clip_near_list_global[i].title, 'img/marker-point-near.png')
+            printMarker(clip_near_list_global[i].geoloc, clip_near_list_global[i].title, 'asset/img/marker-point-near.png')
           }
 
           for(var i=0; i<(clip_far_list_global.length); i++){
-            printMarker(clip_far_list_global[i].geoloc, clip_far_list_global[i].title, 'img/marker-point.png')
+            printMarker(clip_far_list_global[i].geoloc, clip_far_list_global[i].title, 'asset/img/marker-point.png')
           }
           if (callback) callback();
         }
@@ -788,9 +809,9 @@ function printWhereAmI(){
 		  html+="<iframe width='250' height='80' src='"+clip_near_list_global[0].link+"?autoplay=1'></iframe>"
 
     html+="<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='img/014-left arrow.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='img/009-next.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='img/031-right arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='asset/img/009-next.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right arrow.png'></button>"+
 				"</div>"
 
 

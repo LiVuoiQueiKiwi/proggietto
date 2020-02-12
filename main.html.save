@@ -11,37 +11,31 @@
   <meta name="author" content="">
 
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://apis.google.com/js/api.js"></script>
-	<!--<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>-->
+    <script src = 'ecma.js'></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
     <!-- Leaflet -->
-    <link rel="stylesheet" type="text/css" href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
+    <link node-err-2020-02-12.logtype="text/css" href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
+    <link type="text/css" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+    <script src="openlocationcode.js"></script>
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
 
-
-	<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
+    <script src="gps.js"></script>
     <!--
     <script src="http://www.openlayers.org/api/OpenLayers.js"></script> -->
 
-    <!-- Inserimento degli asset locali del sito -->
-	<script src = 'asset/ecma.js'></script>
-	<script src = 'asset/openlocationcode.js'></script>
-	<link rel = 'stylesheet' href = 'asset/style.css'>
-	<script type = 'text/javascript' src = 'asset/gps.js'></script>
-	<script type = 'text/javascript' src = 'asset/youtubeApi.js'></script>
-	<script type = 'text/javascript' src = 'asset/script.js'></script>
+    <!-- Custom styles for this template -->
 
 
-    <!-- <link href="style.css" rel="stylesheet">
+    <link href="style.css" type="text/css">
     <script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
     <script type="text/javascript" src="youtubeApi.js"></script>
-    <script type="text/javascript" src="script.js"></script> -->
+    <script type="text/javascript" src="script.js"></script>
 
 </head>
 
@@ -82,7 +76,6 @@
         </form>
 
         <form action="/signup/" id="signup" class="form-signup">
-			<h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Sign Up</h1>
 
             <input type="email" name="email" id="user-email" class="form-control" placeholder="Email address" required autofocus="">
             <input type="password" name="password" id="user-pass" class="form-control" placeholder="Password" required autofocus="">
@@ -249,9 +242,7 @@
 
       <nav style="height:10%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom d-flex flex-nowrap justify-content-between">
         <button class="btn btn-primary" id="menu-toggle">Menu</button>
-        <button class="btn btn-secondary" id="center-position" onclick="getOfflinePosition()">
-			<img src = 'asset/img/center_position.png' class='img_btn _pointer'>
-		</button>
+        <button class="btn btn-secondary" id="center-position" onclick="getOfflinePosition()"><img src='img/center_position.png' class='img_btn _poiter'></button>
           <!-- //Bottone che apre la lista delle clip nei dintorni (tra i 50 e i 100 metri) -->
         <button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalLocationList" id="locationList">Luoghi</button>
         <div class="modal fade" id="modalLocationList" role="dialog">

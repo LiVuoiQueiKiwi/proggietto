@@ -5,7 +5,7 @@ module.exports =
         <script src = 'https://code.jquery.com/jquery-3.4.1.min.js'></script>
     </head>
     <body>
-        <button id = 'test1-btn'>Send POST</button>
+        <button id = 'test1-btn'>PUT dummy user</button>
         <button id = 'test2-btn'>GET dummy user</button>
         <button id = 'test3-btn'>GET all users</button>
         <button id = 'test4-btn'>LOGIN</button>
@@ -77,8 +77,8 @@ module.exports =
             $(document).ready(function() {
                 $('#test1-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/add',
-                        method: 'POST',
+                        url: 'http://localhost:8000/users',
+                        method: 'PUT',
                         data: {
                             email: 'email@email.com',
                             password: 'ciao'
