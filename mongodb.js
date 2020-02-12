@@ -379,7 +379,7 @@ module.exports.getClip = function(userId, clipId) {
  * @param {int} published.
  * @return {Promise}
  */
-module.exports.getClips = function(userId, published = -1) {
+module.exports.getClips = function({userId, published, all}) {
     return new Promise(function(resolve, reject) {
         /*
          * Inizializzo la risposta.
@@ -387,31 +387,41 @@ module.exports.getClips = function(userId, published = -1) {
         var result = new ApiResponse();
         var missingArgs = 1;
 
-        if (!userId) {
-            result.message = 'User ID non presente.';
-        }  else {
-            missingArgs = 0;
-        }
+
 
         /*
          * Controllo se si vogliono estrarre tutte le clip, quelle pubblicate o
          * quelle non pubblicate.
          */
-        if (published === -1 || published === null) {
-            var dataFilter = {
-                userId: userId
-            };
-        } else if (published) {
-            var dataFilter = {
-                userId: userId,
-                published: 1
-            };
-        } else {
-            var dataFilter = {
-                userId: userId,
-                published: 0
-            };
-        }
+		if (all) {
+			missingArgs = 0;
+
+			var dataFilter = {
+				published: 1
+			};
+		} else {
+			if (!userId) {
+	            result.message = 'User ID non presente.';
+	        }  else {
+	            missingArgs = 0;
+	        }
+
+			if (published === -1 || published === null) {
+		        var dataFilter = {
+		            userId: userId
+		        };
+		    } else if (published) {
+		        var dataFilter = {
+		            userId: userId,
+		            published: 1
+		        };
+		    } else {
+		        var dataFilter = {
+		            userId: userId,
+		            published: 0
+		        };
+		    }
+		}
 
         if(!missingArgs) {
             db.clips.find(dataFilter, function(error, docs) {
