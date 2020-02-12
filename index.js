@@ -96,7 +96,9 @@ const ASSET_PATH = 'asset';
 
 
 app.get(`/${ASSET_URL}/:filename`, function(request, response) {
-	response.sendFile(`${__dirname}/${ASSET_PATH}/${request.params.filename}`);
+	var filename = request.params.filename;
+	util.debug(filename);
+	response.sendFile(`${__dirname}/${ASSET_PATH}/${filename}`);
 });
 /*#####*/
 
