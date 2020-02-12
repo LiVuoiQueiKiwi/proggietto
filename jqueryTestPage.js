@@ -1,3 +1,6 @@
+// var AJAX_URL = 'http://localhost:8000/';
+var AJAX_URL = '';
+
 module.exports =
 `<!DOCTYPE html>
 <html>
@@ -5,7 +8,7 @@ module.exports =
         <script src = 'https://code.jquery.com/jquery-3.4.1.min.js'></script>
     </head>
     <body>
-        <button id = 'test1-btn'>Send POST</button>
+        <button id = 'test1-btn'>PUT dummy user</button>
         <button id = 'test2-btn'>GET dummy user</button>
         <button id = 'test3-btn'>GET all users</button>
         <button id = 'test4-btn'>LOGIN</button>
@@ -77,8 +80,8 @@ module.exports =
             $(document).ready(function() {
                 $('#test1-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/add',
-                        method: 'POST',
+                        url: '${AJAX_URL}users',
+                        method: 'PUT',
                         data: {
                             email: 'email@email.com',
                             password: 'ciao'
@@ -93,7 +96,7 @@ module.exports =
 
                 $('#test2-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/get/email@email.com',
+                        url: '${AJAX_URL}users/get/email@email.com',
                         method: 'GET',
                         data: {},
                         dataType: 'json'
@@ -106,7 +109,7 @@ module.exports =
 
                 $('#test3-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/get',
+                        url: '${AJAX_URL}users/get',
                         method: 'GET',
                         data: {},
                         dataType: 'json'
@@ -119,7 +122,7 @@ module.exports =
 
                 $('#test4-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/login',
+                        url: '${AJAX_URL}users/login',
                         method: 'POST',
                         data: {
                             email: 'email@email.com',
@@ -135,7 +138,7 @@ module.exports =
 
                 $('#test5-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/users/delete',
+                        url: '${AJAX_URL}users/delete',
                         method: 'DELETE',
                         data: {
                             email: 'email@email.com'
@@ -152,7 +155,7 @@ module.exports =
                 $('#test6-btn').click(function() {
                     clips.forEach(function(clip) {
                         $.ajax({
-                            url: 'http://localhost:8000/clips',
+                            url: '${AJAX_URL}clips',
                             method: 'PUT',
                             data: { clip: clip },
                             dataType: 'json'
@@ -165,7 +168,7 @@ module.exports =
                 });
                 $('#test7-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/clips',
+                        url: '${AJAX_URL}clips',
                         method: 'GET',
                         dataType: 'json'
                     }).done(function(data) {
@@ -176,7 +179,7 @@ module.exports =
                 });
                 $('#test8-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/public',
+                        url: '${AJAX_URL}public',
                         method: 'GET',
                         dataType: 'json'
                     }).done(function(data) {
@@ -187,7 +190,7 @@ module.exports =
                 });
                 $('#test9-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/nearest/6PH57VP3+PR',
+                        url: '${AJAX_URL}nearest/6PH57VP3+PR',
                         method: 'GET',
                         dataType: 'json'
                     }).done(function(data) {
@@ -199,7 +202,7 @@ module.exports =
 
                 $('#test10-btn').click(function() {
                     $.ajax({
-                        url: 'http://localhost:8000/fs',
+                        url: '${AJAX_URL}fs',
                         method: 'GET',
                         data: {},
                         dataType: 'html'
