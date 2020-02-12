@@ -13,7 +13,6 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://apis.google.com/js/api.js"></script>
-    <script src = 'ecma.js'></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
@@ -21,7 +20,6 @@
     <link rel="stylesheet" type="text/css" href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
-    <script src="openlocationcode.js"></script>
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet/0.0.1-beta.5/esri-leaflet.js"></script>
     <script src="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.js"></script>
 
@@ -31,15 +29,12 @@
     <script src="http://www.openlayers.org/api/OpenLayers.js"></script> -->
 
     <!-- Inserimento degli asset locali del sito -->
-	<script>
-		var ASSET_URL = 'asset';
-
-		document.write(`<link rel = 'stylesheet' href = '${ASSET_URL}/style.css'>`);
-	    document.write(`<script type = 'text/javascript' src = '${ASSET_URL}/gps.js'></script>`);
-	    document.write(`<script type = 'text/javascript' src = '${ASSET_URL}/youtubeApi.js'></script>`);
-	    document.write(`<script type = 'text/javascript' src = '${ASSET_URL}/script.js'></script>`);
-
-	</script>
+	<script src = 'asset/ecma.js'></script>
+	<script src = 'asset/openlocationcode.js'></script>
+	<link rel = 'stylesheet' href = 'asset/style.css'>
+	<script type = 'text/javascript' src = 'asset/gps.js'></script>
+	<script type = 'text/javascript' src = 'asset/youtubeApi.js'></script>
+	<script type = 'text/javascript' src = 'asset/script.js'></script>
 
 
     <!-- <link href="style.css" rel="stylesheet">
@@ -253,11 +248,7 @@
       <nav style="height:10%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom d-flex flex-nowrap justify-content-between">
         <button class="btn btn-primary" id="menu-toggle">Menu</button>
         <button class="btn btn-secondary" id="center-position" onclick="getOfflinePosition()">
-			<!-- <img src='img/center_position.png' class='img_btn _poiter'> -->
-			<!-- Temporaneo -->
-			<script>
-				document.write(`<img src='${ASSET_URL}/img/center_position.png' class='img_btn _poiter'>`);
-			</script>
+			<img src = 'asset/img/center_position.png' class='img_btn _poiter'>
 		</button>
           <!-- //Bottone che apre la lista delle clip nei dintorni (tra i 50 e i 100 metri) -->
         <button class='btn btn-primary' type='button' data-toggle="modal" data-target="#modalLocationList" id="locationList">Luoghi</button>
