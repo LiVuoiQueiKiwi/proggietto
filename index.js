@@ -383,6 +383,34 @@ app.post('/clips', function(request, response) {
 });
 
 
+/*
+ * Restituisce TUTTE le clip pubbliche di TUTTI gli utenti.
+ */
+app.get('/all_clips', function(request, response) {
+     /*
+      * Inizializzo la sessione.
+      */
+    sess = request.session;
+
+     /*
+      * Inizializzo la risposta.
+      */
+    var serverResponse = new ApiResponse();
+
+	/*
+	 * Se l'utente non e' loggato, restituisco tutte le clip presenti nel db.
+	 */
+	util.logSuccess(`Richiesta GET ricevuta. Prelievo TUTTE le clip (pubbliche)`);
+
+	db.getClips({all: true}).then(function(result) {
+		/*
+		 * Rispondo al client con il risultato.
+		 */
+		sendToClient(response, result);
+	}, util.handlePromiseRejection);
+});
+
+
 
 /*
  * Restituisce al client UNA singola clip avente l'ID in input
@@ -412,14 +440,14 @@ app.get('/clips/:clipId', function(request, response) {
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClip(sess.userId, clipId).then(function(result) {
+        db.getClip({userId:sess.userId, clipId:clipId}).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
             sendToClient(response, result);
         }, util.handlePromiseRejection);
     } else {
-        serverResponse.message = NO_AUTH_MESSAGE;
+		serverResponse.message = NO_AUTH_MESSAGE;
         sendToClient(response, serverResponse);
     }
 });
