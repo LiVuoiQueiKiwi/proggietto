@@ -90,7 +90,8 @@ var ApiResponse = require('./apiResponse.js');
  * Inizializzo gli eventi principali (principalmente per debug).
  */
 db.on('error', function (error) {
-    util.logFail('Database error. ', error);
+    util.logFail('Database error. ');
+	util.debug(error);
 })
 
 db.on('connect', function () {
