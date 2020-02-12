@@ -1,3 +1,5 @@
+API_KEY=''
+
 function uploadVideo(file, metadata) {
 
       description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
@@ -22,9 +24,8 @@ function uploadVideo(file, metadata) {
       }
       //alert(metadata_formatted.snippet.description)
 
-
 	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-//  var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
+	//var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
 	var form = new FormData();
 	var video_meta = new Blob([JSON.stringify(metadata_formatted)], {type: 'application/json'});
 
@@ -32,7 +33,7 @@ function uploadVideo(file, metadata) {
 	form.append('mediaBody', file);
 
 	$.ajax({
-		url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
+		url: 'https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status&key='+API_KEY,
 		data: form,
 		cache: false,
 		contentType: false,

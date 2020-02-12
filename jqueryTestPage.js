@@ -80,7 +80,11 @@ module.exports =
             $(document).ready(function() {
                 $('#test1-btn').click(function() {
                     $.ajax({
+<<<<<<< HEAD
                         url: '${AJAX_URL}users',
+=======
+                        url: 'http://localhost:8000/users',
+>>>>>>> 06869d0ca392a1e851e772f4fdb20afa48f9f59c
                         method: 'PUT',
                         data: {
                             email: 'email@email.com',
