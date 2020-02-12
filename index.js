@@ -89,7 +89,7 @@ app.get('/test', function(request, response) {
  * @author Simone Grillini <grillini.simo@gmail.com>
  */
 function sendMainPage(request, response) {
-	res.sendFile(`${__dirname}/${MAIN_PAGE_RELATIVE_PATH}`);
+	response.sendFile(`${__dirname}/${MAIN_PAGE_RELATIVE_PATH}`);
 	util.logSuccess('Pagina principale inviata.');
 }
 
