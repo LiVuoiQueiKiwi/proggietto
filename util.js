@@ -14,7 +14,11 @@ module.exports = {
     terminal: function(string, symbol = '   ') {
         if (DEBUG_ON) {
             var now = new Date();
-            timestamp = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+			var hours = now.getHours();
+			var minutes = now.getMinutes();
+			var seconds = now.getSeconds();
+            timestamp = hours + ':' + minutes + ':' +
+			(seconds < 10 ? '0' + seconds : seconds);
             console.log(`[${timestamp}]${symbol}  ${string}`);
         }
     },
