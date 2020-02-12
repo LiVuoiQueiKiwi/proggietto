@@ -1,10 +1,3 @@
-/**
- * Protocollo di comunicazione per le chiamate AJAX.
- * @const {string}.
- */
-var SITE_PROTOCOL = 'https';
-
-
 //http://www.fromtexttospeech.com/
 
 jQuery(function ($) {
@@ -235,7 +228,7 @@ $('#signin').submit(function (event) {
 
 	$.ajax({
 		//url: "email.json", //inserire link del server (Funzione: sign_in)
-		url: `${SITE_PROTOCOL}://localhost/users/login`,
+		url: 'users/login',
 		dataType: 'json',
 		type: 'POST',
 		data: {
@@ -272,7 +265,7 @@ $("#signup").submit(function (event){
 
 	$.ajax({
 	    //url: "email.json", //inserire link del server (Funzione: sign_up)
-		  url: `${SITE_PROTOCOL}://localhost/users`,
+		  url: 'users',
 	    dataType: 'json',
 	    type: 'PUT',
 	    data: formData,
@@ -710,7 +703,7 @@ function printLocation(callback) {
   $.ajax(
     {
       //url: "clip_list.json",
-      url: `${SITE_PROTOCOL}://localhost/clips`,
+      url: 'clips',
       dataType: "json",
       success: function(data){
         if(data.success){
@@ -888,7 +881,7 @@ function notPublishedList(){
   $.ajax(
     {
       //url: "clip_not_published.json",
-	    url: `${SITE_PROTOCOL}://localhost/clips/private`,
+	    url: 'clips/private',
       dataType: "json",
       success: function(data) {
         if(data.success){
