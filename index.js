@@ -201,7 +201,7 @@ app.put('/users', function(request, response) {
     /*
      * Eseguo l'operazione richiesta.
      */
-    db.insertUser(email, password).then(function(result) {
+    db.putUser(email, password).then(function(result) {
         /*
          * Rispondo al client con il risultato.
          */
