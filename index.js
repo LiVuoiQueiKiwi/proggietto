@@ -80,6 +80,25 @@ app.get('/test', function(request, response) {
 	response.send(testPage);
 });
 
+/*##### Prova per la gestionde delle risorse #####*/
+/**
+ * Percorso web relativo alla richiesta degli asset del sito.
+ * @const {string}
+ */
+const ASSET_URL = 'asset';
+
+/**
+ * Path relativo alla cartella degli asset del sito.
+ * @const {string}
+ */
+const ASSET_PATH = 'asset';
+
+
+
+app.get(`/${ASSET_URL}/:filename`, function(request, response) {
+	response.sendFile(`${__dirname}/${ASSET_PATH}/${request.params.filename}`);
+});
+/*#####*/
 
 
 /**
