@@ -1,29 +1,3 @@
-/*
- * Per l'utilizzo del database.
- */
-var mongo = require('mongodb');
-
-/*
- * Per l'algoritmo SHA1.
- */
-const crypto = require('crypto');
-
-/*
- * Per le operazioni sul database MongoDb.
- */
-var mongojs = require('mongojs');
-var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
-
-/*
- * Per l'utilizzo di funzioni generali.
- */
-const util = require('./util.js');
-
-/*
- * Classe per risposte API.
- */
-var ApiResponse = require('./apiResponse.js');
-
 /**
  * L'host sul quale il database MongoDB e' in esecuzione.
  * @const {string}
@@ -65,6 +39,34 @@ const COLLECTION_CLIPS = 'clips';
  * @const {array}
  */
 const COLLECTIONS = [ COLLECTION_USERS, COLLECTION_CLIPS ];
+
+
+
+/*
+ * Per l'utilizzo del database.
+ */
+var mongo = require('mongodb');
+
+/*
+ * Per l'algoritmo SHA1.
+ */
+const crypto = require('crypto');
+
+/*
+ * Per le operazioni sul database MongoDb.
+ */
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://localhost:27017/whereami', COLLECTIONS);
+
+/*
+ * Per l'utilizzo di funzioni generali.
+ */
+const util = require('./util.js');
+
+/*
+ * Classe per risposte API.
+ */
+var ApiResponse = require('./apiResponse.js');
 
 
 
