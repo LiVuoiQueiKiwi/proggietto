@@ -2,25 +2,38 @@
  * L'host sul quale il database MongoDB e' in esecuzione.
  * @const {string}
  */
-const MONGODB_HOST = 'localhost';
+// const MONGODB_HOST = 'localhost';
+const MONGODB_HOST = 'mongo_site181971'
+
+/**
+ * Username per il database.
+ * @const {string}
+ */
+const MONGODB_USER = 'site181971';
+
+/**
+ * Password per il database.
+ */
+const MONGODB_PSW = 'ahQuah7d';
 
 /**
  * Il nome del database utilizzato su MongoDB.
  * @const {string}
  */
-const MONGODB_NAME = 'WhereAmIDb';
+// const MONGODB_NAME = 'WhereAmIDb';
 
 /**
  *  La porta alla quale il databse di MongoDB risponde.
  * @const {number}
  */
-const MONGODB_PORT = 27017;
+// const MONGODB_PORT = 27017;
 
 /**
  * L'URL completo del databse di MongoDB.
  * @const {string}
  */
-const URL = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_NAME}`;
+// const URL = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_NAME}`;
+const URL = `${MONGODB_USER}:${MONGODB_PSW}@${MONGODB_HOST}`
 
 /**
  * Il nome della collezione degli utenti.
