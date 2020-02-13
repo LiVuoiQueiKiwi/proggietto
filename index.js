@@ -1,6 +1,8 @@
 var express = require('express');
 var session = require('express-session');
-var db = require('./mongodb.js');
+// var db = require('./mongodb.js');
+var db = require('./fakemongo.js');
+db.init();
 
 /*
  * Import dell'oggetto di risposta delle API.
@@ -155,9 +157,12 @@ app.post('/users/login', function(request, response) {
         /*
          * Controllo se e' stato trovato un account
          */
+		try {
         if (result.success) {
 
             var userData = result.content[0];
+
+			util.debug(result);
 
             /*
              * Controllo se le due password coincidono.
@@ -178,6 +183,9 @@ app.post('/users/login', function(request, response) {
         } else {
             serverResponse.message = 'Non esiste alcun account con questa email.';
         }
+		}catch(e) {
+			util.debug(e);
+		}
 
         // Rispondo al client con il risultato.
         sendToClient(response, serverResponse);
@@ -477,7 +485,7 @@ app.get('/clips', function(request, response) {
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClips(sess.userId).then(function(result) {
+        db.getClips({userId: sess.userId, all: false}).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
@@ -514,7 +522,7 @@ app.get('/public', function(request, response) {
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClips(sess.userId, 1).then(function(result) {
+        db.getClips({userId: sess.userId, published: 1}).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
@@ -551,7 +559,7 @@ app.get('/private', function(request, response) {
         /*
          * Eseguo l'operazione richiesta.
          */
-        db.getClips(sess.userId, 0).then(function(result) {
+        db.getClips({userId: sess.userId, published: 0}).then(function(result) {
             /*
              * Rispondo al client con il risultato.
              */
