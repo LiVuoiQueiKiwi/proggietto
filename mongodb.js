@@ -225,7 +225,7 @@ module.exports.getUsers = function() {
                 result.content = docs;
             }
 
-            resolve(result);
+            reject(result.message);
         });
     });
 }
