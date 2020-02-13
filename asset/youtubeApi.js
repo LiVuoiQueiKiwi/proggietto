@@ -3,60 +3,57 @@
 function uploadVideo(file, metadata) {
 	user = GoogleAuth.currentUser.get();
 	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.upload')){
-		if(file==null){
-            alert("Nessun file");
-        }
-		else{
-			  description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
-			  if(metadata.get('audience')!='')
-				description+=":"+metadata.get('audience')
-			  if(metadata.get('detail')!='')
-				description+=":"+metadata.get('detail')
-			  privacy="private"
-			  if(metadata.get('public')==1)
-				privacy="public"
 
-			  var metadata_formatted=
-			  {
-				"kind": 'youtube#video',
-				"snippet": {
-				  "categoryId": "22",
-				  "description": description,
-				  "title": metadata.get('title')
-				},
-				"status": {
-				  "privacyStatus": privacy,
-				  "embeddable": true
-				}
-			  }
-			  //alert(metadata_formatted.snippet.description)
+		  description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
+		  if(metadata.get('audience')!='')
+			description+=":"+metadata.get('audience')
+		  if(metadata.get('detail')!='')
+			description+=":"+metadata.get('detail')
+		  privacy="private"
+		  if(metadata.get('public')==1)
+			privacy="public"
 
-			//gapi.auth2.init()
-			var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-			//alert(auth)
-			//var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
-			var form = new FormData();
-			var video_meta = new Blob([JSON.stringify(metadata_formatted)], {type: 'application/json'});
-
-			form.append('video', video_meta);
-			form.append('mediaBody', file);
-
-			$.ajax({
-				url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
-				data: form,
-				cache: false,
-				contentType: false,
-				processData: false,
-				method: 'POST',
-				success: function(data){
-				alert('ok')
-			  //uploadVideoSuccess(data, metadata)
+		  var metadata_formatted=
+		  {
+			"kind": 'youtube#video',
+			"snippet": {
+			  "categoryId": "22",
+			  "description": description,
+			  "title": metadata.get('title')
 			},
-				error: function(error){
-				alert(error)
+			"status": {
+			  "privacyStatus": privacy,
+			  "embeddable": true
 			}
-			})
+		  }
+		  //alert(metadata_formatted.snippet.description)
+
+		//gapi.auth2.init()
+		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+		//alert(auth)
+		//var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
+		var form = new FormData();
+		var video_meta = new Blob([JSON.stringify(metadata_formatted)], {type: 'application/json'});
+
+		form.append('video', video_meta);
+		form.append('mediaBody', file);
+console.log(file)
+/*		$.ajax({
+			url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
+			data: form,
+			cache: false,
+			contentType: false,
+			processData: false,
+			method: 'POST',
+			success: function(data){
+			alert('ok')
+		  //uploadVideoSuccess(data, metadata)
+		},
+			error: function(error){
+			alert(error)
 		}
+		})*/
+
 	}
 }
 

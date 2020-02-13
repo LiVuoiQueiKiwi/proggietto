@@ -80,7 +80,7 @@ jQuery(function ($) {
 		$("#record_clip_button").click(
 			function(){
 
-				navigator.mediaDevices.getUserMedia({ audio: true }).then(
+				navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(
 					stream => {
 						var mediaRecorder = new MediaRecorder(stream)
 						mediaRecorder.start()
@@ -98,7 +98,7 @@ jQuery(function ($) {
 							}
 						)
 
-						const audioChunks = []
+						var audioChunks = []
 						mediaRecorder.addEventListener("dataavailable", event => {
 								audioChunks.push(event.data)
 							}
@@ -107,6 +107,7 @@ jQuery(function ($) {
 						mediaRecorder.addEventListener("stop", () => {
 							audioBlob = new Blob(audioChunks,{type:'video/mp4'})
 							const audioUrl = URL.createObjectURL(audioBlob)
+							console.log(audioUrl)
 
               audioBlob.lastModifiedDate = new Date();
 
@@ -193,18 +194,19 @@ jQuery(function ($) {
 					if($("#record_clip_button").attr('data-id')){
             // Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
 						formData.append('id', $("#record_clip_button").attr('data-id'))
-            deleteVideo(formData.id)
+            //deleteVideo(formData.id)
 					}
 
           // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
-          audioBlob.name = 'file.mp3';
+          audioBlob.name = 'file.mp4';
+		  console.log(audioBlob)
           uploadVideo(audioBlob, formData)
 
 				}
 				else{
           // Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
 					formData.append('link', $("#record_clip_button").attr('data-id'))
-          updateVideo(formData)
+         // updateVideo(formData)
 				}
 
       audioBlob = new Blob()
