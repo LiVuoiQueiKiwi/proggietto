@@ -57,6 +57,14 @@ module.exports = {
 };
 
 
+Array.prototype.iter = function(callback) {
+	var i = 0;
+	var length = this.length;
+	for (; i < length; i++) {
+		callback(this[i], i, this);
+	}
+}
+
 // function OLC_Coords(olc){
 //     return {lat: OpenLocationCode.decode(olc).latitudeCenter , lng: OpenLocationCode.decode(olc).longitudeCenter };
 // }
