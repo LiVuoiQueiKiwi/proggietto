@@ -2,15 +2,6 @@
 
 jQuery(function ($) {
 
-	/*function init() {
-	  gapi.load('auth2', function() {
-		/* Ready. Make a call to gapi.auth2.init or some other API */
-	/*	parans={
-		  client_id: 'CLIENT_ID.apps.googleusercontent.com'
-		}
-		gapi.auth2.init()
-	  });
-	}*/
 
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
@@ -34,7 +25,7 @@ jQuery(function ($) {
 
     $('#save_clip').prop('disabled', true)
 
-    //$('#create_clip').hide()
+    $('#create_clip').hide()
 
     $('#notPublishedList').hide()
 
@@ -114,7 +105,7 @@ jQuery(function ($) {
 						)
 
 						mediaRecorder.addEventListener("stop", () => {
-							audioBlob = new Blob(audioChunks)
+							audioBlob = new Blob(audioChunks,{type:'video/mp4'})
 							const audioUrl = URL.createObjectURL(audioBlob)
 
               audioBlob.lastModifiedDate = new Date();
@@ -224,7 +215,7 @@ jQuery(function ($) {
 
 
 
-
+/*
 //submit del form di Login editor
 $('#signin').submit(function (event) {
 	event.preventDefault()
@@ -306,7 +297,7 @@ $('#signup').submit(function (event){
 	else
 		alert('Password non corrispondenti!')
 
-});
+});*/
 
 		$("#create_clip").click(
 			function(){
