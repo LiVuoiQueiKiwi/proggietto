@@ -1,6 +1,8 @@
 
-body {
-  overflow-x: hidden;
+
+html, body {
+    overscroll-behavior: none;
+	overflow-x: hidden;
 }
 
 .img_btn{
