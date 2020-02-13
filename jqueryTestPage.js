@@ -96,7 +96,7 @@ module.exports =
 
                 $('#test2-btn').click(function() {
                     $.ajax({
-                        url: '${AJAX_URL}users/get/email@email.com',
+                        url: '${AJAX_URL}users/email@email.com',
                         method: 'GET',
                         data: {},
                         dataType: 'json'
@@ -109,7 +109,7 @@ module.exports =
 
                 $('#test3-btn').click(function() {
                     $.ajax({
-                        url: '${AJAX_URL}users/get',
+                        url: '${AJAX_URL}users',
                         method: 'GET',
                         data: {},
                         dataType: 'json'
