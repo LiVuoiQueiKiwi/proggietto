@@ -155,12 +155,13 @@ jQuery(function ($) {
 			}
 		)
 
+		var elimina=0
 		//submit del form di cariamento clip
 		$("#myForm").submit(
       // Se il json contiene:
-      // 		-Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
-      //		-Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-      //		-Metadati + File (NO Link): Carico nuova clip (File + Metadati)
+      // 		-Metadati + Id + File: Elimino precedente clip(Id) + Carico nuova clip(File + Metadati)
+      //		-Metadati + Id (NO File): Aggiorno Metadati a precedente clip (Id + Metadati)
+      //		-Metadati + File (NO Id): Carico nuova clip (File + Metadati)
 
 
 			function (event){
@@ -191,22 +192,24 @@ jQuery(function ($) {
 					formData.append('published', '0')
 
 				if($("#record_clip_button").attr('new-clip')==1){
+					
+					audioBlob.name = 'file.mp4';
+					//console.log(audioBlob)
+					
 					if($("#record_clip_button").attr('data-id')){
-            // Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
+						// Metadati + Id + File: Carico nuova clip(File + Metadati) + Elimino precedente clip(Id)
 						formData.append('id', $("#record_clip_button").attr('data-id'))
-            //deleteVideo(formData.id)
+						elimina=1
 					}
 
-          // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
-          audioBlob.name = 'file.mp4';
-		  //console.log(audioBlob)
-          uploadVideo(audioBlob, formData)
+					// Metadati + File (NO Id): Carico nuova clip (File + Metadati)
+					uploadVideo(audioBlob, formData, elimina)
 
 				}
 				else{
-          // Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-					formData.append('link', $("#record_clip_button").attr('data-id'))
-         // updateVideo(formData)
+					// Metadati + Id (NO File): Aggiorno Metadati a precedente clip (Id + Metadati)
+					formData.append('id', $("#record_clip_button").attr('data-id'))
+					// updateVideo(formData)
 				}
 
       audioBlob = new Blob()
@@ -975,7 +978,7 @@ function notPublishedList(){
         			$("#contentOption").html(html)
         			$("#record_clip_button").text("Cancella e registra un'altra clip")
         			$("#audio_record_div").html("<iframe class='frame' width='250' height='80' src='" + $(this).attr('data-audio') + "'></iframe>")
-              $('#save_clip').prop('disabled', false)
+					$('#save_clip').prop('disabled', false)
         			$("#record_clip_button").attr('new-clip', 0)
         			$("#record_clip_button").attr('data-id', $(this).attr('data-id'))
         			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
