@@ -15,8 +15,11 @@
     <script src="https://apis.google.com/js/api.js"></script>
 	<!--<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.12.0/bootstrap-social.min.css">
+	<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+	
     <!-- Leaflet -->
     <link rel="stylesheet" type="text/css" href="https://cdn-geoweb.s3.amazonaws.com/esri-leaflet-geocoder/0.0.1-beta.5/esri-leaflet-geocoder.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" />
@@ -72,9 +75,23 @@
           </select>
         </div>
       </form>
-
 		<br><br>
-		<h5 id="now_editor" email='' class="text-white"></h5>
+
+      <div id="container-userinfo" style="width: 300px;"class="container">
+        <div class="d-flex flex-row">
+          <div id="container-avatar">
+            <div id="container-letter" style="width: 65px;height: 65px;" class="rounded-circle">
+              <h1 id="user-letter" style="font-family: Roboto" class="text-white text-uppercase pt-2"></h1>
+            </div>
+          </div>
+          <div id="userinfo" style="text-align: left; width:80%; overflow-x: scroll; overflow-y:hidden" class="text-white pl-2">
+            <span id="user-gmail" email=''></span><br>
+            Logged as <i id="user-mode"></i>
+          </div>
+        </div>
+      </div>
+	  <br>
+		<!--<h5 id="now_editor" email='' class="text-white"></h5>-->
 
         <!-- Bottone che apre il form di creazione clip (per l'Editor) -->
        <button class='btn btn-primary' type='button' id="create_clip" data-toggle="modal" data-target="#modalNewClip">Crea clip</button>
@@ -227,8 +244,9 @@
 	  
 
         <form id="signin" class="form-signin">
-            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Login</h1>
-			<button id="sign-in-or-out-button" style="margin-left: 25px">Sign In</button>
+            <!--<h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Login</h1>
+			<button id="sign-in-or-out-button" style="margin-left: 25px">Sign In</button>-->
+			<a id="sign-in-or-out-button" class="btn btn-block btn-social btn-google text-white font-weight-bold"></a>
 		</form>
 <!--
             <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
@@ -260,7 +278,7 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
 
-      <nav style="height:10%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom d-flex flex-nowrap justify-content-between">
+      <nav style="height:15%" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom d-flex flex-nowrap justify-content-between">
         <button class="btn btn-primary" id="menu-toggle">Menu</button>
         <button class="btn btn-secondary" id="center-position" onclick="getOfflinePosition()">
 			<img src = 'asset/img/center_position.png' class='img_btn _pointer'>
@@ -284,8 +302,8 @@
       </nav>
 
 
-      <div style="width:100%; height:80%" id="map"></div>
- <footer style="height:10%" class="page-footer bg-dark">
+      <div style="width:100%; height:70%" id="map"></div>
+ <footer style="height:15%" class="page-footer bg-dark">
 
      <!-- Bottone WhereAmI -->
    <div class="footer-copyright text-center mx-auto p-3">
