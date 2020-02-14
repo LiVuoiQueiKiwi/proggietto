@@ -191,16 +191,18 @@ jQuery(function ($) {
 					formData.append('published', '0')
 
 				if($("#record_clip_button").attr('new-clip')==1){
-					if($("#record_clip_button").attr('data-id')){
-            // Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
-						formData.append('id', $("#record_clip_button").attr('data-id'))
-            //deleteVideo(formData.id)
-					}
+					
 
           // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
           audioBlob.name = 'file.mp4';
-		  console.log(audioBlob)
+		  //console.log(audioBlob)
           uploadVideo(audioBlob, formData)
+		  
+		  if($("#record_clip_button").attr('data-id')){
+            // Metadati + Link + File: Carico nuova clip(File + Metadati) + Elimino precedente clip(Link)
+						formData.append('id', $("#record_clip_button").attr('data-id'))
+            //deleteVideo(formData.id)
+					}
 
 				}
 				else{

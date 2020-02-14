@@ -57,15 +57,17 @@ function uploadVideo(file, metadata) {
 			cache: false,
 			contentType: false,
 			processData: false,
-			method: 'POST',
-			success: function(data){
-				alert('ok')
-				//uploadVideoSuccess(data, metadata)
-			},
-			error: function(error){
-				alert(error)
+			method: 'POST'
+		}).done(function(response){
+				console.log("Caricamento ok: "+ response)
+				uploadVideoSuccess(data, metadata)
 			}
-		})
+		).fail(function(response){
+				var errors=response.responseJSON.error.errors[0];
+				console.log("Errore caricamento: "+ errors)
+				console.log("Response: "+ response)
+			}
+		)
 
 	}
 }
@@ -103,14 +105,19 @@ function deleteVideo(id) {
 
 	$.ajax({
 		url: 'https://www.googleapis.com/youtube/v3/videos?id='+id+'&access_token='+ encodeURIComponent(auth),
-		method: 'DELETE',
-		success: function(data){
-      deleteVideoSuccess(id)
-    },
-		error: function(error){
-        alert(error)
-    }
-	})
+		method: 'DELETE'
+		}).done(function(response){
+				console.log("Cancellazione ok: "+ response)
+				deleteVideoSuccess(id)
+			}
+		).fail(function(response){
+				var errors=response.responseJSON.error.errors[0];
+				console.log("Errore cancellazione: "+ errors)
+				console.log("Response: "+ response)
+			}
+		)
+		
+	
 }
 
 function deleteVideoSuccess(id){
@@ -172,14 +179,18 @@ function updateVideo(formData) {
 		cache: false,
 		contentType: false,
 		processData: false,
-		method: 'PUT',
-		success: function(data){
-      updateVideoSuccess(formData)
-    },
-		error: function(error){
-        alert(error)
-    }
-	})
+		method: 'PUT'
+		}).done(function(response){
+				console.log("Aggiornamento ok: "+ response)
+				updateVideoSuccess(formData)
+			}
+		).fail(function(response){
+				var errors=response.responseJSON.error.errors[0];
+				console.log("Errore aggiornamento: "+ errors)
+				console.log("Response: "+ response)
+			}
+		)
+		
 }
 
 function updateVideoSuccess(formData){
@@ -231,14 +242,18 @@ function publishVideo(id, title) {
 		cache: false,
 		contentType: false,
 		processData: false,
-		method: 'POST',
-		success: function(data){
-        publishVideoSuccess(id)
-    },
-		error: function(error){
-        alert(error)
-    }
-	})
+		method: 'POST'
+		}).done(function(response){
+				console.log("Pubblica ok: "+ response)
+				publishVideoSuccess(id)
+			}
+		).fail(function(response){
+				var errors=response.responseJSON.error.errors[0];
+				console.log("Errore pubblica: "+ errors)
+				console.log("Response: "+ response)
+			}
+		)
+		
 }
 
 function publishVideoSuccess(id){
