@@ -13,20 +13,37 @@ function uploadVideo(file, metadata, flag_elimina) {
 		  if(metadata.get('public')==1)
 			privacy="public"
 
-		  var metadata_formatted=
-		  {
-			/*"kind": 'youtube#video',*/
-			"snippet": {
-			  "categoryId": "22",
-			  "description": description,
-			  "title": metadata.get('title')
-			},
-			"status": {
-			  "privacyStatus": privacy,
-			  "embeddable": true
-			}
+		  var metadata_formatted
+		  
+		  if(metadata.get('public')==0){
+			  metadata_formatted=
+				  {
+					/*"kind": 'youtube#video',*/
+					"snippet": {
+					  "categoryId": "22",
+					  "description": description,
+					  "title": metadata.get('title')
+					},
+					"status": {
+					  "embeddable": true,
+					  "privacyStatus": "private"
+					}
+				  }
 		  }
-		  //alert(metadata_formatted.snippet.description)
+		  else{
+			  metadata_formatted=
+				  {
+					/*"kind": 'youtube#video',*/
+					"snippet": {
+					  "categoryId": "22",
+					  "description": description,
+					  "title": metadata.get('title')
+					},
+					"status": {
+					  "embeddable": true
+					}
+				  }
+		  }
 
 		//gapi.auth2.init()
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
@@ -147,29 +164,55 @@ function deleteVideoSuccess(id){
 
 
 
-function updateVideo(formData) {
+function updateVideo(metadata) {
 
 
-  description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
-  if(metadata.get('audience')!='')
-    description+=":"+metadata.get('audience')
-  if(metadata.get('detail')!='')
-    description+=":"+metadata.get('detail')
-  if(metadata.get('public')==1)
-    privacy="public"
+	description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
+	if(metadata.get('audience')!='')
+	description+=":"+metadata.get('audience')
+	if(metadata.get('detail')!='')
+	description+=":"+metadata.get('detail')
 
-  metadata_formatted=
-  {
-    "id": formData.get('id'),
-    "snippet": {
-      "categoryId": "22",
-      "description": description,
-      "title": metadata.get('title')
-    },
-    "status": {
-      "privacyStatus": privacy
-    }
-  }
+	metadata_formatted=
+	{
+		"id": metadata.get('id'),
+		"snippet": {
+			"categoryId": "22",
+			"description": description,
+			"title": metadata.get('title')
+		},
+		"status": {
+		}
+	}
+  
+	if(metadata.get('public')==0){
+		metadata_formatted=
+			{
+				"id": metadata.get('id'),
+				"snippet": {
+					"categoryId": "22",
+					"description": description,
+					"title": metadata.get('title')
+				},
+				"status": {
+					"privacyStatus": "private"
+				}
+			}
+	}
+	else{
+		metadata_formatted=
+		{
+			"id": metadata.get('id'),
+			"snippet": {
+				"categoryId": "22",
+				"description": description,
+				"title": metadata.get('title')
+			},
+			"status": {
+			}
+		}
+	}
+		metadata_formatted.status.append('privacyStatus', 'private')
 
 
 // GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
@@ -230,7 +273,6 @@ function publishVideo(id, title) {
       "title": title
     },
     "status": {
-      "privacyStatus": "public"
     }
   }
 
