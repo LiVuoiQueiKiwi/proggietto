@@ -15,7 +15,7 @@ function uploadVideo(file, metadata) {
 
 		  var metadata_formatted=
 		  {
-			"kind": 'youtube#video',
+			/*"kind": 'youtube#video',*/
 			"snippet": {
 			  "categoryId": "22",
 			  "description": description,
@@ -32,27 +32,40 @@ function uploadVideo(file, metadata) {
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 		//alert(auth)
 		//var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
-		var form = new FormData();
+		var new_form = new FormData();
+		var print=''
+          console.log(metadata_formatted)
 		var video_meta = new Blob([JSON.stringify(metadata_formatted)], {type: 'application/json'});
 
-		form.append('video', video_meta);
-		form.append('mediaBody', file);
-console.log(file)
-/*		$.ajax({
-			url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status',
-			data: form,
+		new_form.append('video', video_meta);
+		new_form.append('mediaBody', file);
+		console.log(file)
+		console.log(video_meta)
+		console.log(new_form)
+		
+		var print=''
+          for (var pair of new_form.entries()) {
+            print+=(pair[0]+ ' - ' + pair[1]);
+            print+='\n'
+          }
+          alert(print)
+		
+		
+		$.ajax({
+			url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
+			data: new_form,
 			cache: false,
 			contentType: false,
 			processData: false,
 			method: 'POST',
 			success: function(data){
-			alert('ok')
-		  //uploadVideoSuccess(data, metadata)
-		},
+				alert('ok')
+				//uploadVideoSuccess(data, metadata)
+			},
 			error: function(error){
-			alert(error)
-		}
-		})*/
+				alert(error)
+			}
+		})
 
 	}
 }
