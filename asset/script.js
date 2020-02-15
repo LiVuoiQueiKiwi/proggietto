@@ -1,6 +1,23 @@
 //http://www.fromtexttospeech.com/
 
 jQuery(function ($) {
+	
+
+	var array = new Array();
+	$("#content").change(function() {
+		$(this).find("option:selected")
+		if ($(this).find("option:selected").length > 3) {
+			$(this).find("option").removeAttr("selected");
+			$(this).val(array);
+			alert("Puoi selezionare al massimo 3 campi!")
+		}
+		else {
+			array = new Array();
+			$(this).find("option:selected").each(function(index, item) {
+				array.push($(item).val());
+			});
+		}
+	});
 
 
     $("#menu-toggle").click(function(e) {
@@ -155,16 +172,18 @@ jQuery(function ($) {
 			}
 		)
 
+		var elimina=0
 		//submit del form di cariamento clip
 		$("#myForm").submit(
       // Se il json contiene:
-      // 		-Metadati + Link + File: Elimino precedente clip(Link) + Carico nuova clip(File + Metadati)
-      //		-Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-      //		-Metadati + File (NO Link): Carico nuova clip (File + Metadati)
+      // 		-Metadati + Id + File: Elimino precedente clip(Id) + Carico nuova clip(File + Metadati)
+      //		-Metadati + Id (NO File): Aggiorno Metadati a precedente clip (Id + Metadati)
+      //		-Metadati + File (NO Id): Carico nuova clip (File + Metadati)
+
 
 
 			function (event){
-        event.preventDefault()
+				event.preventDefault()
 
 				//raccoglie tutti i dati del form
 				//controlla che ci sia l'audio
@@ -173,16 +192,27 @@ jQuery(function ($) {
 				var formData = new FormData(myForm)	// La forma di .append e' ( chiave, valore )
 
 				//i metadativanno inviati in ogni caso
-				var arrayContent=[]
-				var i=1
-				$("._alert").each(
-					function(){
-						arrayContent.push($(this).attr('value'))
-						i++
-					}
-				)
-				if(i==1) arrayContent.push('none')
-				formData.set('content', '['+arrayContent+']')
+				function isMobileDevice() {
+					return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+				};
+
+				if(isMobileDevice()){
+					formData.set('content', $('#content').val())
+				}
+				else{
+					var arrayContent=[]
+					var i=1
+					$("._alert").each(
+						function(){
+							arrayContent.push($(this).attr('value'))
+							i++
+						}
+					)
+					if(i==1) arrayContent.push('none')
+					formData.set('content', '['+arrayContent+']')
+				}
+				
+				
 
 				if(formData.get('published')=="published"){
 					formData.set('published', '1')
@@ -192,23 +222,23 @@ jQuery(function ($) {
 
 				if($("#record_clip_button").attr('new-clip')==1){
 					
-
-          // Metadati + File (NO Link): Carico nuova clip (File + Metadati)
-          audioBlob.name = 'file.mp4';
-		  //console.log(audioBlob)
-          uploadVideo(audioBlob, formData)
-		  
-		  if($("#record_clip_button").attr('data-id')){
-            // Metadati + Link + File: Carico nuova clip(File + Metadati) + Elimino precedente clip(Link)
+					audioBlob.name = 'file.mp4';
+					//console.log(audioBlob)
+					
+					if($("#record_clip_button").attr('data-id')){
+						// Metadati + Id + File: Carico nuova clip(File + Metadati) + Elimino precedente clip(Id)
 						formData.append('id', $("#record_clip_button").attr('data-id'))
-            //deleteVideo(formData.id)
+						elimina=1
 					}
+
+					// Metadati + File (NO Id): Carico nuova clip (File + Metadati)
+					uploadVideo(audioBlob, formData, elimina)
 
 				}
 				else{
-          // Metadati + Link (NO File): Aggiorno Metadati a precedente clip (Link + Metadati)
-					formData.append('link', $("#record_clip_button").attr('data-id'))
-         // updateVideo(formData)
+					// Metadati + Id (NO File): Aggiorno Metadati a precedente clip (Id + Metadati)
+					formData.append('id', $("#record_clip_button").attr('data-id'))
+					// updateVideo(formData)
 				}
 
       audioBlob = new Blob()
@@ -977,7 +1007,7 @@ function notPublishedList(){
         			$("#contentOption").html(html)
         			$("#record_clip_button").text("Cancella e registra un'altra clip")
         			$("#audio_record_div").html("<iframe class='frame' width='250' height='80' src='" + $(this).attr('data-audio') + "'></iframe>")
-              $('#save_clip').prop('disabled', false)
+					$('#save_clip').prop('disabled', false)
         			$("#record_clip_button").attr('new-clip', 0)
         			$("#record_clip_button").attr('data-id', $(this).attr('data-id'))
         			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")

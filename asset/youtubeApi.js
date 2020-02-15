@@ -1,6 +1,6 @@
 
 
-function uploadVideo(file, metadata) {
+function uploadVideo(file, metadata, flag_elimina) {
 	user = GoogleAuth.currentUser.get();
 	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.upload')){
 
@@ -10,23 +10,27 @@ function uploadVideo(file, metadata) {
 		  if(metadata.get('detail')!='')
 			description+=":"+metadata.get('detail')
 		  privacy="private"
-		  if(metadata.get('public')==1)
+		  if(metadata.get('published')==1)
 			privacy="public"
+		else
+			privacy="private"
 
-		  var metadata_formatted=
-		  {
-			/*"kind": 'youtube#video',*/
-			"snippet": {
-			  "categoryId": "22",
-			  "description": description,
-			  "title": metadata.get('title')
-			},
-			"status": {
-			  "privacyStatus": privacy,
-			  "embeddable": true
+		  var metadata_formatted
+
+		metadata_formatted=
+			{
+				/*"kind": 'youtube#video',*/
+				"snippet": {
+					"categoryId": "22",
+					"description": description,
+					"title": metadata.get('title')
+				},
+				"status": {
+					"embeddable": true,
+					"privacyStatus": privacy
+				}
 			}
-		  }
-		  //alert(metadata_formatted.snippet.description)
+
 
 		//gapi.auth2.init()
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
@@ -43,13 +47,6 @@ function uploadVideo(file, metadata) {
 		console.log(video_meta)
 		console.log(new_form)
 		
-		var print=''
-          for (var pair of new_form.entries()) {
-            print+=(pair[0]+ ' - ' + pair[1]);
-            print+='\n'
-          }
-          alert(print)
-		
 		
 		$.ajax({
 			url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
@@ -60,7 +57,10 @@ function uploadVideo(file, metadata) {
 			method: 'POST'
 		}).done(function(response){
 				console.log("Caricamento ok: "+ response)
-				uploadVideoSuccess(data, metadata)
+				uploadVideoSuccess(response, metadata)
+				if(flag_elimina==1){
+					//deleteVideo(metadata.id)
+				}
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
@@ -108,7 +108,7 @@ function deleteVideo(id) {
 		method: 'DELETE'
 		}).done(function(response){
 				console.log("Cancellazione ok: "+ response)
-				deleteVideoSuccess(id)
+				//deleteVideoSuccess(id)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
@@ -144,29 +144,55 @@ function deleteVideoSuccess(id){
 
 
 
-function updateVideo(formData) {
+function updateVideo(metadata) {
 
 
-  description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
-  if(metadata.get('audience')!='')
-    description+=":"+metadata.get('audience')
-  if(metadata.get('detail')!='')
-    description+=":"+metadata.get('detail')
-  if(metadata.get('public')==1)
-    privacy="public"
+	description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
+	if(metadata.get('audience')!='')
+	description+=":"+metadata.get('audience')
+	if(metadata.get('detail')!='')
+	description+=":"+metadata.get('detail')
 
-  metadata_formatted=
-  {
-    "id": formData.get('id'),
-    "snippet": {
-      "categoryId": "22",
-      "description": description,
-      "title": metadata.get('title')
-    },
-    "status": {
-      "privacyStatus": privacy
-    }
-  }
+	metadata_formatted=
+	{
+		"id": metadata.get('id'),
+		"snippet": {
+			"categoryId": "22",
+			"description": description,
+			"title": metadata.get('title')
+		},
+		"status": {
+		}
+	}
+  
+	if(metadata.get('public')==0){
+		metadata_formatted=
+			{
+				"id": metadata.get('id'),
+				"snippet": {
+					"categoryId": "22",
+					"description": description,
+					"title": metadata.get('title')
+				},
+				"status": {
+					"privacyStatus": "private"
+				}
+			}
+	}
+	else{
+		metadata_formatted=
+		{
+			"id": metadata.get('id'),
+			"snippet": {
+				"categoryId": "22",
+				"description": description,
+				"title": metadata.get('title')
+			},
+			"status": {
+			}
+		}
+	}
+		metadata_formatted.status.append('privacyStatus', 'private')
 
 
 // GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
@@ -182,7 +208,7 @@ function updateVideo(formData) {
 		method: 'PUT'
 		}).done(function(response){
 				console.log("Aggiornamento ok: "+ response)
-				updateVideoSuccess(formData)
+				//updateVideoSuccess(formData)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
@@ -227,7 +253,6 @@ function publishVideo(id, title) {
       "title": title
     },
     "status": {
-      "privacyStatus": "public"
     }
   }
 
@@ -245,7 +270,7 @@ function publishVideo(id, title) {
 		method: 'POST'
 		}).done(function(response){
 				console.log("Pubblica ok: "+ response)
-				publishVideoSuccess(id)
+				//publishVideoSuccess(id)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
