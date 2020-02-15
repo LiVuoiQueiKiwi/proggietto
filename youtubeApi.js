@@ -10,12 +10,14 @@ function uploadVideo(file, metadata, flag_elimina) {
 		  if(metadata.get('detail')!='')
 			description+=":"+metadata.get('detail')
 		  privacy="private"
-		  if(metadata.get('public')==1)
+		  if(metadata.get('published')==1)
 			privacy="public"
+		else
+			privacy="private"
 
 		  var metadata_formatted
 		  
-		  if(metadata.get('public')==0){
+		 // if(metadata.get('public')==0){
 			  metadata_formatted=
 				  {
 					/*"kind": 'youtube#video',*/
@@ -26,14 +28,14 @@ function uploadVideo(file, metadata, flag_elimina) {
 					},
 					"status": {
 					  "embeddable": true,
-					  "privacyStatus": "private"
+					  "privacyStatus": privacy
 					}
 				  }
-		  }
-		  else{
+		//}
+		  /*else{
 			  metadata_formatted=
 				  {
-					/*"kind": 'youtube#video',*/
+					/*"kind": 'youtube#video',*//*
 					"snippet": {
 					  "categoryId": "22",
 					  "description": description,
@@ -43,7 +45,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 					  "embeddable": true
 					}
 				  }
-		  }
+		  }*/
 
 		//gapi.auth2.init()
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
@@ -60,13 +62,6 @@ function uploadVideo(file, metadata, flag_elimina) {
 		console.log(video_meta)
 		console.log(new_form)
 		
-		var print=''
-          for (var pair of new_form.entries()) {
-            print+=(pair[0]+ ' - ' + pair[1]);
-            print+='\n'
-          }
-          alert(print)
-		
 		
 		$.ajax({
 			url: 'https://www.googleapis.com/upload/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
@@ -77,7 +72,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 			method: 'POST'
 		}).done(function(response){
 				console.log("Caricamento ok: "+ response)
-				uploadVideoSuccess(data, metadata)
+				//uploadVideoSuccess(response, metadata)
 				if(flag_elimina==1){
 					//deleteVideo(metadata.id)
 				}
@@ -128,7 +123,7 @@ function deleteVideo(id) {
 		method: 'DELETE'
 		}).done(function(response){
 				console.log("Cancellazione ok: "+ response)
-				deleteVideoSuccess(id)
+				//deleteVideoSuccess(id)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
@@ -228,7 +223,7 @@ function updateVideo(metadata) {
 		method: 'PUT'
 		}).done(function(response){
 				console.log("Aggiornamento ok: "+ response)
-				updateVideoSuccess(formData)
+				//updateVideoSuccess(formData)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
@@ -290,7 +285,7 @@ function publishVideo(id, title) {
 		method: 'POST'
 		}).done(function(response){
 				console.log("Pubblica ok: "+ response)
-				publishVideoSuccess(id)
+				//publishVideoSuccess(id)
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
