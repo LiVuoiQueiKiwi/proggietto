@@ -16,36 +16,21 @@ function uploadVideo(file, metadata, flag_elimina) {
 			privacy="private"
 
 		  var metadata_formatted
-		  
-		 // if(metadata.get('public')==0){
-			  metadata_formatted=
-				  {
-					/*"kind": 'youtube#video',*/
-					"snippet": {
-					  "categoryId": "22",
-					  "description": description,
-					  "title": metadata.get('title')
-					},
-					"status": {
-					  "embeddable": true,
-					  "privacyStatus": privacy
-					}
-				  }
-		//}
-		  /*else{
-			  metadata_formatted=
-				  {
-					/*"kind": 'youtube#video',*//*
-					"snippet": {
-					  "categoryId": "22",
-					  "description": description,
-					  "title": metadata.get('title')
-					},
-					"status": {
-					  "embeddable": true
-					}
-				  }
-		  }*/
+
+		metadata_formatted=
+			{
+				/*"kind": 'youtube#video',*/
+				"snippet": {
+					"categoryId": "22",
+					"description": description,
+					"title": metadata.get('title')
+				},
+				"status": {
+					"embeddable": true,
+					"privacyStatus": privacy
+				}
+			}
+
 
 		//gapi.auth2.init()
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
@@ -72,7 +57,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 			method: 'POST'
 		}).done(function(response){
 				console.log("Caricamento ok: "+ response)
-				//uploadVideoSuccess(response, metadata)
+				uploadVideoSuccess(response, metadata)
 				if(flag_elimina==1){
 					//deleteVideo(metadata.id)
 				}
