@@ -57,7 +57,8 @@ function uploadVideo(file, metadata, flag_elimina) {
 			method: 'POST'
 		}).done(function(response){
 				console.log("Caricamento ok: "+ response)
-				uploadVideoSuccess(response, metadata)
+				alert('Video caricato con successo!')
+				//uploadVideoSuccess(response, metadata)
 				if(flag_elimina==1){
 					//deleteVideo(metadata.id)
 				}
@@ -71,7 +72,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 
 	}
 }
-
+/*
 function uploadVideoSuccess(idVideo, formData){
 
     formData.append('idVideo', idVideo)
@@ -93,7 +94,7 @@ function uploadVideoSuccess(idVideo, formData){
 			console.log(error)
 			// Gestione dell'errore AJAX.
 		});
-}
+}*/
 
 
 
@@ -108,6 +109,7 @@ function deleteVideo(id) {
 		method: 'DELETE'
 		}).done(function(response){
 				console.log("Cancellazione ok: "+ response)
+				alert('Video eliminato con successo!')
 				//deleteVideoSuccess(id)
 			}
 		).fail(function(response){
@@ -119,7 +121,7 @@ function deleteVideo(id) {
 		
 	
 }
-
+/*
 function deleteVideoSuccess(id){
 
     $.ajax(
@@ -140,7 +142,7 @@ function deleteVideoSuccess(id){
 		console.log(error)
 		// Gestione dell'errore AJAX.
 	});
-}
+}*/
 
 
 
@@ -208,6 +210,7 @@ function updateVideo(metadata) {
 		method: 'PUT'
 		}).done(function(response){
 				console.log("Aggiornamento ok: "+ response)
+				alert('Video modificato con successo!')
 				//updateVideoSuccess(formData)
 			}
 		).fail(function(response){
@@ -218,7 +221,7 @@ function updateVideo(metadata) {
 		)
 		
 }
-
+/*
 function updateVideoSuccess(formData){
 
     $.ajax(
@@ -240,7 +243,7 @@ function updateVideoSuccess(formData){
 		console.log(error)
 		// Gestione dell'errore AJAX.
 	});
-}
+}*/
 
 
 function publishVideo(id, title) {
@@ -270,6 +273,7 @@ function publishVideo(id, title) {
 		method: 'POST'
 		}).done(function(response){
 				console.log("Pubblica ok: "+ response)
+				alert('Video pubblicato con successo!')
 				//publishVideoSuccess(id)
 			}
 		).fail(function(response){
@@ -280,7 +284,7 @@ function publishVideo(id, title) {
 		)
 		
 }
-
+/*
 function publishVideoSuccess(id){
 	formData=new formData()
 	formData.append("published", "1")
@@ -304,4 +308,52 @@ function publishVideoSuccess(id){
 		console.log(error)
 		// Gestione dell'errore AJAX.
 	});
+}*/
+
+
+
+
+
+
+
+// 2. This code loads the IFrame Player API code asynchronously.
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+// 3. This function creates an <iframe> (and YouTube player)
+//    after the API code downloads.
+var player;
+
+function addVideo(div_id, id) {
+player = new YT.Player(div_id, {
+  height: '0',
+  width: '0',
+  playerVars: { autoplay: 1},
+  videoId: id,
+});
+}
+
+function stopVideo() {
+	player.stopVideo();
+}
+
+function play() {
+	player.playVideo();
+}
+
+function pause() {
+	player.pauseVideo();
+}
+
+function loadVideo(id){
+	if(player.videoId != id){
+		player.loadVideoById(id);
+	}
+}
+
+function toStart(){
+	player.seekTo(0, 0)
 }

@@ -364,6 +364,7 @@ $('#signup').submit(function (event){
 		$('#modalWhereAmI').on('hidden.bs.modal', function () {
       printLocation()
 			$('#_modal-body-whereAmI').html('')
+			$('#player_whereAmI').html('')
 		})
 
     $('#modalClipNotPublished').on('hidden.bs.modal', function () {
@@ -390,7 +391,7 @@ function init(){
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 8,
-        maxZoom: 16
+        maxZoom: 18
     }).addTo(map);
 
 
@@ -431,7 +432,7 @@ function init(){
 
     clip_visited_before=[]
 
-
+	printLocation()
 
 }
 
@@ -624,15 +625,6 @@ var clip_near_list_global, clip_far_list_global, clip_visited_before
 
 
 /**
- * Raggio massimo delle clip visualizzabili (in metri).
- * @const {int}
- * @author Simone Grillini <grillini.simo@gmail.com>
- */
-var MAX_CLIP_RANGE = 100;
-
-
-
-/**
  * Raggio minimo delle clip visualizzabili (in metri).
  * @const {int}
  * @author Simone Grillini <grillini.simo@gmail.com>
@@ -671,8 +663,10 @@ function filterClipsByLanguage(language, clips) {
 	 * Scansiono tutte le clip in input.
 	 */
 	clips.forEach(function(clip) {
+		//console.log(clip.language+language)
 		if (clip.language == language) {
 			filteredClips.push(clip);
+			//console.log(filteredClips)
 		}
 	});
 
@@ -698,6 +692,7 @@ function getRangeClips(referenceLocation, rangeDistance, clips) {
 	/*
 	 * Scansiono tutte le clip in input.
 	 */
+	 //console.log(clips)
 	 clips.forEach(function(clip) {
 		
 		/*
@@ -705,6 +700,9 @@ function getRangeClips(referenceLocation, rangeDistance, clips) {
 		 */
 		var clipLocation = clip.geoloc;
 		clip.distance = getDistance(referenceLocation, clipLocation);
+		console.log(referenceLocation)
+		console.log(clipLocation)
+		console.log(clip.distance)
 
 		if (clip.distance <= rangeDistance) {
 			
@@ -754,7 +752,7 @@ function printLocation(callback) {
       "part": "snippet",
       "maxResults": 30,
 	  "type": "video",
-      "q": olc
+      "q": 'wai:'+olc
     }).then(
 		function(response) {
 			//console.log("Response", response);
@@ -763,31 +761,34 @@ function printLocation(callback) {
 			var clips={"content":[]}
 			var clip={}
 			//console.log(olc)
+			//console.log(response.result.items)
 			
 			response.result.items.forEach(function(item){
-				if(item.snippet.description.slice(0,8)==olc){
+				if(item.snippet.description.slice(4,12)==olc){
 					array_meta=item.snippet.description.split(":")
 					clip=
 						{
 							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
 							"id": item.id.videoId,
 							"title": item.snippet.title,
-							"geoloc": array_meta[0],
-							"language": array_meta[2],
-							"purpose": array_meta[1],
-							"content": array_meta[3],
+							"geoloc": array_meta[1],
+							"language": array_meta[3],
+							"purpose": array_meta[2],
+							"content": array_meta[4],
 							"distance": ""
 						}
+						//console.log(array_meta)
 						
-					if (array_meta.length>4)
-						if (array_meta[4].length==3)
-							clip.audience= array_meta[4]
-							if (array_meta.length>5)
-								clip.detail = array_meta[5]
+					if (array_meta.length>5)
+						if (array_meta[5].length==3)
+							clip.audience= array_meta[5]
+							if (array_meta.length>6)
+								clip.detail = array_meta[6]
 						else
-							clip.detail = array_meta[5]
-					console.log(clip)
+							clip.detail = array_meta[6]
+					//console.log(clip)
 				}
+				clips.content.push(clip)
 			})
 			
 			console.log('1')
@@ -800,6 +801,8 @@ function printLocation(callback) {
 			console.log(clips.content)
 			
 			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips.content);
+			console.log('3')
+			console.log(clip_near_list_global)
 			clip_far_list_global = clips.content.diff(clip_near_list_global);
 
 			console.log('near')
@@ -898,12 +901,12 @@ function printWhereAmI(){
 
 	var html=''
 	if((clip_near_list_global).length==0){
-		html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
-    if((clip_far_list_global).length!=0)
-      html+="<audio autoplay src='audio/Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
-    else
-      html+="<audio autoplay src='audio/Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
-		$('#_modal-body-whereAmI').html(html)
+			html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
+		if((clip_far_list_global).length!=0)
+		  html+="<audio autoplay src='asset/audio/Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+		else
+		  html+="<audio autoplay src='asset/audio/Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
+			$('#_modal-body-whereAmI').html(html)
 	}
 	else{
 		html+=	"<h5 class='_modalOverflow m-0'><b>"+clip_near_list_global[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clip_near_list_global[0].language]+
@@ -920,13 +923,17 @@ function printWhereAmI(){
 
     if(clip_near_list_global[0].link=="")
       html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
-    else
-		  html+="<iframe width='250' height='80' src='"+clip_near_list_global[0].link+"?autoplay=1'></iframe>"
+    else{
+		addVideo('player_whereAmI', clip_near_list_global[0].id)
+		html+="<button onclick='play()' type='button'>Play</button>"+
+				"<button onclick='pause()' type='button'>Pausa</button><br>"+
+				"<button onclick='stopVideo()' type='button'>Ricomincia clip</button><br>"
+	}
 
     html+="<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left_arrow.png'></button>"+
 				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='asset/img/009-next.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right arrow.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right_arrow.png'></button>"+
 				"</div>"
 
 
@@ -951,7 +958,7 @@ function printWhereAmI(){
         $('#next').click(
     			function(){
             clip_visited_before.push(clip_near_list_global[0])
-            audio_add="<div style='display: none;'><audio src='audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
+            audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
             $("#modalWhereAmI").modal('hide')
             $('body').append(audio_add)
             highlight(clip_far_list_global[0].geoloc, clip_far_list_global[0].title)
@@ -965,11 +972,11 @@ function printWhereAmI(){
           $('#previous').removeClass('img_disable')
           $('#previous').click(
       			function(){
-              var clipBefore=clip_visited_before.shift()
-              audio_add="<div style='display: none;'><audio src='audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
-              $("#modalWhereAmI").modal('hide')
-              $('body').append(audio_add)
-              highlight(clipBefore.geoloc, clipBefore.title)
+				  var clipBefore=clip_visited_before.shift()
+				  audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
+				  $("#modalWhereAmI").modal('hide')
+				  $('body').append(audio_add)
+				  highlight(clipBefore.geoloc, clipBefore.title)
       			}
       		)
         }

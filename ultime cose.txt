@@ -1,11 +1,17 @@
 gestione rotazione schermo
 
-audio youtube senza video (in clip da pubblicare e whereami)
+audio youtube senza video (in clip da pubblicare)
 
 inserimento, cancellazione, modifica, pubblicazione video
 
-inserimento, cancellazione, modifica, pubblicazione video nel database (serve?)
-
-gestione contenuto da telefono (da testare)
+inserimento, cancellazione, modifica, pubblicazione video nel database da togliere
 
 controllo che tutto vada sul telefono
+
+fare in modo che vengano scaricate solo le nostre clip
+
+correzione where am i
+
+contenuto nelle clip scaricate (tanti undefined non ho capito perchè)
+
+testatare che scarichi solo le nostre clip
