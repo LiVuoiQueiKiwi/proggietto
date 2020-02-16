@@ -1,0 +1,11 @@
+gestione rotazione schermo
+
+audio youtube senza video (in clip da pubblicare e whereami)
+
+inserimento, cancellazione, modifica, pubblicazione video
+
+inserimento, cancellazione, modifica, pubblicazione video nel database (serve?)
+
+gestione contenuto da telefono (da testare)
+
+controllo che tutto vada sul telefono

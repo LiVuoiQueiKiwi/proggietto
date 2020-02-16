@@ -670,7 +670,7 @@ function filterClipsByLanguage(language, clips) {
 	/*
 	 * Scansiono tutte le clip in input.
 	 */
-	clips.forEach(function(clip, i, array) {
+	clips.forEach(function(clip) {
 		if (clip.language == language) {
 			filteredClips.push(clip);
 		}
@@ -698,14 +698,16 @@ function getRangeClips(referenceLocation, rangeDistance, clips) {
 	/*
 	 * Scansiono tutte le clip in input.
 	 */
-	clips.forEach(function(clip, i, array) {
+	 clips.forEach(function(clip) {
+		
 		/*
 		 * Memorizzo le coordinate della clip e calcolo la distanza.
 		 */
 		var clipLocation = clip.geoloc;
-		array[i].distance = getDistance(referenceLocation, clipLocation);
+		clip.distance = getDistance(referenceLocation, clipLocation);
 
-		if (distance <= rangeDistance) {
+		if (clip.distance <= rangeDistance) {
+			
 			/*
 			 * La clip e' nel raggio desiderato e quindi la memorizzo
 			 * nell'output..
@@ -744,9 +746,97 @@ Array.prototype.diff = function(array) {
 
 
 function printLocation(callback) {
+	var actualUserLocation = getMarkerYourPosition();
+	var olc = actualUserLocation.slice(0,8);
+	
+	gapi.client.setApiKey("AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A");
+	gapi.client.youtube.search.list({
+      "part": "snippet",
+      "maxResults": 30,
+	  "type": "video",
+      "q": olc
+    }).then(
+		function(response) {
+			//console.log("Response", response);
+			
+			// Handle the results here (response.result has the parsed body).
+			var clips={"content":[]}
+			var clip={}
+			//console.log(olc)
+			
+			response.result.items.forEach(function(item){
+				if(item.snippet.description.slice(0,8)==olc){
+					array_meta=item.snippet.description.split(":")
+					clip=
+						{
+							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
+							"id": item.id.videoId,
+							"title": item.snippet.title,
+							"geoloc": array_meta[0],
+							"language": array_meta[2],
+							"purpose": array_meta[1],
+							"content": array_meta[3],
+							"distance": ""
+						}
+						
+					if (array_meta.length>4)
+						if (array_meta[4].length==3)
+							clip.audience= array_meta[4]
+							if (array_meta.length>5)
+								clip.detail = array_meta[5]
+						else
+							clip.detail = array_meta[5]
+					console.log(clip)
+				}
+			})
+			
+			console.log('1')
+			console.log(clips.content)
+			
+			var language = $('#language option:selected').val();
+			clips.content = filterClipsByLanguage(language, clips.content);
+			
+			console.log('2')
+			console.log(clips.content)
+			
+			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips.content);
+			clip_far_list_global = clips.content.diff(clip_near_list_global);
+
+			console.log('near')
+			console.log(clip_near_list_global)
+			console.log('far')
+			console.log(clip_far_list_global)
+			
+			
+			markers.forEach(function(marker) {
+				if (marker._id != 1){
+					clearMarker(marker._id);
+				}
+			})
+			for(var i=0; i<(clip_near_list_global.length); i++){
+				printMarker(clip_near_list_global[i].geoloc, clip_near_list_global[i].title, 'asset/img/marker-point-near.png')
+			}
+
+			for(var i=0; i<(clip_far_list_global.length); i++){
+				printMarker(clip_far_list_global[i].geoloc, clip_far_list_global[i].title, 'asset/img/marker-point.png')
+			}
+			if (callback) callback();
+
+			
+			
+		},
+
+		function(err) { console.error("Execute error", err); }
+	);
+	
+	
+	
+	
+	
+	
   //richiesta al server della lista delle clip dell'utente
   //ricevo un clip_list.json
-  $.ajax(
+  /*$.ajax(
     {
       //url: "clip_list.json",
       url: 'all_clips',
@@ -756,7 +846,7 @@ function printLocation(callback) {
 
 			/*
 			 * Filtro subito le clip in base alla lingua.
-			 */
+			 *//*
 			var language = $('#language option:selected').val();
 			var clips = filterClipsByLanguage(language, data.content);
 
@@ -767,13 +857,13 @@ function printLocation(callback) {
           !!!!!!!!!!!!!!!!!!!!!!!*/
 
 
-			/* TEST */
+			/* TEST *//*
 			var actualUserLocation = getMarkerYourPosition();
 
       //console.log(actualUserLocation)
 			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
             clip_far_list_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_global);
-			/*****/
+			/*****//*
 
           //alert(JSON.stringify(data))
           // clip_near_list_global=data.content
@@ -800,7 +890,7 @@ function printLocation(callback) {
         }
       }
     }
-  )
+  )*/
 }
 
 function printWhereAmI(){
