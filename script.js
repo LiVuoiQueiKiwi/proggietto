@@ -1,6 +1,23 @@
 //http://www.fromtexttospeech.com/
 
 jQuery(function ($) {
+	
+
+	var array = new Array();
+	$("#content").change(function() {
+		$(this).find("option:selected")
+		if ($(this).find("option:selected").length > 3) {
+			$(this).find("option").removeAttr("selected");
+			$(this).val(array);
+			alert("Puoi selezionare al massimo 3 campi!")
+		}
+		else {
+			array = new Array();
+			$(this).find("option:selected").each(function(index, item) {
+				array.push($(item).val());
+			});
+		}
+	});
 
 
     $("#menu-toggle").click(function(e) {
@@ -164,8 +181,9 @@ jQuery(function ($) {
       //		-Metadati + File (NO Id): Carico nuova clip (File + Metadati)
 
 
+
 			function (event){
-        event.preventDefault()
+				event.preventDefault()
 
 				//raccoglie tutti i dati del form
 				//controlla che ci sia l'audio
@@ -174,16 +192,27 @@ jQuery(function ($) {
 				var formData = new FormData(myForm)	// La forma di .append e' ( chiave, valore )
 
 				//i metadativanno inviati in ogni caso
-				var arrayContent=[]
-				var i=1
-				$("._alert").each(
-					function(){
-						arrayContent.push($(this).attr('value'))
-						i++
-					}
-				)
-				if(i==1) arrayContent.push('none')
-				formData.set('content', '['+arrayContent+']')
+				function isMobileDevice() {
+					return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+				};
+
+				if(isMobileDevice()){
+					formData.set('content', $('#content').val())
+				}
+				else{
+					var arrayContent=[]
+					var i=1
+					$("._alert").each(
+						function(){
+							arrayContent.push($(this).attr('value'))
+							i++
+						}
+					)
+					if(i==1) arrayContent.push('none')
+					formData.set('content', '['+arrayContent+']')
+				}
+				
+				
 
 				if(formData.get('published')=="published"){
 					formData.set('published', '1')
@@ -641,7 +670,7 @@ function filterClipsByLanguage(language, clips) {
 	/*
 	 * Scansiono tutte le clip in input.
 	 */
-	clips.forEach(function(clip, i, array) {
+	clips.forEach(function(clip) {
 		if (clip.language == language) {
 			filteredClips.push(clip);
 		}
@@ -669,14 +698,16 @@ function getRangeClips(referenceLocation, rangeDistance, clips) {
 	/*
 	 * Scansiono tutte le clip in input.
 	 */
-	clips.forEach(function(clip, i, array) {
+	 clips.forEach(function(clip) {
+		
 		/*
 		 * Memorizzo le coordinate della clip e calcolo la distanza.
 		 */
 		var clipLocation = clip.geoloc;
-		array[i].distance = getDistance(referenceLocation, clipLocation);
+		clip.distance = getDistance(referenceLocation, clipLocation);
 
-		if (distance <= rangeDistance) {
+		if (clip.distance <= rangeDistance) {
+			
 			/*
 			 * La clip e' nel raggio desiderato e quindi la memorizzo
 			 * nell'output..
@@ -715,9 +746,99 @@ Array.prototype.diff = function(array) {
 
 
 function printLocation(callback) {
+	var actualUserLocation = getMarkerYourPosition();
+	var olc = actualUserLocation.slice(0,8);
+	
+	gapi.client.setApiKey("AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A");
+	gapi.client.youtube.search.list({
+      "part": "snippet",
+      "maxResults": 30,
+	  "type": "video",
+      "q": olc
+    }).then(
+		function(response) {
+			//console.log("Response", response);
+			
+			// Handle the results here (response.result has the parsed body).
+			var clips={"content":[]}
+			var clip={}
+			//console.log(olc)
+			
+			response.result.items.forEach(function(item){
+				if(item.snippet.description.slice(0,8)==olc){
+					array_meta=item.snippet.description.split(":")
+					clip=
+						{
+							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
+							"id": item.id.videoId,
+							"title": item.snippet.title,
+							"geoloc": array_meta[0],
+							"language": array_meta[2],
+							"purpose": array_meta[1],
+							"content": array_meta[3],
+							"distance": ""
+						}
+						
+					if (array_meta.length>4)
+						if (array_meta[4].length==3)
+							clip.audience= array_meta[4]
+							if (array_meta.length>5)
+								clip.detail = array_meta[5]
+						else
+							clip.detail = array_meta[5]
+				}
+				clips.content.push(clip)
+			})
+			
+			console.log('1')
+			console.log(clips.content)
+			
+			var language = $('#language option:selected').val();
+			clips.content = filterClipsByLanguage(language, clips.content);
+			
+			console.log('2')
+			console.log(clips.content)
+			
+			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips.content);
+			console.log('3')
+			console.log(clip_near_list_global)
+			clip_far_list_global = clips.content.diff(clip_near_list_global);
+
+			console.log('near')
+			console.log(clip_near_list_global)
+			console.log('far')
+			console.log(clip_far_list_global)
+			
+			
+			markers.forEach(function(marker) {
+				if (marker._id != 1){
+					clearMarker(marker._id);
+				}
+			})
+			for(var i=0; i<(clip_near_list_global.length); i++){
+				printMarker(clip_near_list_global[i].geoloc, clip_near_list_global[i].title, 'asset/img/marker-point-near.png')
+			}
+
+			for(var i=0; i<(clip_far_list_global.length); i++){
+				printMarker(clip_far_list_global[i].geoloc, clip_far_list_global[i].title, 'asset/img/marker-point.png')
+			}
+			if (callback) callback();
+
+			
+			
+		},
+
+		function(err) { console.error("Execute error", err); }
+	);
+	
+	
+	
+	
+	
+	
   //richiesta al server della lista delle clip dell'utente
   //ricevo un clip_list.json
-  $.ajax(
+  /*$.ajax(
     {
       //url: "clip_list.json",
       url: 'all_clips',
@@ -727,7 +848,7 @@ function printLocation(callback) {
 
 			/*
 			 * Filtro subito le clip in base alla lingua.
-			 */
+			 *//*
 			var language = $('#language option:selected').val();
 			var clips = filterClipsByLanguage(language, data.content);
 
@@ -738,13 +859,13 @@ function printLocation(callback) {
           !!!!!!!!!!!!!!!!!!!!!!!*/
 
 
-			/* TEST */
+			/* TEST *//*
 			var actualUserLocation = getMarkerYourPosition();
 
       //console.log(actualUserLocation)
 			clip_near_list_global = getRangeClips(actualUserLocation, MIN_CLIP_RANGE, clips);
             clip_far_list_global = getRangeClips(actualUserLocation, MAX_CLIP_RANGE, clips).diff(clip_near_list_global);
-			/*****/
+			/*****//*
 
           //alert(JSON.stringify(data))
           // clip_near_list_global=data.content
@@ -771,7 +892,7 @@ function printLocation(callback) {
         }
       }
     }
-  )
+  )*/
 }
 
 function printWhereAmI(){
