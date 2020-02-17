@@ -8,10 +8,8 @@ inserimento, cancellazione, modifica, pubblicazione video nel database da toglie
 
 controllo che tutto vada sul telefono
 
-fare in modo che vengano scaricate solo le nostre clip
-
 correzione where am i
 
-contenuto nelle clip scaricate (tanti undefined non ho capito perchè)
+audience nelle clip scaricate (undefined non ho capito perchè)
 
 testatare che scarichi solo le nostre clip

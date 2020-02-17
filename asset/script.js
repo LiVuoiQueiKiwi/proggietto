@@ -833,7 +833,9 @@ function printLocation(callback) {
 			
 		},
 
-		function(err) { console.error("Execute error", err); }
+		function(err) { 
+			alert('Errore di comunicazione con Youtube')
+			console.error("Execute error", err); }
 	);
 	
 	
