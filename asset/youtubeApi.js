@@ -65,7 +65,8 @@ function uploadVideo(file, metadata, flag_elimina) {
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
-				console.log("Errore caricamento: "+ errors)
+				alert("Errore caricamento: "+ errors.message)
+				console.log("Errore caricamento: "+ errors.message)
 				console.log("Response: "+ response)
 			}
 		)
@@ -114,7 +115,8 @@ function deleteVideo(id) {
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
-				console.log("Errore cancellazione: "+ errors)
+				alert("Errore cancellazione: "+ errors.message)
+				console.log("Errore cancellazione: "+ errors.message)
 				console.log("Response: "+ response)
 			}
 		)
@@ -215,7 +217,8 @@ function updateVideo(metadata) {
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
-				console.log("Errore aggiornamento: "+ errors)
+				alert("Errore aggiornamento: "+ errors.message)
+				console.log("Errore aggiornamento: "+ errors.message)
 				console.log("Response: "+ response)
 			}
 		)
@@ -278,7 +281,8 @@ function publishVideo(id, title) {
 			}
 		).fail(function(response){
 				var errors=response.responseJSON.error.errors[0];
-				console.log("Errore pubblica: "+ errors)
+				alert("Errore pubblica: "+ errors.message)
+				console.log("Errore pubblica: "+ errors.message)
 				console.log("Response: "+ response)
 			}
 		)

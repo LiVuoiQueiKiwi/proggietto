@@ -190,6 +190,7 @@ jQuery(function ($) {
 
 				//creazione json da inviare al server
 				var formData = new FormData(myForm)	// La forma di .append e' ( chiave, valore )
+				formData.set('geoloc','wai:'+formData.get('geoloc'))
 
 				//i metadativanno inviati in ogni caso
 				function isMobileDevice() {
@@ -240,7 +241,7 @@ jQuery(function ($) {
 					formData.append('id', $("#record_clip_button").attr('data-id'))
 					// updateVideo(formData)
 				}
-
+				
       audioBlob = new Blob()
       $("#modalNewClip").modal('hide')
 
@@ -403,7 +404,7 @@ function init(){
         maxZoom: 16
     }).on("locationfound", e => {
             map.addLayer(createPositionMarker(e.latlng));
-            printLocation()
+            //printLocation()
 
 
 
@@ -427,7 +428,7 @@ function init(){
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
         }
-        printLocation()
+        //printLocation()
     });
 
     clip_visited_before=[]
@@ -765,6 +766,7 @@ function printLocation(callback) {
 			
 			response.result.items.forEach(function(item){
 				if(item.snippet.description.slice(4,12)==olc){
+					array_meta=item.snippet.description.substring(0, item.snippet.description.length - 1);
 					array_meta=item.snippet.description.split(":")
 					clip=
 						{
@@ -779,13 +781,15 @@ function printLocation(callback) {
 						}
 						//console.log(array_meta)
 						
+					clip.audience= ''
+					clip.detail = ''
 					if (array_meta.length>5)
 						if (array_meta[5].length==3)
 							clip.audience= array_meta[5]
 							if (array_meta.length>6)
 								clip.detail = array_meta[6]
 						else
-							clip.detail = array_meta[6]
+							clip.detail = array_meta[5]
 					//console.log(clip)
 				}
 				clips.content.push(clip)
@@ -900,6 +904,8 @@ function printWhereAmI(){
 	//stampa della lista di clip (la prima è il luogo di interesse) e i bottoni di whereAmI
 
 	var html=''
+	var array_content
+	
 	if((clip_near_list_global).length==0){
 			html="<div class='_empty_json'><h5>Nessun luogo nelle vicinanze</h5></div><div style='display: none;'>"
 		if((clip_far_list_global).length!=0)
@@ -913,9 +919,13 @@ function printWhereAmI(){
 				"<br><b>Scopo:</b> "+dict[clip_near_list_global[0].purpose]+"<br><b>Pubblico:</b> "+dict[clip_near_list_global[0].audience]+
 				"<br><b>Dettaglio:</b> "+clip_near_list_global[0].detail+"<br><b>Contenuto:</b> "
 
-		for(var j=0; j<(clip_near_list_global[0].content).length; j++){
-			html+=dict[clip_near_list_global[0].content[j]]
-			if(j+1!=(clip_near_list_global[0].content).length)
+		clip_near_list_global[0].content=clip_near_list_global[0].content.replace("[","")
+		clip_near_list_global[0].content=clip_near_list_global[0].content.replace("]","")
+		array_content=clip_near_list_global[0].content.split(',')
+		for(var j=0; j<(array_content).length; j++){
+			//alert(array_content[j])
+			html+=dict[array_content[j]]
+			if(j+1!=(array_content).length)
 				html+=", "
 		}
 
