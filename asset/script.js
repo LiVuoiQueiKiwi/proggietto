@@ -834,7 +834,7 @@ function printLocation(callback) {
 		},
 
 		function(err) { 
-			alert('Errore di comunicazione con Youtube')
+			alert('Errore di comunicazione con Youtube!\nSuperato limite massimo di richieste!')
 			console.error("Execute error", err); }
 	);
 	

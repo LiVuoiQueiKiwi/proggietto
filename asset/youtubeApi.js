@@ -37,8 +37,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 		//alert(auth)
 		//var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
 		var new_form = new FormData();
-		var print=''
-          console.log(metadata_formatted)
+		console.log(metadata_formatted)
 		var video_meta = new Blob([JSON.stringify(metadata_formatted)], {type: 'application/json'});
 
 		new_form.append('video', video_meta);
@@ -72,6 +71,9 @@ function uploadVideo(file, metadata, flag_elimina) {
 		)
 
 	}
+	else{
+		alert("Impossibile continuare senza consentire tutte le autorizzazioni richieste!")
+	}
 }
 /*
 function uploadVideoSuccess(idVideo, formData){
@@ -101,26 +103,30 @@ function uploadVideoSuccess(idVideo, formData){
 
 function deleteVideo(id) {
 
+	user = GoogleAuth.currentUser.get();
+	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl')){
+		// GESTIONE ELIMINAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
+		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
-// GESTIONE ELIMINAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
-	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-
-	$.ajax({
-		url: 'https://www.googleapis.com/youtube/v3/videos?id='+id+'&access_token='+ encodeURIComponent(auth),
-		method: 'DELETE'
-		}).done(function(response){
-				console.log("Cancellazione ok: "+ response)
-				alert('Video eliminato con successo!')
-				//deleteVideoSuccess(id)
-			}
-		).fail(function(response){
-				var errors=response.responseJSON.error.errors[0];
-				alert("Errore cancellazione: "+ errors.message)
-				console.log("Errore cancellazione: "+ errors.message)
-				console.log("Response: "+ response)
-			}
-		)
-		
+		$.ajax({
+			url: 'https://www.googleapis.com/youtube/v3/videos?id='+id+'&access_token='+ encodeURIComponent(auth),
+			method: 'DELETE'
+			}).done(function(response){
+					console.log("Cancellazione ok: "+ response)
+					alert('Video eliminato con successo!')
+					//deleteVideoSuccess(id)
+				}
+			).fail(function(response){
+					var errors=response.responseJSON.error.errors[0];
+					alert("Errore cancellazione: "+ errors.message)
+					console.log("Errore cancellazione: "+ errors.message)
+					console.log("Response: "+ response)
+				}
+			)
+	}
+	else{
+		alert("Impossibile continuare senza consentire tutte le autorizzazioni richieste!")
+	}
 	
 }
 /*
@@ -150,40 +156,15 @@ function deleteVideoSuccess(id){
 
 function updateVideo(metadata) {
 
+	user = GoogleAuth.currentUser.get();
+	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl')){
+		
+		description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
+		if(metadata.get('audience')!='')
+		description+=":"+metadata.get('audience')
+		if(metadata.get('detail')!='')
+		description+=":"+metadata.get('detail')
 
-	description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
-	if(metadata.get('audience')!='')
-	description+=":"+metadata.get('audience')
-	if(metadata.get('detail')!='')
-	description+=":"+metadata.get('detail')
-
-	metadata_formatted=
-	{
-		"id": metadata.get('id'),
-		"snippet": {
-			"categoryId": "22",
-			"description": description,
-			"title": metadata.get('title')
-		},
-		"status": {
-		}
-	}
-  
-	if(metadata.get('public')==0){
-		metadata_formatted=
-			{
-				"id": metadata.get('id'),
-				"snippet": {
-					"categoryId": "22",
-					"description": description,
-					"title": metadata.get('title')
-				},
-				"status": {
-					"privacyStatus": "private"
-				}
-			}
-	}
-	else{
 		metadata_formatted=
 		{
 			"id": metadata.get('id'),
@@ -195,34 +176,64 @@ function updateVideo(metadata) {
 			"status": {
 			}
 		}
+	  
+		if(metadata.get('public')==0){
+			metadata_formatted=
+				{
+					"id": metadata.get('id'),
+					"snippet": {
+						"categoryId": "22",
+						"description": description,
+						"title": metadata.get('title')
+					},
+					"status": {
+						"privacyStatus": "private"
+					}
+				}
+		}
+		else{
+			metadata_formatted=
+			{
+				"id": metadata.get('id'),
+				"snippet": {
+					"categoryId": "22",
+					"description": description,
+					"title": metadata.get('title')
+				},
+				"status": {
+					"privacyStatus": "public"
+				}
+			}
+		}
+
+
+	// GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
+		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+
+
+		$.ajax({
+			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
+			data: metadata_formatted,
+			cache: false,
+			contentType: false,
+			processData: false,
+			method: 'PUT'
+			}).done(function(response){
+					console.log("Aggiornamento ok: "+ response)
+					alert('Video modificato con successo!')
+					//updateVideoSuccess(formData)
+				}
+			).fail(function(response){
+					var errors=response.responseJSON.error.errors[0];
+					alert("Errore aggiornamento: "+ errors.message)
+					console.log("Errore aggiornamento: "+ errors.message)
+					console.log("Response: "+ response)
+				}
+			)
 	}
-		metadata_formatted.status.append('privacyStatus', 'private')
-
-
-// GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
-	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-
-
-	$.ajax({
-		url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
-		data: metadata_formatted,
-		cache: false,
-		contentType: false,
-		processData: false,
-		method: 'PUT'
-		}).done(function(response){
-				console.log("Aggiornamento ok: "+ response)
-				alert('Video modificato con successo!')
-				//updateVideoSuccess(formData)
-			}
-		).fail(function(response){
-				var errors=response.responseJSON.error.errors[0];
-				alert("Errore aggiornamento: "+ errors.message)
-				console.log("Errore aggiornamento: "+ errors.message)
-				console.log("Response: "+ response)
-			}
-		)
-		
+	else{
+		alert("Impossibile continuare senza consentire tutte le autorizzazioni richieste!")
+	}
 }
 /*
 function updateVideoSuccess(formData){
@@ -251,42 +262,48 @@ function updateVideoSuccess(formData){
 
 function publishVideo(id, title) {
 
-  metadata_formatted=
-  {
-    "id": id,
-    "snippet": {
-      "categoryId": "22",
-      "title": title
-    },
-    "status": {
-    }
-  }
+	user = GoogleAuth.currentUser.get();
+	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl')){
+	  metadata_formatted=
+	  {
+		"id": id,
+		"snippet": {
+		  "categoryId": "22",
+		  "title": title,
+		  "privacyStatus": "public"
+		},
+		"status": {
+		}
+	  }
 
 
-// GESTIONE PUBBLICAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
-	var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+	// GESTIONE PUBBLICAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
+		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
 
-	$.ajax({
-		url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
-		data: metadata_formatted,
-		cache: false,
-		contentType: false,
-		processData: false,
-		method: 'POST'
-		}).done(function(response){
-				console.log("Pubblica ok: "+ response)
-				alert('Video pubblicato con successo!')
-				//publishVideoSuccess(id)
-			}
-		).fail(function(response){
-				var errors=response.responseJSON.error.errors[0];
-				alert("Errore pubblica: "+ errors.message)
-				console.log("Errore pubblica: "+ errors.message)
-				console.log("Response: "+ response)
-			}
-		)
-		
+		$.ajax({
+			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
+			data: metadata_formatted,
+			cache: false,
+			contentType: false,
+			processData: false,
+			method: 'PUT'
+			}).done(function(response){
+					console.log("Pubblica ok: "+ response)
+					alert('Video pubblicato con successo!')
+					//publishVideoSuccess(id)
+				}
+			).fail(function(response){
+					var errors=response.responseJSON.error.errors[0];
+					alert("Errore pubblica: "+ errors.message)
+					console.log("Errore pubblica: "+ errors.message)
+					console.log("Response: "+ response)
+				}
+			
+	}
+	else{
+		alert("Impossibile continuare senza consentire tutte le autorizzazioni richieste!")
+	}
 }
 /*
 function publishVideoSuccess(id){
