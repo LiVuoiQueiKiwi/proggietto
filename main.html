@@ -10,7 +10,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-
+	<link rel="icon" type="image/png" href="asset/img/wmi.png">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://apis.google.com/js/api.js"></script>
 	<!--<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>-->
@@ -66,7 +66,7 @@
       <form id="formLanguage" enctype = 'multipart/form-data'>
         <div class="form-group _form-group">
           <label for="clipLanguage" class="text-white">Lingua predefinita:</label>
-          <select name="language" class="form-control" style="width: 80%; margin: 0 10% 0 10%;" id="language">
+          <select name="language" class="form-control" style="width: 80%; margin: 0 10% 0 10%;" id="languageMenu">
             <option value="ita">Italiano</option>
             <option value="eng">English</option>
             <option value="deu">Deutsch</option>
@@ -231,6 +231,7 @@
                 <h4 class="modal-title">Clip da pubblicare</h4>
             </div>
             <div class="modal-body _modal-body" id="_modal-body-clip-not-published">
+				<div class='_empty_json'><h5>Impossibile collegarsi a Youtube!</h5></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -292,6 +293,7 @@
                  <h4 class="modal-title">Altri luoghi da visitare</h4>
              </div>
              <div class="modal-body _modal-body" id="_modal-body-location-list">
+				<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>
              </div>
              <div class="modal-footer">
                  <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -313,8 +315,9 @@
 				<div class="modal-content _modal-content _border">
 
 					<div class="modal-body _modal-body p-2 _border" id="_modal-body-whereAmI">
+						<div class='_empty_json'><h5>Impossibile collegarsi a Youtube!</h5></div><div style='display: none;'>
 					</div>
-					<div id='player_whereAmI'>
+					
 
 				</div>
 			</div>

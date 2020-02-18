@@ -2,6 +2,13 @@
 
 jQuery(function ($) {
 	
+	$('#close_menu').click(
+      function(){
+        $('#wrapper').addClass('toggled')
+        $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','auto')
+        $('#page-content-wrapper').fadeTo(250, 1)
+      }
+    )
 
 	var array = new Array();
 	$("#content").change(function() {
@@ -23,6 +30,8 @@ jQuery(function ($) {
     $("#menu-toggle").click(function(e) {
       e.preventDefault();
       $("#wrapper").toggleClass("toggled");
+	  $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','none')
+        $('#page-content-wrapper').fadeTo(250, 0.6)
     });
 
 
@@ -48,7 +57,7 @@ jQuery(function ($) {
 
 		$('#stop_record_clip_button').hide()
 
-		$("#locationList").click(locationList)
+		$("#locationList").click(printLocation(locationList))
 
 		$("#notPublishedList").click(notPublishedList)
 
@@ -242,10 +251,10 @@ jQuery(function ($) {
 					// updateVideo(formData)
 				}
 				
-      audioBlob = new Blob()
-      $("#modalNewClip").modal('hide')
+		  audioBlob = new Blob()
+		  $("#modalNewClip").modal('hide')
 
-      }
+		  }
 		)
 
 
@@ -337,39 +346,19 @@ $('#signup').submit(function (event){
 		$("#create_clip").click(
 			function(){
 				cleanForm()
-        $("#geoloc").attr('value',  getMarkerYourPosition());
-			}
+			$("#geoloc").attr('value',  getMarkerYourPosition());
+				}
 		)
 
 		$("#buttonWhereAmI").click(
 			function(){
-        printLocation(printWhereAmI)
+				printLocation(printWhereAmI)
 			}
 		)
 
-    $('#menu-toggle').click(
-      function(){
-        $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','none')
-        $('#page-content-wrapper').fadeTo(250, 0.6)
-      }
-    )
-
-    $('#close_menu').click(
-      function(){
-        $('#wrapper').addClass('toggled')
-        $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','auto')
-        $('#page-content-wrapper').fadeTo(250, 1)
-      }
-    )
-
 		$('#modalWhereAmI').on('hidden.bs.modal', function () {
-      printLocation()
+			//printLocation()
 			$('#_modal-body-whereAmI').html('')
-			$('#player_whereAmI').html('')
-		})
-
-    $('#modalClipNotPublished').on('hidden.bs.modal', function () {
-			$('.frame').attr('src', $('.frame').attr('src'))
 		})
 
     $('#modalNewClip').on('hidden.bs.modal', function () {
@@ -392,7 +381,7 @@ function init(){
     map = L.map('map');
     L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         minZoom: 8,
-        maxZoom: 18
+        maxZoom: 19
     }).addTo(map);
 
 
@@ -428,12 +417,12 @@ function init(){
             m =createPositionMarker(data.results[i].latlng);
             results.addLayer(m);
         }
-        //printLocation()
+        printLocation()
     });
 
     clip_visited_before=[]
 
-	printLocation()
+	//printLocation()
 
 }
 
@@ -516,9 +505,9 @@ function highlight(olc, title){
             var popup = L.popup().setContent(title);
             marker.bindPopup(popup).openPopup();
             var olc_coord=OLC_Coords(olc)
-            olc_coord.lat=parseFloat((olc_coord.lat-0.003).toFixed(9))
-            map.setZoom(16)
-            setCenterView(olc_coord)
+            olc_coord.lat=parseFloat((olc_coord.lat-0.001).toFixed(9))
+            map.setView(olc_coord,16);
+            //setCenterView(olc_coord)
             marker.unbindPopup();
         }
     });
@@ -756,7 +745,8 @@ function printLocation(callback) {
       "q": 'wai:'+olc
     }).then(
 		function(response) {
-			//console.log("Response", response);
+			console.log("Response", response);
+			console.log(olc);
 			
 			// Handle the results here (response.result has the parsed body).
 			var clips={"content":[]}
@@ -766,8 +756,8 @@ function printLocation(callback) {
 			
 			response.result.items.forEach(function(item){
 				if(item.snippet.description.slice(4,12)==olc){
-					array_meta=item.snippet.description.substring(0, item.snippet.description.length - 1);
-					array_meta=item.snippet.description.split(":")
+					var app=item.snippet.description.substring(0, item.snippet.description.length - 1);
+					array_meta=app.split(":")
 					clip=
 						{
 							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
@@ -784,10 +774,11 @@ function printLocation(callback) {
 					clip.audience= ''
 					clip.detail = ''
 					if (array_meta.length>5)
-						if (array_meta[5].length==3)
+						if (array_meta[5].length==3){
 							clip.audience= array_meta[5]
 							if (array_meta.length>6)
 								clip.detail = array_meta[6]
+						}
 						else
 							clip.detail = array_meta[5]
 					//console.log(clip)
@@ -798,7 +789,7 @@ function printLocation(callback) {
 			console.log('1')
 			console.log(clips.content)
 			
-			var language = $('#language option:selected').val();
+			var language = $('#languageMenu option:selected').val();
 			clips.content = filterClipsByLanguage(language, clips.content);
 			
 			console.log('2')
@@ -917,9 +908,11 @@ function printWhereAmI(){
 			$('#_modal-body-whereAmI').html(html)
 	}
 	else{
+		console.log(clip_near_list_global[0])
 		html+=	"<h5 class='_modalOverflow m-0'><b>"+clip_near_list_global[0].title+"</b></h5><div class='left _modalOverflow m-2'><b>Lingua:</b> "+dict[clip_near_list_global[0].language]+
-				"<br><b>Scopo:</b> "+dict[clip_near_list_global[0].purpose]+"<br><b>Pubblico:</b> "+dict[clip_near_list_global[0].audience]+
-				"<br><b>Dettaglio:</b> "+clip_near_list_global[0].detail+"<br><b>Contenuto:</b> "
+				"<br><b>Scopo:</b> "+dict[clip_near_list_global[0].purpose]+"<br><b>Pubblico:</b> "
+		if(clip_near_list_global[0].audience!='') html+=dict[clip_near_list_global[0].audience]
+		html+="<br><b>Dettaglio:</b> "+clip_near_list_global[0].detail+"<br><b>Contenuto:</b> "
 
 		clip_near_list_global[0].content=clip_near_list_global[0].content.replace("[","")
 		clip_near_list_global[0].content=clip_near_list_global[0].content.replace("]","")
@@ -933,50 +926,51 @@ function printWhereAmI(){
 
 		html+="<br></div>"
 
-    if(clip_near_list_global[0].link=="")
-      html+="<div class='_empty_json border rounded border-dark'><h5>Caricamento clip fallito</h5></div>"
-    else{
-		addVideo('player_whereAmI', clip_near_list_global[0].id)
-		html+="<button onclick='play()' type='button'>Play</button>"+
-				"<button onclick='pause()' type='button'>Pausa</button><br>"+
-				"<button onclick='stopVideo()' type='button'>Ricomincia clip</button><br>"
-	}
-
-    html+="<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left_arrow.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='asset/img/009-next.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right_arrow.png'></button>"+
+		
+		
+		html+="<div class='_flex_center'>"+
+				"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+player+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+player+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+player+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
 				"</div>"
+
+		html+="<div class='_flex_center'>"+
+					"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left_arrow.png'></button>"+
+					"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='asset/img/009-next.png'></button>"+
+					"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right_arrow.png'></button>"+
+					"</div>"
 
 
 		$('#_modal-body-whereAmI').html(html)
+		addVideo('_modal-body-whereAmI', clip_near_list_global[0].id)
 
 		if(clip_near_list_global.length==0)
 			$('#more').addClass('img_disable')
 		else{
-      $('#more').removeClass('img_disable')
+			$('#more').removeClass('img_disable')
 			$('#more').click(
 				function(){
-          clip_near_list_global.shift()
+					clip_visited_before.push(clip_near_list_global[0])
+					clip_near_list_global.shift()
 					printWhereAmI()
 				}
 			)
 		}
 
-    if(clip_far_list_global[0]==undefined)
+		if(clip_far_list_global[0]==undefined)
 			$('#next').addClass('img_disable')
-      else{
-        $('#next').removeClass('img_disable')
-        $('#next').click(
-    			function(){
-            clip_visited_before.push(clip_near_list_global[0])
-            audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
-            $("#modalWhereAmI").modal('hide')
-            $('body').append(audio_add)
-            highlight(clip_far_list_global[0].geoloc, clip_far_list_global[0].title)
-    			}
-    		)
-      }
+		  else{
+			$('#next').removeClass('img_disable')
+			$('#next').click(
+					function(){
+						clip_visited_before.push(clip_near_list_global[0])
+						audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
+						$("#modalWhereAmI").modal('hide')
+						$('body').append(audio_add)
+						highlight(clip_far_list_global[0].geoloc, clip_far_list_global[0].title)
+					}
+				)
+		  }
 
       if(clip_visited_before.length==0)
   			$('#previous').addClass('img_disable')
@@ -984,11 +978,7 @@ function printWhereAmI(){
           $('#previous').removeClass('img_disable')
           $('#previous').click(
       			function(){
-				  var clipBefore=clip_visited_before.shift()
-				  audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
-				  $("#modalWhereAmI").modal('hide')
-				  $('body').append(audio_add)
-				  highlight(clipBefore.geoloc, clipBefore.title)
+					printLocation(previousClip)
       			}
       		)
         }
@@ -1000,8 +990,24 @@ function printWhereAmI(){
 
 }
 
+function previousClip(){
+	var clipBefore=clip_visited_before.pop()
+	var indexOfClip=clip_near_list_global.indexOF(clipBefore)
+	if (indexOfClip!=-1){
+		clip_near_list_global.splice(indexOfClip,1)
+		clip_near.unshift(clipBefore)
+		printWhereAmI()
+	}
+	else{
+		audio_add="<div style='display: none;'><audio src='asset/audio/Raggiungi_il_punto.mp3' autoplay></audio></div>"
+		$("#modalWhereAmI").modal('hide')
+		$('body').append(audio_add)
+		highlight(clipBefore.geoloc, clipBefore.title)
+	}
+}
+
 function locationList(){
-  printLocation()
+  
 	var html=''
 	if(clip_far_list_global.length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>"
@@ -1030,10 +1036,186 @@ function locationList(){
 }
 
 function notPublishedList(){
-  //richiesta al server della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
-	//ricevo un clip_not_published.json
+  //richiesta della lista delle clip salvate ma non pubblicate (quindi salvate su youtube con il metadato published=0)
+	
+	gapi.auth2.getAuthInstance()//.currentUser.get().getAuthResponse().access_token;
+	gapi.client.setApiKey("AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A");
+	gapi.client.youtube.search.list({
+      "part": "snippet",
+	  "type": "video",
+	  "forMine": "1",
+	  
+    }).then(
+		function(response){
+			
+			
+			var html = "";
 
-  $.ajax(
+
+			//lista di clip con nome, metadati, traccia	
+			response.result.items.forEach(function(item){
+				
+			//DA SISTEMARE
+				if(item/*controllo se la clip è privata*/){
+						
+					var app=item.snippet.description.substring(0, item.snippet.description.length - 1);
+					array_meta=app.split(":")
+					clip=
+						{
+							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
+							"id": item.id.videoId,
+							"title": item.snippet.title,
+							"geoloc": array_meta[1],
+							"language": array_meta[3],
+							"purpose": array_meta[2],
+							"content": array_meta[4],
+							"distance": ""
+						}
+						//console.log(array_meta)
+						
+					clip.audience= ''
+					clip.detail = ''
+					if (array_meta.length>5)
+						if (array_meta[5].length==3){
+							clip.audience= array_meta[5]
+							if (array_meta.length>6)
+								clip.detail = array_meta[6]
+						}
+						else
+							clip.detail = array_meta[5]
+					//console.log(clip)
+
+        			//aggiungo (nel DOM) le clip
+
+        			html += "<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> " + clip.title + "</h5>";
+					
+				//DA CONTROLLARE
+					html += "<div class='privateVideo' id='privateVideo"+i+"'></div>"
+					var thisPlayer = new YT.Player('privateVideo'+i, {
+						height: '0',
+						width: '0',
+						playerVars: { autoplay: 0},
+						videoId: clip.id,
+					})
+					html+="<div class='_flex_center'>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+thisPlayer+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+thisPlayer+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+thisPlayer+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+						"</div>"
+					$("#_modal-body-clip-not-published").append(html)
+
+					html = "<div class='left _modalOverflow'><b>Geolocalizzazione:</b> " + clip.geoloc +
+								"<br><b>Lingua:</b> " + dict[clip.language] + "<br><b>Scopo:</b> " + dict[clip.purpose] + "<br><b>Pubblico:</b> " + dict[clip.audience] +
+								"<br><b>Dettaglio:</b> " + clip.detail + "<br><b>Contenuto:</b> ";
+
+
+
+        			 for (var j = 0; j < (clip.content).length; j++){
+        			 	html+=dict[clip.content[j]]
+        			 	if(j+1!=(clip.content).length)
+        			 		html+=", "
+        			 }
+
+        			html +=	"<br></div><div class='_flex_wrap_space'>" +
+        					"<button data-id='" + clip.id + "' data-title='"+clip.title + "' data-audio='" + clip.link + "' data-geoloc='" + clip.geoloc+"' data-language='" + clip.language+"' data-purpose='" + clip.purpose + "' data-audience='" + clip.audience+"' data-detail='"+clip.detail + "' data-content='" + clip.content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
+        					"<button data-id='" + clip.id + "' data-title='"+clip.title + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+					
+					$("#_modal-body-clip-not-published").append(html)
+					i++
+				}
+        	})
+			
+			
+			if(html=='') $("#_modal-body-clip-not-published").html("<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>")
+
+        	$(".publish_clip").click(
+        		function(){ //rende pubblica la clip
+
+				//DA CONTROLLARE
+					publishVideo($(this).attr('data-id'), $(this).attr('data-title'))
+					var sounds = $('.privateVideo');
+					for(i=0; i<sounds.length; i++) stopVIdeo(sounds[i]);
+					$("#modalClipNotPublished").modal('hide')
+        		}
+        	)
+
+        	$(".modify_clip").click(
+        		function(){
+        			cleanForm()
+					
+				//DA CONTROLLARE
+					var sounds = $('.privateVideo');
+					for(i=0; i<sounds.length; i++) stopVIdeo(sounds[i]);
+					$("#modalClipNotPublished").modal('hide')
+
+        			$("#title").attr('value', ($(this).attr('data-title')))
+        			$("#geoloc").attr('value', ($(this).attr('data-geoloc')))
+        			if($(this).attr('data-language')!='')
+        				$("#language option[value="+$(this).attr('data-language')+"]").attr('selected', 'selected')
+        			else
+        				$("#language option[value='ita'").attr('selected', 'selected')
+        			if($(this).attr('data-purpose')!='')
+        				$("#purpose input[value="+$(this).attr('data-purpose')+"]").prop('checked', true)
+        			else
+        				$("#purpose input[value='what']").prop('checked', true)
+        			$("#audience option[value='"+$(this).attr('data-audience')+"']").attr('selected', 'selected')
+        			$("#detail").attr('value', ($(this).attr('data-detail')))
+        			var html=''
+        			var contentArray=$(this).attr('data-content').split(',')
+        			for(var i=0; i<contentArray.length; i++){
+        				html+= "<div value='"+contentArray[i]+"' class='alert alert-info _alert'><a href='#' class='close _close' data-dismiss='alert' aria-label='close'>&times;</a>"+dict[contentArray[i]]+"</div>"
+        			}
+        			$("#contentOption").html(html)
+        			$("#record_clip_button").text("Cancella e registra un'altra clip")
+        			
+					
+				//DA CONTROLLARE	
+					html2="<div id='clipToModify'></div>"
+					 var newPlayer = new YT.Player('clipToModify', {
+						height: '0',
+						width: '0',
+						playerVars: { autoplay: 0},
+						videoId: clip.id,
+					})
+					html2+="<div class='_flex_center'>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+newPlayer+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+newPlayer+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+newPlayer+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+						"</div>"
+					$("#audio_record_div").html(html2)
+					
+					
+					$('#save_clip').prop('disabled', false)
+        			$("#record_clip_button").attr('new-clip', 0)
+        			$("#record_clip_button").attr('data-id', $(this).attr('data-id'))
+        			$("#back_form_div").html("<button type='button' id='back_form' class='btn btn-primary'>Indietro</button>")
+
+        			$("#back_form").click(
+        				function(){
+        					$("#modalNewClip").modal('hide')
+        					$("#modalClipNotPublished").modal('show')
+        				}
+        			)
+
+        			$("#modalNewClip").modal('show')
+
+        		}
+        	)
+		},
+
+		function(err) { 
+			alert('Errore di comunicazione con Youtube!\nSuperato limite massimo di richieste!')
+			console.error("Execute error", err); }
+	
+	)
+
+}
+	
+	
+	
+	
+
+  /*$.ajax(
     {
       //url: "clip_not_published.json",
 	    url: 'clips/private',
@@ -1065,14 +1247,12 @@ function notPublishedList(){
 								"<br><b>Dettaglio:</b> " + clipList[i].detail + "<br><b>Contenuto:</b> ";
 
 
-					/*
-					 * Cosa stracazzo fa questo loop?.
-					 */
-        			// for (var j = 0; j < clipList[i].content).length; j++){
-        			// 	html+=dict[clipList[i].content[j]]
-        			// 	if(j+1!=(clipList[i].content).length)
-        			// 		html+=", "
-        			// }
+
+        			 for (var j = 0; j < (clipList[i].content).length; j++){
+        			 	html+=dict[clipList[i].content[j]]
+        			 	if(j+1!=(clipList[i].content).length)
+        			 		html+=", "
+        			 }
 
         			html +=	"<br></div><div class='_flex_wrap_space'>" +
         					"<button data-id='" + clipList[i].id + "' data-title='"+clipList[i].title + "' data-audio='" + clipList[i].link + "' data-geoloc='" + clipList[i].geoloc+"' data-language='" + clipList[i].language+"' data-purpose='" + clipList[i].purpose + "' data-audience='" + clipList[i].audience+"' data-detail='"+clipList[i].detail + "' data-content='" + clipList[i].content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
@@ -1139,8 +1319,8 @@ function notPublishedList(){
         }
       }
     }
-  )
-}
+  )*/
+
 
 function cleanForm(){
 
@@ -1156,7 +1336,7 @@ function cleanForm(){
 
 	$('#myForm')[0].reset()
 	$("#audio_record_div").html('')
-  $('#save_clip').prop('disabled', true)
+	$('#save_clip').prop('disabled', true)
 	$("#contentOption").html('')
 	$("#back_form_div").html('')
 	$("#save_clip").attr('value', "Salva la clip")

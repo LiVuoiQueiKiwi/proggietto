@@ -298,7 +298,7 @@ function publishVideo(id, title) {
 					alert("Errore pubblica: "+ errors.message)
 					console.log("Errore pubblica: "+ errors.message)
 					console.log("Response: "+ response)
-				}
+				})
 			
 	}
 	else{
@@ -349,7 +349,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 var player;
 
 function addVideo(div_id, id) {
-player = new YT.Player(div_id, {
+  player = new YT.Player(div_id, {
   height: '0',
   width: '0',
   playerVars: { autoplay: 1},
@@ -357,24 +357,15 @@ player = new YT.Player(div_id, {
 });
 }
 
-function stopVideo() {
-	player.stopVideo();
+
+function stopVideo(playerN) {
+	playerN.stopVideo();
 }
 
-function play() {
-	player.playVideo();
+function play(playerN) {
+	playerN.playVideo();
 }
 
-function pause() {
-	player.pauseVideo();
-}
-
-function loadVideo(id){
-	if(player.videoId != id){
-		player.loadVideoById(id);
-	}
-}
-
-function toStart(){
-	player.seekTo(0, 0)
+function pause(playerN) {
+	playerN.pauseVideo();
 }
