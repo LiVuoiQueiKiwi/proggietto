@@ -12,8 +12,10 @@ function uploadVideo(file, metadata, flag_elimina) {
 		  privacy="private"
 		  if(metadata.get('published')==1)
 			privacy="public"
-		else
+		else{
 			privacy="private"
+			description+=":private"
+		}
 
 		  var metadata_formatted
 
@@ -59,7 +61,7 @@ function uploadVideo(file, metadata, flag_elimina) {
 				alert('Video caricato con successo!')
 				//uploadVideoSuccess(response, metadata)
 				if(flag_elimina==1){
-					//deleteVideo(metadata.id)
+					deleteVideo(metadata.get('id'))
 				}
 			}
 		).fail(function(response){
@@ -102,23 +104,22 @@ function uploadVideoSuccess(idVideo, formData){
 
 
 function deleteVideo(id) {
-
 	user = GoogleAuth.currentUser.get();
 	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl')){
 		// GESTIONE ELIMINAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
 		$.ajax({
-			url: 'https://www.googleapis.com/youtube/v3/videos?id='+id+'&access_token='+ encodeURIComponent(auth),
+			url: 'https://www.googleapis.com/youtube/v3/videos?id='+id+'&access_token='+ encodeURIComponent(auth)+'&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
 			method: 'DELETE'
 			}).done(function(response){
 					console.log("Cancellazione ok: "+ response)
-					alert('Video eliminato con successo!')
+					//alert('Video eliminato con successo!')
 					//deleteVideoSuccess(id)
 				}
 			).fail(function(response){
 					var errors=response.responseJSON.error.errors[0];
-					alert("Errore cancellazione: "+ errors.message)
+					//alert("Errore cancellazione: "+ errors.message)
 					console.log("Errore cancellazione: "+ errors.message)
 					console.log("Response: "+ response)
 				}
@@ -161,61 +162,41 @@ function updateVideo(metadata) {
 		
 		description=metadata.get('geoloc')+":"+metadata.get('purpose')+":"+metadata.get('language')+":"+metadata.get('content')
 		if(metadata.get('audience')!='')
-		description+=":"+metadata.get('audience')
+			description+=":"+metadata.get('audience')
 		if(metadata.get('detail')!='')
-		description+=":"+metadata.get('detail')
+			description+=":"+metadata.get('detail')
+		privacy="private"
+		  if(metadata.get('published')==1)
+			privacy="public"
+		else{
+			privacy="private"
+			description+=":private"
+		}
 
 		metadata_formatted=
 		{
 			"id": metadata.get('id'),
 			"snippet": {
-				"categoryId": "22",
+				"categoryId": 22,
 				"description": description,
 				"title": metadata.get('title')
 			},
 			"status": {
+				"privacyStatus": privacy
 			}
 		}
-	  
-		if(metadata.get('public')==0){
-			metadata_formatted=
-				{
-					"id": metadata.get('id'),
-					"snippet": {
-						"categoryId": "22",
-						"description": description,
-						"title": metadata.get('title')
-					},
-					"status": {
-						"privacyStatus": "private"
-					}
-				}
-		}
-		else{
-			metadata_formatted=
-			{
-				"id": metadata.get('id'),
-				"snippet": {
-					"categoryId": "22",
-					"description": description,
-					"title": metadata.get('title')
-				},
-				"status": {
-					"privacyStatus": "public"
-				}
-			}
-		}
-
+		
 
 	// GESTIONE AGGIORNAMENTO VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-
+		
+		metadata_formatted_update=JSON.stringify(metadata_formatted)
 
 		$.ajax({
-			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
-			data: metadata_formatted,
+			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
+			data: metadata_formatted_update,
 			cache: false,
-			contentType: false,
+			contentType: "application/json",
 			processData: false,
 			method: 'PUT'
 			}).done(function(response){
@@ -260,32 +241,38 @@ function updateVideoSuccess(formData){
 }*/
 
 
-function publishVideo(id, title) {
+function publishVideo(id, title, description) {
 
 	user = GoogleAuth.currentUser.get();
+
 	if(user.hasGrantedScopes('https://www.googleapis.com/auth/youtube.force-ssl')){
 	  metadata_formatted=
 	  {
 		"id": id,
 		"snippet": {
-		  "categoryId": "22",
+		  "categoryId": 22,
 		  "title": title,
-		  "privacyStatus": "public"
+		  "description": description		  
 		},
 		"status": {
+			"privacyStatus": "public"
 		}
 	  }
+
+	//console.log(metadata_formatted)
+
 
 
 	// GESTIONE PUBBLICAZIONE VIDEO DA YOUTUBE SAPENDO L'ID DEL VIDEO
 		var auth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
 
-
+		metadata_formatted_update=JSON.stringify(metadata_formatted)
+		
 		$.ajax({
-			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status,localizations',
-			data: metadata_formatted,
+			url: 'https://www.googleapis.com/youtube/v3/videos?access_token='+ encodeURIComponent(auth) + '&part=snippet,status&key=AIzaSyBjqg6UbFyTH2gfunOzkGQj4CUriNY7C3A',
+			data: metadata_formatted_update,
 			cache: false,
-			contentType: false,
+			contentType: "application/json",
 			processData: false,
 			method: 'PUT'
 			}).done(function(response){
@@ -296,8 +283,9 @@ function publishVideo(id, title) {
 			).fail(function(response){
 					var errors=response.responseJSON.error.errors[0];
 					alert("Errore pubblica: "+ errors.message)
-					console.log("Errore pubblica: "+ errors.message)
-					console.log("Response: "+ response)
+					console.log(errors)
+					console.log(errors.message)
+					console.log(response)
 				})
 			
 	}

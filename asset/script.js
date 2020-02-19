@@ -7,6 +7,13 @@ jQuery(function ($) {
         $('#wrapper').addClass('toggled')
         $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','auto')
         $('#page-content-wrapper').fadeTo(250, 1)
+		printLocation()
+      }
+    )
+	
+	$('#languageMenu').click(
+      function(){
+		printLocation()
       }
     )
 
@@ -56,8 +63,6 @@ jQuery(function ($) {
     $('#notPublishedList').hide()
 
 		$('#stop_record_clip_button').hide()
-
-		$("#locationList").click(printLocation(locationList))
 
 		$("#notPublishedList").click(notPublishedList)
 
@@ -248,7 +253,7 @@ jQuery(function ($) {
 				else{
 					// Metadati + Id (NO File): Aggiorno Metadati a precedente clip (Id + Metadati)
 					formData.append('id', $("#record_clip_button").attr('data-id'))
-					// updateVideo(formData)
+					updateVideo(formData)
 				}
 				
 		  audioBlob = new Blob()
@@ -353,6 +358,12 @@ $('#signup').submit(function (event){
 		$("#buttonWhereAmI").click(
 			function(){
 				printLocation(printWhereAmI)
+			}
+		)
+		
+		$("#locationList").click(
+			function(){
+				printLocation(locationList)
 			}
 		)
 
@@ -924,14 +935,14 @@ function printWhereAmI(){
 				html+=", "
 		}
 
-		html+="<br></div>"
+		html+="<br></div><div id='_modal-body-whereAmI_player'></div>"
 
 		
 		
 		html+="<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+player+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+player+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+player+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+				"<button class='_arrow btn btn_round bg-tranparent'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
 				"</div>"
 
 		html+="<div class='_flex_center'>"+
@@ -942,7 +953,23 @@ function printWhereAmI(){
 
 
 		$('#_modal-body-whereAmI').html(html)
-		addVideo('_modal-body-whereAmI', clip_near_list_global[0].id)
+		addVideo('_modal-body-whereAmI_player', clip_near_list_global[0].id)
+		
+		$("#stop").click(
+			function(){
+				stopVideo(player)
+			}
+		)
+		$("#play").click(
+			function(){
+				play(player)
+			}
+		)
+		$("#pause").click(
+			function(){
+				pause(player)
+			}
+		)
 
 		if(clip_near_list_global.length==0)
 			$('#more').addClass('img_disable')
@@ -991,11 +1018,23 @@ function printWhereAmI(){
 }
 
 function previousClip(){
+	console.log('clip_visited_before')
+	console.log(clip_visited_before)
 	var clipBefore=clip_visited_before.pop()
-	var indexOfClip=clip_near_list_global.indexOF(clipBefore)
+	console.log('clipBefore')
+	console.log(clipBefore)
+	console.log('clip_visited_before')
+	console.log(clip_visited_before)
+	console.log('clip_near_list_global')
+	console.log(clip_near_list_global)
+	
+	
+	
+	var indexOfClip=clip_near_list_global.map(function(e) { return e.id; }).indexOf(clipBefore.id);
+	console.log(indexOfClip)
 	if (indexOfClip!=-1){
 		clip_near_list_global.splice(indexOfClip,1)
-		clip_near.unshift(clipBefore)
+		clip_near_list_global.unshift(clipBefore)
 		printWhereAmI()
 	}
 	else{
@@ -1009,7 +1048,7 @@ function previousClip(){
 function locationList(){
   
 	var html=''
-	if(clip_far_list_global.length==0){
+	if(clip_far_list_global.length==0 && clip_near_list_global.length==0){
 		html="<div class='_empty_json'><h5>Nessun luogo da visitare nei dintorni</h5></div>"
 	}
 	else{
@@ -1043,23 +1082,24 @@ function notPublishedList(){
 	gapi.client.youtube.search.list({
       "part": "snippet",
 	  "type": "video",
-	  "forMine": "1",
+	  "maxResults": 50,
+	  "forMine": true,
+	  "privacyStatus": "private",
 	  
     }).then(
 		function(response){
 			
 			
 			var html = "";
-
-
+			var i=0;
+		console.log(response)
 			//lista di clip con nome, metadati, traccia	
+			$("#_modal-body-clip-not-published").html("")
 			response.result.items.forEach(function(item){
-				
-			//DA SISTEMARE
-				if(item/*controllo se la clip è privata*/){
-						
-					var app=item.snippet.description.substring(0, item.snippet.description.length - 1);
-					array_meta=app.split(":")
+				var app=item.snippet.description//.substring(0, item.snippet.description.length - 1);
+				array_meta=app.split(":")
+				if(array_meta[array_meta.length-1]=='private'){
+					array_meta.pop()
 					clip=
 						{
 							"link": "https://www.youtube.com/watch?v="+item.id.videoId,
@@ -1087,54 +1127,74 @@ function notPublishedList(){
 
         			//aggiungo (nel DOM) le clip
 
-        			html += "<div class='_modalList'><h5 class='_modalOverflow'><b>Titolo:</b> " + clip.title + "</h5>";
+        			html = "<div class='_modalList' id='_modalList"+i+"'><h5 class='_modalOverflow'><b>Titolo:</b> " + clip.title + "</h5>";
 					
 				//DA CONTROLLARE
 					html += "<div class='privateVideo' id='privateVideo"+i+"'></div>"
+					
+					html+="<div class='_flex_center'>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='stop"+i+"' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='play"+i+"' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='pause"+i+"' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+						"</div></div>"
+					$("#_modal-body-clip-not-published").append(html)
+					
 					var thisPlayer = new YT.Player('privateVideo'+i, {
 						height: '0',
 						width: '0',
 						playerVars: { autoplay: 0},
 						videoId: clip.id,
 					})
-					html+="<div class='_flex_center'>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+thisPlayer+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+thisPlayer+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+thisPlayer+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
-						"</div>"
-					$("#_modal-body-clip-not-published").append(html)
+					$("#stop"+i).click(
+						function(){
+							stopVideo(thisPlayer)
+						}
+					)
+					$("#play"+i).click(
+						function(){
+							play(thisPlayer)
+						}
+					)
+					$("#pause"+i).click(
+						function(){
+							pause(thisPlayer)
+						}
+					)
 
 					html = "<div class='left _modalOverflow'><b>Geolocalizzazione:</b> " + clip.geoloc +
 								"<br><b>Lingua:</b> " + dict[clip.language] + "<br><b>Scopo:</b> " + dict[clip.purpose] + "<br><b>Pubblico:</b> " + dict[clip.audience] +
 								"<br><b>Dettaglio:</b> " + clip.detail + "<br><b>Contenuto:</b> ";
 
 
-
-        			 for (var j = 0; j < (clip.content).length; j++){
-        			 	html+=dict[clip.content[j]]
-        			 	if(j+1!=(clip.content).length)
+					clip.content=clip.content.replace("[","")
+					clip.content=clip.content.replace("]","")
+					array_app=clip.content.split(',')
+        			 for (var j = 0; j < (array_app).length; j++){
+        			 	html+=dict[array_app[j]]
+        			 	if(j+1!=(array_app).length)
         			 		html+=", "
         			 }
 
         			html +=	"<br></div><div class='_flex_wrap_space'>" +
-        					"<button data-id='" + clip.id + "' data-title='"+clip.title + "' data-audio='" + clip.link + "' data-geoloc='" + clip.geoloc+"' data-language='" + clip.language+"' data-purpose='" + clip.purpose + "' data-audience='" + clip.audience+"' data-detail='"+clip.detail + "' data-content='" + clip.content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
-        					"<button data-id='" + clip.id + "' data-title='"+clip.title + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div></div>";
+        					"<button data-description='"+item.snippet.description.substring(0, item.snippet.description.length - 8)+"' data-id='" + clip.id + "' data-title='"+clip.title + "' data-audio='" + clip.link + "' data-geoloc='" + clip.geoloc+"' data-language='" + clip.language+"' data-purpose='" + clip.purpose + "' data-audience='" + clip.audience+"' data-detail='"+clip.detail + "' data-content='" + clip.content+"' class='modify_clip btn btn-primary _btn_mod'>Modifica la clip</button>" +
+        					"<button data-description='"+item.snippet.description.substring(0, item.snippet.description.length - 8)+"' data-id='" + clip.id + "' data-title='"+clip.title + "' class='publish_clip btn btn-primary _btn_mod'>Pubblica la clip</button></div>";
 					
-					$("#_modal-body-clip-not-published").append(html)
+					$("#_modalList"+i).append(html)
 					i++
 				}
         	})
 			
+			$('#_modal-body-clip-not-published').attr('num-clip', i)
 			
 			if(html=='') $("#_modal-body-clip-not-published").html("<div class='_empty_json'><h5>Non hai nessuna clip salvata e non pubblicata</h5></div>")
 
         	$(".publish_clip").click(
         		function(){ //rende pubblica la clip
-
+					var i=$('#_modal-body-clip-not-published').attr('num-clip')
 				//DA CONTROLLARE
-					publishVideo($(this).attr('data-id'), $(this).attr('data-title'))
-					var sounds = $('.privateVideo');
-					for(i=0; i<sounds.length; i++) stopVIdeo(sounds[i]);
+					publishVideo($(this).attr('data-id'), $(this).attr('data-title'), $(this).attr('data-description'))
+
+					for(j=0; j<i; j++) stopVideo(YT.get('privateVideo'+j));
 					$("#modalClipNotPublished").modal('hide')
         		}
         	)
@@ -1143,9 +1203,15 @@ function notPublishedList(){
         		function(){
         			cleanForm()
 					
+					var i=$('#_modal-body-clip-not-published').attr('num-clip')
 				//DA CONTROLLARE
-					var sounds = $('.privateVideo');
-					for(i=0; i<sounds.length; i++) stopVIdeo(sounds[i]);
+					//var sounds = $('.privateVideo');
+					//console.log(i)
+					for(j=0; j<i; j++){
+						stopVideo(YT.get('privateVideo'+j));
+						/*console.log('privateVideo'+j)
+						console.log(YT.get('privateVideo'+j))*/
+					}						
 					$("#modalClipNotPublished").modal('hide')
 
         			$("#title").attr('value', ($(this).attr('data-title')))
@@ -1171,18 +1237,38 @@ function notPublishedList(){
 					
 				//DA CONTROLLARE	
 					html2="<div id='clipToModify'></div>"
-					 var newPlayer = new YT.Player('clipToModify', {
+					 
+					html2+="<div>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_stop"+i+"' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_play"+i+"' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
+						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_pause"+i+"' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+						"</div>"
+					$("#audio_record_div").html(html2)
+					
+					var newPlayer = new YT.Player('clipToModify', {
 						height: '0',
 						width: '0',
 						playerVars: { autoplay: 0},
-						videoId: clip.id,
+						videoId: $(this).attr('data-id'),
 					})
-					html2+="<div class='_flex_center'>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='stopVideo("+newPlayer+")'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='play("+newPlayer+")'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent' onclick='pause("+newPlayer+")'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
-						"</div>"
-					$("#audio_record_div").html(html2)
+					$("#new_stop"+i).click(
+						function(e){
+							e.preventDefault()
+							stopVideo(newPlayer)
+						}
+					)
+					$("#new_play"+i).click(
+						function(e){
+							e.preventDefault()
+							play(newPlayer)
+						}
+					)
+					$("#new_pause"+i).click(
+						function(e){
+							e.preventDefault()
+							pause(newPlayer)
+						}
+					)
 					
 					
 					$('#save_clip').prop('disabled', false)
@@ -1204,9 +1290,9 @@ function notPublishedList(){
 		},
 
 		function(err) { 
-			alert('Errore di comunicazione con Youtube!\nSuperato limite massimo di richieste!')
+			$('#_modal-body-clip-not-published').html("<div class='_empty_json'><h5>Impossibile collegarsi a Youtube!</h5></div>")
 			console.error("Execute error", err); }
-	
+
 	)
 
 }
