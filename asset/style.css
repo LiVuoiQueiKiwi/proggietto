@@ -1,5 +1,4 @@
 
-
 html, body {
     overscroll-behavior: none;
 	overflow-x: hidden;
@@ -369,4 +368,32 @@ audio{
 /* Hide scrollbar for IE and Edge */
 #userinfo {
     -ms-overflow-style: none;
+}
+
+/*Player*/
+
+.btn-group button {
+  background-color: lightgray; 
+  border: 1px solid gray; 
+  color: black; 
+  padding: 10px;
+  cursor: pointer; 
+  float: left; 
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; 
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: gray;
+  color: white;
 }

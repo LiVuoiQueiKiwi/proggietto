@@ -7,7 +7,7 @@ jQuery(function ($) {
         $('#wrapper').addClass('toggled')
         $('#page-content-wrapper, .leaflet-control, .leaflet-marker-icon.leaflet-interactive').css('pointer-events','auto')
         $('#page-content-wrapper').fadeTo(250, 1)
-		printLocation()
+		
       }
     )
 	
@@ -120,11 +120,15 @@ jQuery(function ($) {
 						$('#record_clip_button').hide()
 						$('#stop_record_clip_button').show()
 						$("#audio_record_div").html("<img id='recording' class='img_btn' alt='RECORDING' title='RECORDING' src='asset/img/mic.gif'>\t\tRecording...")
-            $('#save_clip').prop('disabled', true)
-
+						
+						$('#save_clip').prop('disabled', true)
+						$('#close_form').prop('disabled', true)
+						$('#back_form').prop('disabled', true)
+						
+						
 						$('#stop_record_clip_button').click(
 							function(){
-                $("#stop_record_clip_button").prop("onclick", null).off("click")
+								$("#stop_record_clip_button").prop("onclick", null).off("click")
 								mediaRecorder.stop()
 							}
 						)
@@ -140,14 +144,17 @@ jQuery(function ($) {
 							const audioUrl = URL.createObjectURL(audioBlob)
 							console.log(audioUrl)
 
-              audioBlob.lastModifiedDate = new Date();
+						  audioBlob.lastModifiedDate = new Date();
 
-                $('#stop_record_clip_button').hide()
-  							$('#record_clip_button').show()
-  							$('#record_clip_button').text('Cancella e registra')
-  							$("#record_clip_button").attr('new-clip', 1)
-  							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
-                $('#save_clip').prop('disabled', false)
+							$('#stop_record_clip_button').hide()
+							$('#record_clip_button').show()
+							$('#record_clip_button').text('Cancella e registra')
+							$("#record_clip_button").attr('new-clip', 1)
+							$("#audio_record_div").html("<audio id='audio_record' src='"+audioUrl+"' controls>Your browser does not support the audio element.</audio>")
+							
+							$('#save_clip').prop('disabled', false)
+							$('#close_form').prop('disabled', false)
+							$('#back_form').prop('disabled', false)
 
 
 						})
@@ -916,7 +923,7 @@ function printWhereAmI(){
 		  html+="<audio autoplay src='asset/audio/Per_ascoltare_una.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
 		else
 		  html+="<audio autoplay src='asset/audio/Non_sono_presenti.mp3' controls>Your browser does not support the audio element.</audio><div style='display: none;'>"
-			$('#_modal-body-whereAmI').html(html)
+		$('#_modal-body-whereAmI').html(html)
 	}
 	else{
 		console.log(clip_near_list_global[0])
@@ -939,17 +946,17 @@ function printWhereAmI(){
 
 		
 		
-		html+="<div class='_flex_center'>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='stop' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='play' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-				"<button class='_arrow btn btn_round bg-tranparent'><img id='pause' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+		html+="<div class='_flex_center btn_group' style='width:100%'>"+
+				"<button style='width:30%' id='stop'><i class='fa fa-stop'></i></button>"+
+				"<button style='width:30%' id='play'><i class='fa fa-play'></i></button>"+
+				"<button style='width:30%' id='pause'><i class='fa fa-pause'></i></button>"+
 				"</div>"
 
-		html+="<div class='_flex_center'>"+
-					"<button class='_arrow btn btn_round bg-tranparent'><img id='previous' class='img_btn img_disable' alt='PREVIOUS location' title='PREVIOUS location' src='asset/img/014-left_arrow.png'></button>"+
-					"<button class='_arrow btn btn_round bg-tranparent'><img id='more' class='img_btn _poiter' alt='MORE about this place' title='MORE about this place' src='asset/img/009-next.png'></button>"+
-					"<button class='_arrow btn btn_round bg-tranparent'><img id='next' class='img_btn _poiter' alt='NEXT location' title='NEXT location' src='asset/img/031-right_arrow.png'></button>"+
-					"</div>"
+		html+="<br><div class='_flex_center btn_group' style='width:100%'>"+
+				"<button style='width:30%' class='img_disable' id='previous'><i class='fa fa-arrow-left'></i></button>"+
+				"<button style='width:30%' class='' id='more'><i class='fa fa-step-forward'></i></button>"+
+				"<button style='width:30%' id='next'><i class='fa fa-arrow-right'></i></button>"+
+				"</div>"
 
 
 		$('#_modal-body-whereAmI').html(html)
@@ -970,8 +977,9 @@ function printWhereAmI(){
 				pause(player)
 			}
 		)
-
-		if(clip_near_list_global.length==0)
+		console.log('near_global')
+console.log(clip_near_list_global)
+		if(clip_near_list_global.length==1)
 			$('#more').addClass('img_disable')
 		else{
 			$('#more').removeClass('img_disable')
@@ -1132,10 +1140,10 @@ function notPublishedList(){
 				//DA CONTROLLARE
 					html += "<div class='privateVideo' id='privateVideo"+i+"'></div>"
 					
-					html+="<div class='_flex_center'>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='stop"+i+"' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='play"+i+"' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='pause"+i+"' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
+					html+="<div class='_flex_center btn_group' style='width:100%'>"+
+							"<button style='width:30%' id='stop"+i+"'><i class='fa fa-stop'></i></button>"+
+							"<button style='width:30%' id='play"+i+"'><i class='fa fa-play'></i></button>"+
+							"<button style='width:30%' id='pause"+i+"'><i class='fa fa-pause'></i></button>"+
 						"</div></div>"
 					$("#_modal-body-clip-not-published").append(html)
 					
@@ -1238,11 +1246,11 @@ function notPublishedList(){
 				//DA CONTROLLARE	
 					html2="<div id='clipToModify'></div>"
 					 
-					html2+="<div>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_stop"+i+"' class='img_btn _poiter' alt='Stop' title='Stop' src='asset/img/041-stop.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_play"+i+"' class='img_btn' alt='Play' title='Play' src='asset/img/022-play.png'></button>"+
-						"<button class='_arrow btn btn_round bg-tranparent'><img id='new_pause"+i+"' class='img_btn _poiter' alt='Pause' title='Pause' src='asset/img/020-pause.png'></button>"+
-						"</div>"
+					html2+="<div class='_flex_center btn_group' style='width:100%'>"+
+							"<button style='width:30%' id='new_stop"+i+"'><i class='fa fa-stop'></i></button>"+
+							"<button style='width:30%' id='new_play"+i+"'><i class='fa fa-play'></i></button>"+
+							"<button style='width:30%' id='new_pause"+i+"'><i class='fa fa-pause'></i></button>"+
+							"</div>"
 					$("#audio_record_div").html(html2)
 					
 					var newPlayer = new YT.Player('clipToModify', {
